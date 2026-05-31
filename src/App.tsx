@@ -30,7 +30,7 @@ function AppShell() {
         </Routes>
       </main>
 
-      <TransportBar onNowPlaying={() => setNowPlayingOpen(true)} />
+      <TransportBar onNowPlaying={() => setNowPlayingOpen(true)} nowPlayingOpen={nowPlayingOpen} />
       <TabBar />
       <NowPlaying open={nowPlayingOpen} onClose={() => setNowPlayingOpen(false)} />
     </div>

@@ -2,10 +2,24 @@ import { usePlayer } from '@/player-context'
 import { formatTime } from '@/text'
 import { Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, Volume2, VolumeX, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
 
-export function TransportBar({ onNowPlaying }: { onNowPlaying?: () => void }) {
+function useIsDesktop() {
+  const [desktop, setDesktop] = useState(() => window.matchMedia('(min-width: 768px)').matches)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)')
+    const onChange = () => setDesktop(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return desktop
+}
+
+export function TransportBar({ onNowPlaying, nowPlayingOpen }: { onNowPlaying?: () => void; nowPlayingOpen?: boolean }) {
   const { currentId, library, isPlaying, toggle, next, prev, repeat, setRepeat, shuffle, setShuffle, volume, setVolume, currentTime, duration, seek } = usePlayer()
   const current = library.find((t) => t.id === currentId) ?? null
+  const isDesktop = useIsDesktop()
+  const showArt = isDesktop || !nowPlayingOpen
 
   const pct = duration > 0 ? (currentTime / duration) * 100 : 0
 
@@ -16,7 +30,7 @@ export function TransportBar({ onNowPlaying }: { onNowPlaying?: () => void }) {
         onClick={onNowPlaying}
         className="flex min-w-0 flex-1 items-center gap-3 md:cursor-default"
       >
-        {current?.artUrl ? (
+        {showArt && current?.artUrl ? (
           <img src={current.artUrl} alt="" className="size-11 shrink-0 rounded-md object-cover" />
         ) : (
           <div className="size-11 shrink-0 rounded-md bg-muted" />
