@@ -1,6 +1,6 @@
 import { parseBlob } from 'music-metadata'
 import type { Track } from '@/types'
-import { cacheKey, getCached, putCached, pruneCacheToScan, setCachedColor } from '@/services/library-cache'
+import { cacheKey, getCached, putCached, getArt, putArt, pruneCacheToScan, setCachedColor } from '@/services/library-cache'
 
 export interface FileEntry {
   file: File
@@ -13,21 +13,53 @@ function makeId(file: File): string {
   return `${file.name}-${file.size}-${nextId++}`
 }
 
+async function hashBytes(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', bytes as BufferSource)
+  let hex = ''
+  for (const b of new Uint8Array(digest)) hex += b.toString(16).padStart(2, '0')
+  return hex
+}
+
+const artUrls = new Map<string, string>()
+
+function artUrlFor(hash: string, blob: Blob): string {
+  let url = artUrls.get(hash)
+  if (!url) {
+    url = URL.createObjectURL(blob)
+    artUrls.set(hash, url)
+  }
+  return url
+}
+
+async function artUrlForHash(hash: string): Promise<string | undefined> {
+  const existing = artUrls.get(hash)
+  if (existing) return existing
+  const blob = await getArt(hash)
+  if (!blob) return undefined
+  return artUrlFor(hash, blob)
+}
+
+export function revokeAllArt() {
+  for (const url of artUrls.values()) URL.revokeObjectURL(url)
+  artUrls.clear()
+}
+
 function audioMime(f: File): boolean {
   return f.type.startsWith('audio/') || /\.(mp3|flac|wav|ogg|m4a|aac|wma|opus|webm)$/i.test(f.name)
 }
 
-async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob }> {
+async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob; artHash?: string }> {
   try {
     const meta = await parseBlob(entry.file)
     const url = URL.createObjectURL(entry.file)
 
     let art: Blob | undefined
-    let artUrl: string | undefined
+    let artHash: string | undefined
     const picture = meta.common.picture?.[0]
     if (picture) {
-      art = new Blob([new Uint8Array(picture.data)], { type: picture.format })
-      artUrl = URL.createObjectURL(art)
+      const bytes = new Uint8Array(picture.data)
+      art = new Blob([bytes], { type: picture.format })
+      artHash = await hashBytes(bytes)
     }
 
     const metaAlbum = meta.common.album
@@ -43,10 +75,11 @@ async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob 
         album,
         folder: entry.folder,
         durationSec: meta.format.duration ?? 0,
-        artUrl,
+        artUrl: undefined,
         artColor: undefined,
       },
       art,
+      artHash,
     }
   } catch {
     const url = URL.createObjectURL(entry.file)
@@ -80,12 +113,17 @@ async function resolveEntry(entry: FileEntry): Promise<Track> {
       album: cached.album,
       folder: entry.folder,
       durationSec: cached.durationSec,
-      artUrl: cached.art ? URL.createObjectURL(cached.art) : undefined,
+      artUrl: cached.artHash ? await artUrlForHash(cached.artHash) : undefined,
       artColor: cached.artColor,
     }
   }
 
-  const { track, art } = await parseEntry(entry)
+  const { track, art, artHash } = await parseEntry(entry)
+  if (art && artHash) {
+    const isNew = !artUrls.has(artHash)
+    track.artUrl = artUrlFor(artHash, art)
+    if (isNew) await putArt(artHash, art)
+  }
   await putCached(key, {
     title: track.title,
     artist: track.artist,
@@ -93,7 +131,7 @@ async function resolveEntry(entry: FileEntry): Promise<Track> {
     folder: entry.folder,
     durationSec: track.durationSec,
     artColor: track.artColor,
-    art,
+    artHash,
   })
   return track
 }
@@ -152,7 +190,6 @@ export async function cacheColor(file: File, folder: string | undefined, color: 
 
 export function revokeTrack(track: Track) {
   URL.revokeObjectURL(track.url)
-  if (track.artUrl) URL.revokeObjectURL(track.artUrl)
 }
 
 export function fileEntry(file: File, folder?: string): FileEntry {

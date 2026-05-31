@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { PlayerCtx } from '@/player-context'
-import { parseFiles, revokeTrack, extractArtColor, cacheColor } from '@/services/library'
+import { parseFiles, revokeTrack, revokeAllArt, extractArtColor, cacheColor } from '@/services/library'
 import type { FileEntry } from '@/services/library'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { Track, RepeatMode } from '@/types'
@@ -115,6 +115,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const clearLibrary = useCallback(() => {
     libraryRef.current.forEach(revokeTrack)
+    revokeAllArt()
     setLibrary([])
     setCurrentId(null)
     setQueue([])
