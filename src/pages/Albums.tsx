@@ -1,7 +1,7 @@
 import { usePlayer } from '@/player-context'
 import { TrackRow } from '@/components/library/TrackRow'
 import { NO_ALBUMS } from '@/text'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 import type { Track } from '@/types'
 
@@ -14,21 +14,26 @@ function albumDisplayName(key: string): string {
   return parts[parts.length - 1]
 }
 
-export function Albums() {
+export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
   const { library } = usePlayer()
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null)
 
-  const albums = new Map<string, { displayName: string; artUrl?: string; tracks: Track[] }>()
-  for (const t of library) {
-    const key = albumKey(t)
-    if (!albums.has(key)) {
-      albums.set(key, { displayName: albumDisplayName(key), artUrl: t.artUrl, tracks: [] })
+  const albums = useMemo(() => {
+    const map = new Map<string, { displayName: string; artUrl?: string; tracks: Track[] }>()
+    for (const t of library) {
+      const key = albumKey(t)
+      if (!map.has(key)) {
+        map.set(key, { displayName: albumDisplayName(key), artUrl: t.artUrl, tracks: [] })
+      }
+      map.get(key)!.tracks.push(t)
     }
-    const entry = albums.get(key)!
-    entry.tracks.push(t)
-  }
+    return map
+  }, [library])
 
-  const sortedAlbums = [...albums.values()].sort((a, b) => a.displayName.localeCompare(b.displayName))
+  const sortedAlbums = useMemo(
+    () => [...albums.values()].sort((a, b) => a.displayName.localeCompare(b.displayName)),
+    [albums],
+  )
 
   if (library.length === 0) {
     return (
@@ -54,17 +59,13 @@ export function Albums() {
           </button>
           <h1 className="text-2xl font-semibold tracking-tight">{album.displayName}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{album.tracks.length} tracks</p>
-          <div className="mt-4 hidden md:block md:h-[calc(100svh-10rem)]">
+          <div className="mt-4">
             <Virtuoso
               data={album.tracks}
               itemContent={(i, track) => <TrackRow track={track} index={i} />}
               fixedItemHeight={56}
+              customScrollParent={scrollParent}
             />
-          </div>
-          <div className="mt-4 md:hidden">
-            {album.tracks.map((track, i) => (
-              <TrackRow key={track.id} track={track} index={i} />
-            ))}
           </div>
         </>
       ) : (

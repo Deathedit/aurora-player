@@ -24,13 +24,13 @@
 - **Progressive loading**: `parseFiles` uses concurrent pool of 5, `onBatch` callback every 20 tracks
 - **`useSyncedRef`** pattern for reading mutable state inside callbacks
 - **FS Access API** (Chromium only): handle persisted in IndexedDB, auto-reconnect on mount
-- **`react-virtuoso`** for virtualized lists on desktop; simple `.map()` on mobile (no nested scroll)
+- **`react-virtuoso`** for all track lists at every breakpoint — a single `<Virtuoso customScrollParent={main}>` virtualizes against the `<main>` scroller (no fixed-height box, no nested scrollbar, no mobile `.map()` fork). `AppShell` captures `<main>` via a `setScrollParent` ref-callback and passes the element to `Library`/`Albums` (rendered only once it's set)
 - **MediaSession API**: sets metadata + play/pause/next/prev handlers
 
 ### Layout Model
 - **Outer div**: `h-dvh overflow-hidden` mobile / `md:min-h-svh md:overflow-auto md:grid`
 - **Sidebar**: collapsible (default collapsed `w-16`, expanded `w-64`), toggle in header; Settings pinned at bottom; `md:sticky md:top-0 md:max-h-[calc(100svh-4rem)]`
-- **`<main>`**: `overflow-y-auto pb-[8.5rem]` mobile / `md:overflow-visible md:mb-16` desktop
+- **`<main>`** is the scroll container at **every** breakpoint: `flex-1 overflow-y-auto pb-[8.5rem] md:pb-16`. Outer is `h-dvh overflow-hidden md:h-svh md:grid` — it never scrolls; only `<main>` does
 - **TabBar** (mobile only): `h-14 fixed bottom-0`; includes Settings as separate NavLink (not in `NAV_ITEMS`)
 - **TransportBar**: Spotify-style single row desktop (`h-16 bottom-0`), compact mobile (`h-20 bottom-14`); track-info left, controls center, scrubber+volume right (desktop-only)
 - **NowPlaying**: full-screen overlay (mobile), triggered by TransportBar tap
@@ -49,12 +49,12 @@
 
 ## Gotchas
 - `"type": "module"` in package.json — ESM only
-- Library state (queue, current track) is **in-memory only** (lost on refresh), but parsed **metadata is cached in IndexedDB** (`library-cache.ts`, DB `aurora-library`): title/artist/album/duration/artColor + cover-art `Blob`, keyed by `folder/name|size|lastModified`. `parseFiles` bulk-reads the whole cache once via `getAllCached` then resolves per file (cache hits skip `parseBlob`); `clearCache` runs on disconnect (not refresh). Object URLs (`url`/`artUrl`) are regenerated each session, never persisted.
+- Library state (queue, current track) is **in-memory only** (lost on refresh), but parsed **metadata is cached in IndexedDB** (`library-cache.ts`, DB `aurora-library`): title/artist/album/duration/artColor + cover-art `Blob`, keyed by `folder/name|size|lastModified`. `parseFiles` reads the cache **per file** via `getCached` — deliberately not a single bulk `getAll`, which would hold every cover-art `Blob` in memory at once and OOM large libraries; per-file lets each `Blob` convert to an object URL and be GC'd. Cache hits skip `parseBlob`; `clearCache` runs on disconnect (not refresh). Object URLs (`url`/`artUrl`) are regenerated each session, never persisted.
 - `pruneCacheToScan(allScannedKeys)` deletes every key not in the set — **only safe when passed a complete directory scan** (all `parseFiles` callers do). Never call it with a partial set.
 - `CachedTrack` shape is stored at DB version 1 with no migration — bump the `indexedDB.open` version and migrate if you change the interface, or stale rows deserialize with missing fields.
 - `music-metadata` `parseBlob` is async per file — batch but don't block UI
 - Web Audio API **not** in MVP
 - FS Access API only Chromium; `isSupported()` provides fallback message
 - `PermissionStatus` DOM type conflicts with custom string union → renamed to `FsPermissionStatus`
-- Virtuoso: on desktop only (hidden on mobile), `fixedItemHeight={56}`, `data` prop, `itemContent(index, item)` signature
-- Mobile scroll: outer div is `h-dvh overflow-hidden`; `<main>` is scroll container, Virtuoso not used on mobile
+- Virtuoso: `fixedItemHeight={56}`, `data` prop, `itemContent(index, item)` signature, `customScrollParent={main}` (so no wrapping fixed-height div — it grows inside `<main>`)
+- `customScrollParent` must be a real element, so `Library`/`Albums` receive a non-null `HTMLElement` — `AppShell` withholds them until the `<main>` ref-callback has set state
