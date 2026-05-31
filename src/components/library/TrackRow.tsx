@@ -18,12 +18,20 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
   const { currentId, isPlaying, play, toggle } = usePlayer()
   const active = track.id === currentId
 
+  const activate = () => (active ? toggle() : play(track.id))
+
   return (
-    <button
-      type="button"
-      onClick={() => (active ? toggle() : play(track.id))}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={activate}
+      onKeyDown={(e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return
+        e.preventDefault()
+        activate()
+      }}
       className={cn(
-        'group flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-150 hover:bg-muted',
+        'group flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-150 hover:bg-muted',
         active && 'border-l-2 border-l-primary bg-primary/8',
       )}
       style={{ height: 56 }}
@@ -61,6 +69,6 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
       </button>
 
       <span className="text-xs tabular-nums text-muted-foreground">{formatTime(track.durationSec)}</span>
-    </button>
+    </div>
   )
 }
