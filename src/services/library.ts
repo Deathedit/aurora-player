@@ -68,16 +68,11 @@ export async function parseFiles(
   let batch: Track[] = []
 
   let i = 0
-  async function next(): Promise<Track | null> {
-    if (i >= audio.length) return null
-    const entry = audio[i++]
-    return parseEntry(entry)
-  }
-
   const workers = Array.from({ length: Math.min(CONCURRENCY, audio.length) }, async () => {
     while (true) {
-      const track = await next()
-      if (!track) break
+      const idx = i++
+      if (idx >= audio.length) break
+      const track = await parseEntry(audio[idx])
       all.push(track)
       batch.push(track)
       if (batch.length >= BATCH_SIZE) {
