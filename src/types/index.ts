@@ -8,6 +8,7 @@ export interface Track {
   folder?: string
   durationSec: number
   artUrl?: string
+  artHash?: string
   artColor?: string
 }
 

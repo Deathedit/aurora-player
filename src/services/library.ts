@@ -21,6 +21,7 @@ async function hashBytes(bytes: Uint8Array): Promise<string> {
 }
 
 const artUrls = new Map<string, string>()
+const artColors = new Map<string, string>()
 
 function artUrlFor(hash: string, blob: Blob): string {
   let url = artUrls.get(hash)
@@ -39,16 +40,25 @@ async function artUrlForHash(hash: string): Promise<string | undefined> {
   return artUrlFor(hash, blob)
 }
 
+export function getArtColor(hash: string): string | undefined {
+  return artColors.get(hash)
+}
+
+export function setArtColor(hash: string, color: string) {
+  artColors.set(hash, color)
+}
+
 export function revokeAllArt() {
   for (const url of artUrls.values()) URL.revokeObjectURL(url)
   artUrls.clear()
+  artColors.clear()
 }
 
 function audioMime(f: File): boolean {
   return f.type.startsWith('audio/') || /\.(mp3|flac|wav|ogg|m4a|aac|wma|opus|webm)$/i.test(f.name)
 }
 
-async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob; artHash?: string }> {
+async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob }> {
   try {
     const meta = await parseBlob(entry.file)
     const url = URL.createObjectURL(entry.file)
@@ -76,10 +86,10 @@ async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob;
         folder: entry.folder,
         durationSec: meta.format.duration ?? 0,
         artUrl: undefined,
+        artHash,
         artColor: undefined,
       },
       art,
-      artHash,
     }
   } catch {
     const url = URL.createObjectURL(entry.file)
@@ -94,6 +104,7 @@ async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob;
         folder: entry.folder,
         durationSec: 0,
         artUrl: undefined,
+        artHash: undefined,
         artColor: undefined,
       },
     }
@@ -104,6 +115,7 @@ async function resolveEntry(entry: FileEntry): Promise<Track> {
   const key = cacheKey(entry.file, entry.folder)
   const cached = await getCached(key)
   if (cached) {
+    if (cached.artHash && cached.artColor) artColors.set(cached.artHash, cached.artColor)
     return {
       id: makeId(entry.file),
       file: entry.file,
@@ -114,15 +126,16 @@ async function resolveEntry(entry: FileEntry): Promise<Track> {
       folder: entry.folder,
       durationSec: cached.durationSec,
       artUrl: cached.artHash ? await artUrlForHash(cached.artHash) : undefined,
+      artHash: cached.artHash,
       artColor: cached.artColor,
     }
   }
 
-  const { track, art, artHash } = await parseEntry(entry)
-  if (art && artHash) {
-    const isNew = !artUrls.has(artHash)
-    track.artUrl = artUrlFor(artHash, art)
-    if (isNew) await putArt(artHash, art)
+  const { track, art } = await parseEntry(entry)
+  if (art && track.artHash) {
+    const isNew = !artUrls.has(track.artHash)
+    track.artUrl = artUrlFor(track.artHash, art)
+    if (isNew) await putArt(track.artHash, art)
   }
   await putCached(key, {
     title: track.title,
@@ -131,7 +144,7 @@ async function resolveEntry(entry: FileEntry): Promise<Track> {
     folder: entry.folder,
     durationSec: track.durationSec,
     artColor: track.artColor,
-    artHash,
+    artHash: track.artHash,
   })
   return track
 }

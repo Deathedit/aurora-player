@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { PlayerCtx } from '@/player-context'
-import { parseFiles, revokeTrack, revokeAllArt, extractArtColor, cacheColor } from '@/services/library'
+import { parseFiles, revokeTrack, revokeAllArt, extractArtColor, getArtColor, setArtColor, cacheColor } from '@/services/library'
 import type { FileEntry } from '@/services/library'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { Track, RepeatMode } from '@/types'
@@ -167,21 +167,24 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!current?.artUrl) return
-    if (current.artColor) {
-      document.documentElement.style.setProperty('--art', current.artColor)
+    const hash = current.artHash
+    const known = current.artColor ?? (hash ? getArtColor(hash) : undefined)
+    if (known) {
+      document.documentElement.style.setProperty('--art', known)
       return
     }
     let cancelled = false
     extractArtColor(current.artUrl).then((color) => {
       if (cancelled || !color) return
+      if (hash) setArtColor(hash, color)
       document.documentElement.style.setProperty('--art', color)
       setLibrary((prev) =>
-        prev.map((t) => (t.id === current.id ? { ...t, artColor: color } : t)),
+        prev.map((t) => (t.id === current.id || (hash && t.artHash === hash) ? { ...t, artColor: color } : t)),
       )
       cacheColor(current.file, current.folder, color)
     })
     return () => { cancelled = true }
-  }, [current?.id, current?.artUrl, current?.artColor, current?.file, current?.folder])
+  }, [current?.id, current?.artUrl, current?.artHash, current?.artColor, current?.file, current?.folder])
 
   useEffect(() => {
     if (!('mediaSession' in navigator)) return
