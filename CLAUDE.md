@@ -18,7 +18,7 @@ Aurora Player is a **client-only, local-files music player** — no backend, no 
 2. **`services/library.ts`** walks the handle, reads files, and parses tags with `music-metadata` (`parseBlob`, async per file). Loading is progressive: a concurrency pool of 5 with an `onBatch` callback every 20 tracks so the UI fills in without blocking. Each track gets object URLs for audio and cover art (`URL.createObjectURL`); `revokeTrack` frees them.
 3. **`PlayerProvider`** owns a single `<audio>` element and all playback state, exposed through `player-context.ts`. Object URLs must be revoked when the current track is replaced. It wires the **MediaSession API** for system controls and drives **art-reactive theming**: `fast-average-color` extracts the current cover's color into the `--art` CSS var, which feeds `--player-glow`.
 
-The **library is in-memory only** — it is lost on refresh. Only the directory handle is persisted, not parsed tracks.
+Playback **state** (queue, current track) is in-memory only and lost on refresh, but parsed **metadata is cached in IndexedDB** (`services/library-cache.ts`): on rescan, cache hits skip `parseBlob`/color extraction, so a returning library loads near-instantly. The cache stores text metadata + cover-art `Blob` keyed by `folder/name|size|lastModified`; object URLs (`url`/`artUrl`) are regenerated every session, never persisted. `pruneCache` drops files removed from disk; `clearCache` runs only on disconnect (refresh keeps the cache).
 
 ### Conventions that bite
 

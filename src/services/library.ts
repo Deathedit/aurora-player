@@ -1,5 +1,6 @@
 import { parseBlob } from 'music-metadata'
 import type { Track } from '@/types'
+import { cacheKey, getCached, putCached, pruneCache, setCachedColor } from '@/services/library-cache'
 
 export interface FileEntry {
   file: File
@@ -8,52 +9,93 @@ export interface FileEntry {
 
 let nextId = 0
 
+function makeId(file: File): string {
+  return `${file.name}-${file.size}-${nextId++}`
+}
+
 function audioMime(f: File): boolean {
   return f.type.startsWith('audio/') || /\.(mp3|flac|wav|ogg|m4a|aac|wma|opus|webm)$/i.test(f.name)
 }
 
-async function parseEntry(entry: FileEntry): Promise<Track> {
+async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob }> {
   try {
     const meta = await parseBlob(entry.file)
     const url = URL.createObjectURL(entry.file)
 
+    let art: Blob | undefined
     let artUrl: string | undefined
     const picture = meta.common.picture?.[0]
     if (picture) {
-      const blob = new Blob([new Uint8Array(picture.data)], { type: picture.format })
-      artUrl = URL.createObjectURL(blob)
+      art = new Blob([new Uint8Array(picture.data)], { type: picture.format })
+      artUrl = URL.createObjectURL(art)
     }
 
     const metaAlbum = meta.common.album
     const album = metaAlbum && metaAlbum !== 'Unknown Album' ? metaAlbum : (entry.folder ?? 'Unknown Album')
 
     return {
-      id: `${entry.file.name}-${entry.file.size}-${nextId++}`,
-      file: entry.file,
-      url,
-      title: meta.common.title || entry.file.name.replace(/\.[^.]+$/, ''),
-      artist: meta.common.artist || 'Unknown Artist',
-      album,
-      folder: entry.folder,
-      durationSec: meta.format.duration ?? 0,
-      artUrl,
-      artColor: undefined,
+      track: {
+        id: makeId(entry.file),
+        file: entry.file,
+        url,
+        title: meta.common.title || entry.file.name.replace(/\.[^.]+$/, ''),
+        artist: meta.common.artist || 'Unknown Artist',
+        album,
+        folder: entry.folder,
+        durationSec: meta.format.duration ?? 0,
+        artUrl,
+        artColor: undefined,
+      },
+      art,
     }
   } catch {
     const url = URL.createObjectURL(entry.file)
     return {
-      id: `${entry.file.name}-${entry.file.size}-${nextId++}`,
-      file: entry.file,
-      url,
-      title: entry.file.name.replace(/\.[^.]+$/, ''),
-      artist: 'Unknown Artist',
-      album: entry.folder ?? 'Unknown Album',
-      folder: entry.folder,
-      durationSec: 0,
-      artUrl: undefined,
-      artColor: undefined,
+      track: {
+        id: makeId(entry.file),
+        file: entry.file,
+        url,
+        title: entry.file.name.replace(/\.[^.]+$/, ''),
+        artist: 'Unknown Artist',
+        album: entry.folder ?? 'Unknown Album',
+        folder: entry.folder,
+        durationSec: 0,
+        artUrl: undefined,
+        artColor: undefined,
+      },
     }
   }
+}
+
+async function resolveEntry(entry: FileEntry): Promise<Track> {
+  const key = cacheKey(entry.file, entry.folder)
+  const cached = await getCached(key)
+  if (cached) {
+    return {
+      id: makeId(entry.file),
+      file: entry.file,
+      url: URL.createObjectURL(entry.file),
+      title: cached.title,
+      artist: cached.artist,
+      album: cached.album,
+      folder: entry.folder,
+      durationSec: cached.durationSec,
+      artUrl: cached.art ? URL.createObjectURL(cached.art) : undefined,
+      artColor: cached.artColor,
+    }
+  }
+
+  const { track, art } = await parseEntry(entry)
+  await putCached(key, {
+    title: track.title,
+    artist: track.artist,
+    album: track.album,
+    folder: entry.folder,
+    durationSec: track.durationSec,
+    artColor: track.artColor,
+    art,
+  })
+  return track
 }
 
 const CONCURRENCY = 5
@@ -72,7 +114,7 @@ export async function parseFiles(
     while (true) {
       const idx = i++
       if (idx >= audio.length) break
-      const track = await parseEntry(audio[idx])
+      const track = await resolveEntry(audio[idx])
       all.push(track)
       batch.push(track)
       if (batch.length >= BATCH_SIZE) {
@@ -88,6 +130,8 @@ export async function parseFiles(
     onBatch?.(batch)
   }
 
+  await pruneCache(new Set(audio.map((e) => cacheKey(e.file, e.folder))))
+
   return all
 }
 
@@ -100,6 +144,10 @@ export async function extractArtColor(artUrl: string): Promise<string | undefine
   } catch {
     return undefined
   }
+}
+
+export async function cacheColor(file: File, folder: string | undefined, color: string): Promise<void> {
+  await setCachedColor(cacheKey(file, folder), color)
 }
 
 export function revokeTrack(track: Track) {

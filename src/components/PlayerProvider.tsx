@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { PlayerCtx } from '@/player-context'
-import { parseFiles, revokeTrack, extractArtColor } from '@/services/library'
+import { parseFiles, revokeTrack, extractArtColor, cacheColor } from '@/services/library'
 import type { FileEntry } from '@/services/library'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import type { Track, RepeatMode } from '@/types'
@@ -177,9 +177,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       setLibrary((prev) =>
         prev.map((t) => (t.id === current.id ? { ...t, artColor: color } : t)),
       )
+      cacheColor(current.file, current.folder, color)
     })
     return () => { cancelled = true }
-  }, [current?.id, current?.artUrl, current?.artColor])
+  }, [current?.id, current?.artUrl, current?.artColor, current?.file, current?.folder])
 
   useEffect(() => {
     if (!('mediaSession' in navigator)) return

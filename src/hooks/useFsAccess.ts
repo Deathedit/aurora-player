@@ -8,6 +8,7 @@ import {
   readDirectory,
   clearStoredHandle,
 } from '@/services/fs-access'
+import { clearCache } from '@/services/library-cache'
 import type { FileEntry } from '@/services/library'
 
 export interface FsAccessState {
@@ -69,6 +70,7 @@ export function useFsAccess(addFiles: (entries: FileEntry[]) => Promise<void>, c
 
   const disconnect = useCallback(async () => {
     await clearStoredHandle()
+    await clearCache()
     setDirName(null)
     setReconnectNeeded(false)
     clearLibrary()

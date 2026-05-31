@@ -49,7 +49,7 @@
 
 ## Gotchas
 - `"type": "module"` in package.json — ESM only
-- Library is **in-memory only** (lost on refresh); no IndexedDB track persistence
+- Library state (queue, current track) is **in-memory only** (lost on refresh), but parsed **metadata is cached in IndexedDB** (`library-cache.ts`, DB `aurora-library`): title/artist/album/duration/artColor + cover-art `Blob`, keyed by `folder/name|size|lastModified`. Cache hits on rescan skip `parseBlob`; `pruneCache` drops keys no longer on disk; `clearCache` runs on disconnect (not refresh). Object URLs (`url`/`artUrl`) are regenerated each session, never persisted.
 - `music-metadata` `parseBlob` is async per file — batch but don't block UI
 - Web Audio API **not** in MVP
 - FS Access API only Chromium; `isSupported()` provides fallback message
