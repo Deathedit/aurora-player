@@ -36,7 +36,7 @@
 - **NowPlaying**: full-screen overlay (mobile), triggered by TransportBar tap
 
 ## Style Rules
-- **No code comments** — omit entirely
+- **No code comments** — omit entirely, except a short justification inside an empty `catch {}` (eslint `no-empty` requires it; see `fs-access.ts` / `library-cache.ts`)
 - **Semantic Tailwind tokens only** — `bg-background`, `text-foreground`, `bg-primary`, etc.
 - **shadcn/ui base-nova** + `@base-ui/react`
 - **Glass surfaces**: `.glass` / `.glass-sidebar` with `backdrop-blur-xl`
@@ -49,7 +49,9 @@
 
 ## Gotchas
 - `"type": "module"` in package.json — ESM only
-- Library state (queue, current track) is **in-memory only** (lost on refresh), but parsed **metadata is cached in IndexedDB** (`library-cache.ts`, DB `aurora-library`): title/artist/album/duration/artColor + cover-art `Blob`, keyed by `folder/name|size|lastModified`. Cache hits on rescan skip `parseBlob`; `pruneCache` drops keys no longer on disk; `clearCache` runs on disconnect (not refresh). Object URLs (`url`/`artUrl`) are regenerated each session, never persisted.
+- Library state (queue, current track) is **in-memory only** (lost on refresh), but parsed **metadata is cached in IndexedDB** (`library-cache.ts`, DB `aurora-library`): title/artist/album/duration/artColor + cover-art `Blob`, keyed by `folder/name|size|lastModified`. `parseFiles` bulk-reads the whole cache once via `getAllCached` then resolves per file (cache hits skip `parseBlob`); `clearCache` runs on disconnect (not refresh). Object URLs (`url`/`artUrl`) are regenerated each session, never persisted.
+- `pruneCacheToScan(allScannedKeys)` deletes every key not in the set — **only safe when passed a complete directory scan** (all `parseFiles` callers do). Never call it with a partial set.
+- `CachedTrack` shape is stored at DB version 1 with no migration — bump the `indexedDB.open` version and migrate if you change the interface, or stale rows deserialize with missing fields.
 - `music-metadata` `parseBlob` is async per file — batch but don't block UI
 - Web Audio API **not** in MVP
 - FS Access API only Chromium; `isSupported()` provides fallback message

@@ -1,6 +1,7 @@
 import { parseBlob } from 'music-metadata'
 import type { Track } from '@/types'
-import { cacheKey, getCached, putCached, pruneCache, setCachedColor } from '@/services/library-cache'
+import type { CachedTrack } from '@/services/library-cache'
+import { cacheKey, getAllCached, putCached, pruneCacheToScan, setCachedColor } from '@/services/library-cache'
 
 export interface FileEntry {
   file: File
@@ -67,9 +68,9 @@ async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob 
   }
 }
 
-async function resolveEntry(entry: FileEntry): Promise<Track> {
+async function resolveEntry(entry: FileEntry, cache: Map<string, CachedTrack>): Promise<Track> {
   const key = cacheKey(entry.file, entry.folder)
-  const cached = await getCached(key)
+  const cached = cache.get(key)
   if (cached) {
     return {
       id: makeId(entry.file),
@@ -108,13 +109,14 @@ export async function parseFiles(
   const audio = entries.filter((e) => audioMime(e.file))
   const all: Track[] = []
   let batch: Track[] = []
+  const cache = await getAllCached()
 
   let i = 0
   const workers = Array.from({ length: Math.min(CONCURRENCY, audio.length) }, async () => {
     while (true) {
       const idx = i++
       if (idx >= audio.length) break
-      const track = await resolveEntry(audio[idx])
+      const track = await resolveEntry(audio[idx], cache)
       all.push(track)
       batch.push(track)
       if (batch.length >= BATCH_SIZE) {
@@ -130,7 +132,7 @@ export async function parseFiles(
     onBatch?.(batch)
   }
 
-  await pruneCache(new Set(audio.map((e) => cacheKey(e.file, e.folder))))
+  await pruneCacheToScan(new Set(audio.map((e) => cacheKey(e.file, e.folder))))
 
   return all
 }

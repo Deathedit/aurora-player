@@ -32,6 +32,28 @@ export function cacheKey(file: File, folder?: string): string {
   return `${folder ?? ''}/${file.name}|${file.size}|${file.lastModified}`
 }
 
+export async function getAllCached(): Promise<Map<string, CachedTrack>> {
+  try {
+    const d = await db()
+    return await new Promise((resolve, reject) => {
+      const tx = d.transaction(STORE_NAME, 'readonly')
+      const store = tx.objectStore(STORE_NAME)
+      const keysReq = store.getAllKeys()
+      const valsReq = store.getAll()
+      tx.oncomplete = () => {
+        const keys = keysReq.result
+        const vals = valsReq.result as CachedTrack[]
+        const map = new Map<string, CachedTrack>()
+        for (let i = 0; i < keys.length; i++) map.set(keys[i] as string, vals[i])
+        resolve(map)
+      }
+      tx.onerror = () => reject(tx.error)
+    })
+  } catch {
+    return new Map()
+  }
+}
+
 export async function getCached(key: string): Promise<CachedTrack | undefined> {
   try {
     const d = await db()
@@ -63,7 +85,7 @@ export async function setCachedColor(key: string, color: string): Promise<void> 
   await putCached(key, { ...cached, artColor: color })
 }
 
-export async function pruneCache(liveKeys: Set<string>): Promise<void> {
+export async function pruneCacheToScan(allScannedKeys: Set<string>): Promise<void> {
   try {
     const d = await db()
     await new Promise<void>((resolve, reject) => {
@@ -72,7 +94,7 @@ export async function pruneCache(liveKeys: Set<string>): Promise<void> {
       const req = store.getAllKeys()
       req.onsuccess = () => {
         for (const k of req.result) {
-          if (!liveKeys.has(k as string)) store.delete(k)
+          if (!allScannedKeys.has(k as string)) store.delete(k)
         }
       }
       tx.oncomplete = () => resolve()
