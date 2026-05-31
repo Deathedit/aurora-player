@@ -35,6 +35,11 @@ export function Settings() {
     }
   }
 
+  function handleGlass(next: boolean) {
+    setGlass(next)
+    document.documentElement.classList.toggle('no-glass', !next)
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 pt-6 sm:px-6 lg:px-8">
       <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
@@ -126,7 +131,7 @@ export function Settings() {
           <span className="text-sm font-medium">{GLASS_LABEL}</span>
           <button
             type="button"
-            onClick={() => setGlass(!glass)}
+            onClick={() => handleGlass(!glass)}
             className={`relative h-6 w-11 rounded-full transition-colors ${glass ? 'bg-primary' : 'bg-muted'}`}
           >
             <span className={`absolute left-0.5 top-0.5 size-5 rounded-full bg-white transition-transform ${glass ? 'translate-x-5' : ''}`} />

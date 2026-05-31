@@ -12,6 +12,10 @@ if (saved === '"light"') {
   document.documentElement.classList.remove('light')
 }
 
+if (localStorage.getItem('aurora-glass') === 'false') {
+  document.documentElement.classList.add('no-glass')
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
