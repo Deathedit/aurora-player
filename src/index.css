@@ -1,9 +1,9 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/inter';
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where(.dark, .dark *, .spotify, .spotify *));
 
 @theme inline {
   --font-sans: 'Inter Variable', system-ui, sans-serif;
@@ -56,82 +56,88 @@
 }
 
 :root {
-  --background: #0A0A0F;
-  --foreground: #F4F4F8;
-  --card: #14141C;
-  --card-foreground: #F4F4F8;
-  --popover: #1C1C26;
-  --popover-foreground: #F4F4F8;
-  --primary: #8B5CF6;
-  --primary-foreground: #0A0A0F;
-  --primary-2: #FF5CA8;
+  --background: #0a0a0f;
+  --foreground: #f4f4f8;
+  --card: #14141c;
+  --card-foreground: #f4f4f8;
+  --popover: #1c1c26;
+  --popover-foreground: #f4f4f8;
+  --primary: #8b5cf6;
+  --primary-foreground: #0a0a0f;
+  --primary-2: #ff5ca8;
   --secondary: #232330;
-  --secondary-foreground: #F4F4F8;
+  --secondary-foreground: #f4f4f8;
   --muted: #232330;
-  --muted-foreground: #9A9AA8;
-  --accent: #2A2A3A;
-  --accent-foreground: #F4F4F8;
-  --destructive: #FF5C5C;
-  --success: #36D399;
+  --muted-foreground: #9a9aa8;
+  --accent: #2a2a3a;
+  --accent-foreground: #f4f4f8;
+  --destructive: #ff5c5c;
+  --success: #36d399;
   --border: rgba(255, 255, 255, 0.08);
   --input: rgba(255, 255, 255, 0.12);
-  --ring: #8B5CF6;
+  --ring: #8b5cf6;
   --radius: 0.75rem;
-  --elevated: #1C1C26;
+  --elevated: #1c1c26;
 
-  --chart-1: #8B5CF6;
-  --chart-2: #FF5CA8;
-  --chart-3: #36D399;
-  --chart-4: #F4F4F8;
-  --chart-5: #9A9AA8;
+  --chart-1: #8b5cf6;
+  --chart-2: #ff5ca8;
+  --chart-3: #36d399;
+  --chart-4: #f4f4f8;
+  --chart-5: #9a9aa8;
 
-  --sidebar: #0A0A0F;
-  --sidebar-foreground: #F4F4F8;
-  --sidebar-primary: #8B5CF6;
-  --sidebar-primary-foreground: #0A0A0F;
+  --sidebar: #0a0a0f;
+  --sidebar-foreground: #f4f4f8;
+  --sidebar-primary: #8b5cf6;
+  --sidebar-primary-foreground: #0a0a0f;
   --sidebar-accent: #232330;
-  --sidebar-accent-foreground: #F4F4F8;
+  --sidebar-accent-foreground: #f4f4f8;
   --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-ring: #8B5CF6;
+  --sidebar-ring: #8b5cf6;
 
-  --accent-gradient: linear-gradient(120deg, #8B5CF6, #FF5CA8);
-  --art: #8B5CF6;
+  --accent-gradient: linear-gradient(120deg, #8b5cf6, #ff5ca8);
+  --art: #8b5cf6;
   --player-glow: radial-gradient(at 50% 0%, var(--art) 22%, transparent);
 }
 
-.light {
-  --background: #FAFAFC;
-  --foreground: #15151C;
-  --card: #FFFFFF;
-  --card-foreground: #15151C;
-  --popover: #FFFFFF;
-  --popover-foreground: #15151C;
-  --primary: #7C3AED;
-  --primary-foreground: #FAFAFC;
-  --primary-2: #DB2777;
-  --secondary: #F0F0F4;
-  --secondary-foreground: #15151C;
-  --muted: #F0F0F4;
-  --muted-foreground: #5A5A68;
-  --accent: #E8E8EE;
-  --accent-foreground: #15151C;
-  --destructive: #FF5C5C;
-  --success: #36D399;
-  --border: rgba(0, 0, 0, 0.08);
-  --input: rgba(0, 0, 0, 0.12);
-  --ring: #7C3AED;
-  --elevated: #F0F0F4;
+.spotify {
+  --background: #121212;
+  --foreground: #ffffff;
+  --card: #181818;
+  --card-foreground: #ffffff;
+  --popover: #282828;
+  --popover-foreground: #ffffff;
+  --primary: #1db954;
+  --primary-foreground: #000000;
+  --primary-2: #1ed760;
+  --secondary: #232323;
+  --secondary-foreground: #ffffff;
+  --muted: #282828;
+  --muted-foreground: #b3b3b3;
+  --accent: #2a2a2a;
+  --accent-foreground: #ffffff;
+  --destructive: #ff5c5c;
+  --success: #1db954;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #1db954;
+  --elevated: #1a1a1a;
 
-  --sidebar: #FAFAFC;
-  --sidebar-foreground: #15151C;
-  --sidebar-primary: #7C3AED;
-  --sidebar-primary-foreground: #FAFAFC;
-  --sidebar-accent: #F0F0F4;
-  --sidebar-accent-foreground: #15151C;
-  --sidebar-border: rgba(0, 0, 0, 0.08);
-  --sidebar-ring: #7C3AED;
+  --chart-1: #1db954;
+  --chart-2: #1ed760;
+  --chart-3: #b3b3b3;
+  --chart-4: #ffffff;
+  --chart-5: #535353;
 
-  --accent-gradient: linear-gradient(120deg, #7C3AED, #DB2777);
+  --sidebar: #000000;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #1db954;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #282828;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #1db954;
+
+  --accent-gradient: linear-gradient(120deg, #1db954, #1ed760);
 }
 
 @layer base {
@@ -173,15 +179,15 @@
 }
 
 .no-glass .glass {
-  background: var(--sidebar);
+  background: var(--elevated);
 }
 
 .no-glass .glass-sidebar {
-  background: var(--sidebar);
+  background: var(--elevated);
 }
 
 .no-glass .glass-elevated {
-  background: var(--elevated);
+  background: var(--background);
 }
 
 .accent-gradient {
@@ -204,21 +210,42 @@
 }
 
 @keyframes equalizer-1 {
-  0%, 100% { height: 3px; }
-  50% { height: 12px; }
+  0%,
+  100% {
+    height: 3px;
+  }
+  50% {
+    height: 12px;
+  }
 }
 @keyframes equalizer-2 {
-  0%, 100% { height: 5px; }
-  50% { height: 14px; }
+  0%,
+  100% {
+    height: 5px;
+  }
+  50% {
+    height: 14px;
+  }
 }
 @keyframes equalizer-3 {
-  0%, 100% { height: 4px; }
-  50% { height: 10px; }
+  0%,
+  100% {
+    height: 4px;
+  }
+  50% {
+    height: 10px;
+  }
 }
 
-.eq-bar-1 { animation: equalizer-1 0.8s ease-in-out infinite; }
-.eq-bar-2 { animation: equalizer-2 0.8s ease-in-out infinite 0.12s; }
-.eq-bar-3 { animation: equalizer-3 0.8s ease-in-out infinite 0.24s; }
+.eq-bar-1 {
+  animation: equalizer-1 0.8s ease-in-out infinite;
+}
+.eq-bar-2 {
+  animation: equalizer-2 0.8s ease-in-out infinite 0.12s;
+}
+.eq-bar-3 {
+  animation: equalizer-3 0.8s ease-in-out infinite 0.24s;
+}
 
 .paused .eq-bar-1,
 .paused .eq-bar-2,
@@ -227,7 +254,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .eq-bar-1, .eq-bar-2, .eq-bar-3 {
+  .eq-bar-1,
+  .eq-bar-2,
+  .eq-bar-3 {
     animation: none;
     height: 4px;
   }
