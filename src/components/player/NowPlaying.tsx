@@ -1,33 +1,109 @@
-import { usePlayer } from '@/player-context'
-import { formatTime } from '@/text'
-import { X, SkipBack, SkipForward, Play, Pause, Shuffle, Repeat, Volume2, VolumeX } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { usePlayer } from '@/player-context';
+import { formatTime } from '@/text';
+import {
+  X,
+  SkipBack,
+  SkipForward,
+  Play,
+  Pause,
+  Shuffle,
+  Repeat,
+  Volume2,
+  Volume1,
+  VolumeX,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useEffect, useRef } from 'react';
 
-export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { library, currentId, isPlaying, toggle, next, prev, seek, currentTime, duration, shuffle, setShuffle, repeat, setRepeat, volume, setVolume } = usePlayer()
-  const current = library.find((t) => t.id === currentId) ?? null
+export function NowPlaying({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const {
+    library,
+    currentId,
+    isPlaying,
+    toggle,
+    next,
+    prev,
+    seek,
+    currentTime,
+    duration,
+    shuffle,
+    setShuffle,
+    repeat,
+    setRepeat,
+    volume,
+    setVolume,
+  } = usePlayer();
+  const current = library.find((t) => t.id === currentId) ?? null;
+  const volumeRowRef = useRef<HTMLDivElement>(null);
+  const volumeRef = useRef(volume);
+  useEffect(() => { volumeRef.current = volume; });
 
-  if (!open || !current) return null
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
 
-  const pct = duration > 0 ? (currentTime / duration) * 100 : 0
+  useEffect(() => {
+    const el = volumeRowRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.05 : -0.05;
+      const v = volumeRef.current;
+      setVolume(
+        Math.max(0, Math.min(1, Math.round((v + delta) * 100) / 100)),
+      );
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [setVolume, open]);
+
+  if (!open || !current) return null;
+
+  const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div
-      className="glass-elevated fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 p-6 md:hidden"
-      style={{ '--player-glow': `radial-gradient(at 50% 0%, ${current.artColor ?? '#8B5CF6'} 22%, transparent)` } as React.CSSProperties}
+      className="glass-elevated fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 p-6 md:p-10"
+      style={
+        {
+          '--player-glow': `radial-gradient(at 50% 0%, ${current.artColor ?? '#8B5CF6'} 22%, transparent)`,
+        } as React.CSSProperties
+      }
     >
-      <button type="button" onClick={onClose} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+      >
         <X className="size-6" />
       </button>
 
-      <div className="flex w-full max-w-md flex-col items-center gap-6">
-        <div className="relative w-full max-w-sm">
+      <div className="flex w-full max-w-md md:max-w-lg flex-col items-center gap-6">
+        <div className="relative w-full max-w-sm md:max-w-md">
           {current.artUrl ? (
-            <img src={current.artUrl} alt="" className="aspect-square w-full rounded-xl object-cover shadow-2xl" />
+            <img
+              src={current.artUrl}
+              alt=""
+              className="aspect-square w-full rounded-xl object-cover shadow-2xl"
+            />
           ) : (
             <div className="aspect-square w-full rounded-xl bg-muted" />
           )}
-          <div className="pointer-events-none absolute inset-0 rounded-xl" style={{ background: 'var(--player-glow)', opacity: 0.15 }} />
+          <div
+            className="pointer-events-none absolute inset-0 rounded-xl"
+            style={{ background: 'var(--player-glow)', opacity: 0.15 }}
+          />
         </div>
 
         <div className="w-full text-center">
@@ -39,13 +115,16 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
           <div
             className="group relative flex h-5 cursor-pointer items-center"
             onClick={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect()
-              const x = e.clientX - rect.left
-              seek((x / rect.width) * duration)
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = e.clientX - rect.left;
+              seek((x / rect.width) * duration);
             }}
           >
             <div className="h-1 w-full rounded-full bg-muted transition-all group-hover:h-1.5">
-              <div className="h-full rounded-full accent-gradient" style={{ width: `${pct}%` }} />
+              <div
+                className="h-full rounded-full accent-gradient"
+                style={{ width: `${pct}%` }}
+              />
             </div>
           </div>
           <div className="mt-1 flex justify-between text-xs tabular-nums text-muted-foreground">
@@ -58,11 +137,18 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
           <button
             type="button"
             onClick={() => setShuffle(!shuffle)}
-            className={cn('rounded-full p-2 transition-colors hover:text-foreground', shuffle ? 'text-primary' : 'text-muted-foreground')}
+            className={cn(
+              'rounded-full p-2 transition-colors hover:text-foreground',
+              shuffle ? 'text-primary' : 'text-muted-foreground',
+            )}
           >
             <Shuffle className="size-5" />
           </button>
-          <button type="button" onClick={prev} className="rounded-full p-2 text-foreground hover:text-primary">
+          <button
+            type="button"
+            onClick={prev}
+            className="rounded-full p-2 text-foreground hover:text-primary"
+          >
             <SkipBack className="size-6" />
           </button>
           <button
@@ -70,32 +156,53 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
             onClick={toggle}
             className="accent-gradient flex size-14 items-center justify-center rounded-full text-primary-foreground active:scale-95"
           >
-            {isPlaying ? <Pause className="size-6" /> : <Play className="size-6 ml-0.5" />}
+            {isPlaying ? (
+              <Pause className="size-6" />
+            ) : (
+              <Play className="size-6 ml-0.5" />
+            )}
           </button>
-          <button type="button" onClick={next} className="rounded-full p-2 text-foreground hover:text-primary">
+          <button
+            type="button"
+            onClick={next}
+            className="rounded-full p-2 text-foreground hover:text-primary"
+          >
             <SkipForward className="size-6" />
           </button>
           <button
             type="button"
             onClick={() => {
-              const modes = ['off', 'all', 'one'] as const
-              const idx = modes.indexOf(repeat)
-              setRepeat(modes[(idx + 1) % 3])
+              const modes = ['off', 'all', 'one'] as const;
+              const idx = modes.indexOf(repeat);
+              setRepeat(modes[(idx + 1) % 3]);
             }}
-            className={cn('relative rounded-full p-2 transition-colors hover:text-foreground', repeat !== 'off' ? 'text-primary' : 'text-muted-foreground')}
+            className={cn(
+              'relative rounded-full p-2 transition-colors hover:text-foreground',
+              repeat !== 'off' ? 'text-primary' : 'text-muted-foreground',
+            )}
           >
             <Repeat className="size-5" />
-            {repeat === 'one' && <span className="absolute -top-0.5 right-0.5 text-[0.5rem] font-bold">1</span>}
+            {repeat === 'one' && (
+              <span className="absolute -top-0.5 right-0.5 text-[0.5rem] font-bold">
+                1
+              </span>
+            )}
           </button>
         </div>
 
-        <div className="flex w-full max-w-sm items-center gap-3">
+        <div ref={volumeRowRef} className="flex w-full max-w-sm md:max-w-xs items-center gap-3">
           <button
             type="button"
             onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
-            {volume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+            {volume === 0 ? (
+              <VolumeX className="size-4" />
+            ) : volume < 0.5 ? (
+              <Volume1 className="size-4" />
+            ) : (
+              <Volume2 className="size-4" />
+            )}
           </button>
           <input
             type="range"
@@ -106,8 +213,11 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
             onChange={(e) => setVolume(Number(e.target.value))}
             className="flex-1 accent-[var(--primary)]"
           />
+          <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+            {Math.round(volume * 100)}%
+          </span>
         </div>
       </div>
     </div>
-  )
+  );
 }
