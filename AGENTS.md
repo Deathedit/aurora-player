@@ -4,6 +4,7 @@
 - **Dev:** `npm run dev`
 - **Build (gate):** `npm run build` — `tsc -b && vite build`; tsc must pass
 - **Lint:** `npm run lint` — eslint; no separate typecheck
+- **Format:** `npm run format` — prettier --write src; `npm run format:check` for CI
 
 ## TS Conventions
 - `verbatimModuleSyntax` → `import type` for type-only imports
