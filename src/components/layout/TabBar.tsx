@@ -1,19 +1,19 @@
-import { NavLink } from 'react-router-dom'
-import { Library, Disc3, Settings } from 'lucide-react'
-import { NAV_ITEMS } from '@/text'
-import { cn } from '@/lib/utils'
+import { NavLink } from 'react-router-dom';
+import { Library, Disc3, Settings } from 'lucide-react';
+import { NAV_ITEMS } from '@/text';
+import { cn } from '@/lib/utils';
 
 const icons = {
   '/': Library,
   '/albums': Disc3,
   '/settings': Settings,
-} as const
+} as const;
 
 export function TabBar() {
   return (
     <nav className="glass fixed inset-x-0 bottom-0 z-50 flex h-14 border-t border-border md:hidden">
       {NAV_ITEMS.map((item) => {
-        const Icon = icons[item.path]
+        const Icon = icons[item.path];
         return (
           <NavLink
             key={item.path}
@@ -28,7 +28,7 @@ export function TabBar() {
             <Icon className="size-5" />
             {item.label}
           </NavLink>
-        )
+        );
       })}
       <NavLink
         to="/settings"
@@ -43,5 +43,5 @@ export function TabBar() {
         Settings
       </NavLink>
     </nav>
-  )
+  );
 }

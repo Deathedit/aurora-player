@@ -1,8 +1,8 @@
-import { usePlayer } from '@/player-context'
-import { formatTime } from '@/text'
-import { Play, Pause, Heart } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { Track } from '@/types'
+import { usePlayer } from '@/player-context';
+import { formatTime } from '@/text';
+import { Play, Pause, Heart } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { Track } from '@/types';
 
 function Equalizer() {
   return (
@@ -11,14 +11,14 @@ function Equalizer() {
       <div className="eq-bar-2 w-[3px] rounded-full bg-primary" />
       <div className="eq-bar-3 w-[3px] rounded-full bg-primary" />
     </div>
-  )
+  );
 }
 
 export function TrackRow({ track, index }: { track: Track; index: number }) {
-  const { currentId, isPlaying, play, toggle } = usePlayer()
-  const active = track.id === currentId
+  const { currentId, isPlaying, play, toggle } = usePlayer();
+  const active = track.id === currentId;
 
-  const activate = () => (active ? toggle() : play(track.id))
+  const activate = () => (active ? toggle() : play(track.id));
 
   return (
     <div
@@ -26,9 +26,9 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
       tabIndex={0}
       onClick={activate}
       onKeyDown={(e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return
-        e.preventDefault()
-        activate()
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        activate();
       }}
       className={cn(
         'group flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-150 hover:bg-muted',
@@ -50,13 +50,19 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
       </span>
 
       {track.artUrl ? (
-        <img src={track.artUrl} alt="" className="size-10 shrink-0 rounded object-cover" />
+        <img
+          src={track.artUrl}
+          alt=""
+          className="size-10 shrink-0 rounded object-cover"
+        />
       ) : (
         <div className="size-10 shrink-0 rounded bg-muted" />
       )}
 
       <div className="min-w-0 flex-1">
-        <p className={cn('truncate text-sm', active && 'text-primary')}>{track.title}</p>
+        <p className={cn('truncate text-sm', active && 'text-primary')}>
+          {track.title}
+        </p>
         <p className="truncate text-xs text-muted-foreground">{track.artist}</p>
       </div>
 
@@ -68,7 +74,9 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
         <Heart className="size-4 text-muted-foreground hover:text-primary" />
       </button>
 
-      <span className="text-xs tabular-nums text-muted-foreground">{formatTime(track.durationSec)}</span>
+      <span className="text-xs tabular-nums text-muted-foreground">
+        {formatTime(track.durationSec)}
+      </span>
     </div>
-  )
+  );
 }
