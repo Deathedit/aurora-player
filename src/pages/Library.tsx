@@ -3,7 +3,10 @@ import { TrackRow } from '@/components/library/TrackRow';
 import { EMPTY_LIBRARY } from '@/text';
 import { useMemo } from 'react';
 import { Virtuoso } from 'react-virtuoso';
+import type { Track } from '@/types';
 import { Box, Container, Text } from '@chakra-ui/react';
+
+const renderTrack = (i: number, track: Track) => <TrackRow track={track} index={i} />;
 
 export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
   const { library } = usePlayer();
@@ -38,12 +41,7 @@ export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
         {library.length} tracks
       </Text>
       <Box mt="4">
-        <Virtuoso
-          data={sorted}
-          itemContent={(i, track) => <TrackRow track={track} index={i} />}
-          fixedItemHeight={56}
-          customScrollParent={scrollParent}
-        />
+        <Virtuoso data={sorted} itemContent={renderTrack} fixedItemHeight={56} customScrollParent={scrollParent} />
       </Box>
     </Container>
   );

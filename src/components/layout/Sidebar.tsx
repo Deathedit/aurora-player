@@ -12,7 +12,7 @@ const ChakraNavLink = chakra(NavLink);
 
 const navLinkCss = {
   '&[aria-current=page]': {
-    background: 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)',
+    background: 'var(--chakra-colors-primary-tint-strong)',
     color: 'var(--chakra-colors-primary)',
   },
 } as const;
@@ -70,7 +70,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                 rounded="lg"
                 fontSize="sm"
                 fontWeight="medium"
-                transition="colors 0.15s"
+                transition="colors"
                 justifyContent={collapsed ? 'center' : undefined}
                 px={collapsed ? '0' : '3'}
                 py={collapsed ? '2.5' : '2'}
@@ -97,7 +97,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
           rounded="lg"
           p="1.5"
           color="foreground"
-          transition="colors 0.15s"
+          transition="colors"
           _hover={{ bg: 'muted' }}
           mx={collapsed ? 'auto' : undefined}
           ml={collapsed ? undefined : 'auto'}
@@ -115,7 +115,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
           rounded="lg"
           fontSize="sm"
           fontWeight="medium"
-          transition="colors 0.15s"
+          transition="colors"
           justifyContent={collapsed ? 'center' : undefined}
           px={collapsed ? '0' : '3'}
           py={collapsed ? '2.5' : '2'}

@@ -108,9 +108,9 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
                 onClick={() => setView('grid')}
                 rounded="md"
                 p="1.5"
-                transition="colors 0.15s"
+                transition="colors"
                 color={view === 'grid' ? 'primary' : 'mutedForeground'}
-                bg={view === 'grid' ? 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)' : undefined}
+                bg={view === 'grid' ? 'primaryTintStrong' : undefined}
                 _hover={{ color: view === 'grid' ? 'primary' : 'foreground' }}
               >
                 <LayoutGrid size={16} />
@@ -120,9 +120,9 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
                 onClick={() => setView('list')}
                 rounded="md"
                 p="1.5"
-                transition="colors 0.15s"
+                transition="colors"
                 color={view === 'list' ? 'primary' : 'mutedForeground'}
-                bg={view === 'list' ? 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)' : undefined}
+                bg={view === 'list' ? 'primaryTintStrong' : undefined}
                 _hover={{ color: view === 'list' ? 'primary' : 'foreground' }}
               >
                 <List size={16} />
@@ -144,7 +144,7 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
                     rounded="lg"
                     px="3"
                     py="2"
-                    transition="colors 0.15s"
+                    transition="colors"
                     _hover={{ bg: 'muted' }}
                     style={{ height: 64 }}
                   >
@@ -180,7 +180,7 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
                   gap="2"
                   overflow="hidden"
                   rounded="lg"
-                  transition="colors 0.15s"
+                  transition="colors"
                   _hover={{ bg: 'muted' }}
                 >
                   {a.artUrl ? (

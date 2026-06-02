@@ -2,9 +2,13 @@ import { usePlayer, usePlayerProgress } from '@/player-context';
 import { formatTime } from '@/text';
 import { Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, ChevronUp, Maximize2 } from 'lucide-react';
 import { VolumeIcon } from '@/components/ui/volume-icon';
+import { Scrubber } from '@/components/player/Scrubber';
 import { useEffect, useMemo, useRef } from 'react';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
+
+const CPlay = chakra(Play);
+const CPause = chakra(Pause);
 
 export function TransportBar({
   onNowPlaying,
@@ -26,7 +30,6 @@ export function TransportBar({
     setShuffle,
     volume,
     setVolume,
-    seek,
   } = usePlayer();
   const { currentTime, duration } = usePlayerProgress();
   const current = useMemo(() => library.find((t) => t.id === currentId) ?? null, [library, currentId]);
@@ -51,8 +54,6 @@ export function TransportBar({
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, [setVolume, isDesktop]);
-
-  const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <Box
@@ -105,7 +106,7 @@ export function TransportBar({
           rounded="full"
           p="1.5"
           color={shuffle ? 'primary' : 'mutedForeground'}
-          transition="colors 0.15s"
+          transition="colors"
           _hover={{ color: 'foreground' }}
         >
           <Shuffle size={14} />
@@ -116,7 +117,7 @@ export function TransportBar({
           rounded="full"
           p="1.5"
           color="mutedForeground"
-          transition="colors 0.15s"
+          transition="colors"
           _hover={{ color: 'foreground' }}
         >
           <SkipBack size={16} />
@@ -134,11 +135,7 @@ export function TransportBar({
           transition="transform 0.15s"
           _active={{ transform: 'scale(0.95)' }}
         >
-          {isPlaying ? (
-            <Pause size={isDesktop ? 16 : 20} />
-          ) : (
-            <Play size={isDesktop ? 16 : 20} style={{ marginLeft: '2px' }} />
-          )}
+          {isPlaying ? <CPause boxSize={{ base: 5, md: 4 }} /> : <CPlay boxSize={{ base: 5, md: 4 }} ml="0.5" />}
         </chakra.button>
         <chakra.button
           type="button"
@@ -146,7 +143,7 @@ export function TransportBar({
           rounded="full"
           p="1.5"
           color="mutedForeground"
-          transition="colors 0.15s"
+          transition="colors"
           _hover={{ color: 'foreground' }}
         >
           <SkipForward size={16} />
@@ -163,7 +160,7 @@ export function TransportBar({
           rounded="full"
           p="1.5"
           color={repeat !== 'off' ? 'primary' : 'mutedForeground'}
-          transition="colors 0.15s"
+          transition="colors"
           _hover={{ color: 'foreground' }}
         >
           <Repeat size={14} />
@@ -179,32 +176,7 @@ export function TransportBar({
         <Text flexShrink={0} fontSize="xs" color="mutedForeground" css={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatTime(currentTime)}
         </Text>
-        <Box
-          position="relative"
-          display="flex"
-          flex="1"
-          h="5"
-          cursor="pointer"
-          alignItems="center"
-          onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            seek((x / rect.width) * duration);
-          }}
-          css={{ '&:hover .transport-track': { height: '6px' } }}
-        >
-          <Box
-            className="transport-track"
-            h="1"
-            w="full"
-            rounded="full"
-            bg="muted"
-            transition="height 0.15s"
-            overflow="hidden"
-          >
-            <Box h="full" rounded="full" layerStyle="accentGradient" style={{ width: `${pct}%` }} />
-          </Box>
-        </Box>
+        <Scrubber flex="1" />
         <Text flexShrink={0} fontSize="xs" color="mutedForeground" css={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatTime(duration)}
         </Text>
@@ -216,7 +188,7 @@ export function TransportBar({
           alignItems="center"
           justifyContent="center"
           color="mutedForeground"
-          transition="colors 0.15s"
+          transition="colors"
           _hover={{ color: 'foreground' }}
         >
           <VolumeIcon volume={volume} style={{ width: 16, height: 16 }} />
@@ -247,7 +219,7 @@ export function TransportBar({
           rounded="full"
           p="1.5"
           color="mutedForeground"
-          transition="colors 0.15s"
+          transition="colors"
           _hover={{ color: 'foreground' }}
         >
           <Maximize2 size={14} />

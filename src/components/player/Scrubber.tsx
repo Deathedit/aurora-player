@@ -1,7 +1,7 @@
 import { usePlayer, usePlayerProgress } from '@/player-context';
-import { Box } from '@chakra-ui/react';
+import { Box, type BoxProps } from '@chakra-ui/react';
 
-export function Scrubber() {
+export function Scrubber(props: BoxProps) {
   const { seek } = usePlayer();
   const { currentTime, duration } = usePlayerProgress();
   const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -24,6 +24,7 @@ export function Scrubber() {
           height: '6px',
         },
       }}
+      {...props}
     >
       <Box
         className="scrubber-track"

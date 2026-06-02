@@ -203,7 +203,7 @@ export function Settings() {
             h="6"
             w="11"
             rounded="full"
-            transition="colors 0.15s"
+            transition="colors"
             bg={glass ? 'primary' : 'muted'}
             cursor="pointer"
           >

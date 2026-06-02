@@ -44,7 +44,7 @@ export function TabBar() {
             gap="0.5"
             fontSize="0.65rem"
             fontWeight="medium"
-            transition="colors 0.15s"
+            transition="colors"
             color="mutedForeground"
             css={activeCss}
           >
@@ -63,7 +63,7 @@ export function TabBar() {
         gap="0.5"
         fontSize="0.65rem"
         fontWeight="medium"
-        transition="colors 0.15s"
+        transition="colors"
         color="mutedForeground"
         css={activeCss}
       >

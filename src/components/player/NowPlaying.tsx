@@ -2,6 +2,7 @@ import { usePlayer, usePlayerProgress } from '@/player-context';
 import { formatTime } from '@/text';
 import { X, SkipBack, SkipForward, Play, Pause, Shuffle, Repeat } from 'lucide-react';
 import { VolumeIcon } from '@/components/ui/volume-icon';
+import { Scrubber } from '@/components/player/Scrubber';
 import { useEffect, useMemo, useRef } from 'react';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
@@ -14,7 +15,6 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
     toggle,
     next,
     prev,
-    seek,
     shuffle,
     setShuffle,
     repeat,
@@ -55,8 +55,6 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
   }, [setVolume, open, isDesktop]);
 
   if (!open || !current) return null;
-
-  const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <Box
@@ -123,31 +121,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
         </Box>
 
         <Box w="full">
-          <Box
-            position="relative"
-            display="flex"
-            h="5"
-            cursor="pointer"
-            alignItems="center"
-            onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x = e.clientX - rect.left;
-              seek((x / rect.width) * duration);
-            }}
-            css={{ '&:hover .np-track': { height: '6px' } }}
-          >
-            <Box
-              className="np-track"
-              h="1"
-              w="full"
-              rounded="full"
-              bg="muted"
-              transition="height 0.15s"
-              overflow="hidden"
-            >
-              <Box h="full" rounded="full" layerStyle="accentGradient" style={{ width: `${pct}%` }} />
-            </Box>
-          </Box>
+          <Scrubber w="full" />
           <Flex
             mt="1"
             justifyContent="space-between"
@@ -166,7 +140,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
             onClick={() => setShuffle(!shuffle)}
             rounded="full"
             p="2"
-            transition="colors 0.15s"
+            transition="colors"
             color={shuffle ? 'primary' : 'mutedForeground'}
             _hover={{ color: 'foreground' }}
           >
@@ -216,7 +190,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
             position="relative"
             rounded="full"
             p="2"
-            transition="colors 0.15s"
+            transition="colors"
             color={repeat !== 'off' ? 'primary' : 'mutedForeground'}
             _hover={{ color: 'foreground' }}
           >
@@ -238,7 +212,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
             alignItems="center"
             justifyContent="center"
             color="mutedForeground"
-            transition="colors 0.15s"
+            transition="colors"
             _hover={{ color: 'foreground' }}
           >
             <VolumeIcon volume={volume} style={{ width: 16, height: 16 }} />

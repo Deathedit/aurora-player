@@ -3,33 +3,71 @@ import { formatTime } from '@/text';
 import { Play, Pause, Heart } from 'lucide-react';
 import type { Track } from '@/types';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
+import { memo, useCallback } from 'react';
+
+const rowHoverCss = {
+  '&:hover .track-show': { display: 'block' },
+  '&:hover .track-hide': { display: 'none' },
+} as const;
+
+const heartCss = { 'div:hover > &': { opacity: 1 } } as const;
+
+const tabularNumsCss = { fontVariantNumeric: 'tabular-nums' } as const;
+
+const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
 function Equalizer() {
   return (
     <Flex h="4" alignItems="flex-end" gap="0.5">
-      <Box w="3px" rounded="full" bg="primary" css={{ animation: 'equalizer1 0.8s ease-in-out infinite' }} />
-      <Box w="3px" rounded="full" bg="primary" css={{ animation: 'equalizer2 0.8s ease-in-out infinite 0.12s' }} />
-      <Box w="3px" rounded="full" bg="primary" css={{ animation: 'equalizer3 0.8s ease-in-out infinite 0.24s' }} />
+      <Box
+        className="equalizer-bar"
+        w="3px"
+        rounded="full"
+        bg="primary"
+        css={{ animation: 'equalizer1 0.8s ease-in-out infinite' }}
+      />
+      <Box
+        className="equalizer-bar"
+        w="3px"
+        rounded="full"
+        bg="primary"
+        css={{ animation: 'equalizer2 0.8s ease-in-out infinite 0.12s' }}
+      />
+      <Box
+        className="equalizer-bar"
+        w="3px"
+        rounded="full"
+        bg="primary"
+        css={{ animation: 'equalizer3 0.8s ease-in-out infinite 0.24s' }}
+      />
     </Flex>
   );
 }
 
-export function TrackRow({ track, index }: { track: Track; index: number }) {
+function TrackRowImpl({ track, index }: { track: Track; index: number }) {
   const { currentId, isPlaying, play, toggle } = usePlayer();
   const active = track.id === currentId;
 
-  const activate = () => (active ? toggle() : play(track.id));
+  const activate = useCallback(() => {
+    if (track.id === currentId) toggle();
+    else play(track.id);
+  }, [track.id, currentId, toggle, play]);
+
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      activate();
+    },
+    [activate],
+  );
 
   return (
     <Flex
       role="button"
       tabIndex={0}
       onClick={activate}
-      onKeyDown={(e: React.KeyboardEvent) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        e.preventDefault();
-        activate();
-      }}
+      onKeyDown={onKeyDown}
       w="full"
       cursor="pointer"
       alignItems="center"
@@ -37,16 +75,13 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
       rounded="lg"
       px="3"
       py="2"
-      transition="colors 0.15s"
+      transition="colors"
       _hover={{ bg: 'muted' }}
-      bg={active ? 'color-mix(in srgb, var(--chakra-colors-primary) 8%, transparent)' : undefined}
+      bg={active ? 'primaryTint' : undefined}
       borderLeftWidth={active ? '2px' : undefined}
       borderLeftColor={active ? 'primary' : undefined}
       style={{ height: 56 }}
-      css={{
-        '&:hover .track-show': { display: 'block' },
-        '&:hover .track-hide': { display: 'none' },
-      }}
+      css={rowHoverCss}
     >
       <Flex w="8" flexShrink={0} justifyContent="center" fontSize="sm" color="mutedForeground">
         {active && isPlaying ? (
@@ -78,19 +113,15 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
         </Text>
       </Box>
 
-      <chakra.button
-        type="button"
-        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-        opacity={0}
-        transition="opacity 0.15s"
-        css={{ 'div:hover > &': { opacity: 1 } }}
-      >
-        <Heart size={16} color="var(--chakra-colors-mutedForeground)" />
+      <chakra.button type="button" onClick={stopPropagation} opacity={0} transition="opacity 0.15s" css={heartCss}>
+        <Heart size={16} color="var(--chakra-colors-muted-foreground)" />
       </chakra.button>
 
-      <Text fontSize="xs" color="mutedForeground" css={{ fontVariantNumeric: 'tabular-nums' }}>
+      <Text fontSize="xs" color="mutedForeground" css={tabularNumsCss}>
         {formatTime(track.durationSec)}
       </Text>
     </Flex>
   );
 }
+
+export const TrackRow = memo(TrackRowImpl);

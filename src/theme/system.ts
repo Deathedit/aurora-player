@@ -132,6 +132,12 @@ const config = defineConfig({
         accentGradientEnd: {
           value: { base: '#FF5CA8', _spotify: '#1ed760' },
         },
+        primaryTint: {
+          value: 'color-mix(in srgb, {colors.primary} 8%, transparent)',
+        },
+        primaryTintStrong: {
+          value: 'color-mix(in srgb, {colors.primary} 12%, transparent)',
+        },
       },
     },
     keyframes: {
@@ -221,6 +227,16 @@ const config = defineConfig({
     },
     html: {
       fontFamily: "'Inter Variable', system-ui, sans-serif",
+    },
+    ':focus-visible': {
+      outline: '2px solid {colors.ring}',
+      outlineOffset: '2px',
+    },
+    '.equalizer-bar': {
+      '@media (prefers-reduced-motion: reduce)': {
+        animation: 'none !important',
+        height: '4px !important',
+      },
     },
   },
 });
