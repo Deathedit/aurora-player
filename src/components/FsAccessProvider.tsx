@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useFsAccess } from '@/hooks/useFsAccess';
 import { usePlayer } from '@/player-context';
@@ -9,7 +9,10 @@ export function FsAccessProvider({ children }: { children: ReactNode }) {
   const fs = useFsAccess(addFiles, clearLibrary);
   const { initOnMount } = fs;
 
+  const didInit = useRef(false);
   useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
     initOnMount();
   }, [initOnMount]);
 
