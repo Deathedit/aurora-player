@@ -1,26 +1,12 @@
 import { usePlayer, usePlayerProgress } from '@/player-context';
 import { formatTime } from '@/text';
-import {
-  X,
-  SkipBack,
-  SkipForward,
-  Play,
-  Pause,
-  Shuffle,
-  Repeat,
-} from 'lucide-react';
+import { X, SkipBack, SkipForward, Play, Pause, Shuffle, Repeat } from 'lucide-react';
 import { VolumeIcon } from '@/components/ui/volume-icon';
 import { useEffect, useMemo, useRef } from 'react';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 
-export function NowPlaying({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => void }) {
   const {
     library,
     currentId,
@@ -37,10 +23,7 @@ export function NowPlaying({
     setVolume,
   } = usePlayer();
   const { currentTime, duration } = usePlayerProgress();
-  const current = useMemo(
-    () => library.find((t) => t.id === currentId) ?? null,
-    [library, currentId],
-  );
+  const current = useMemo(() => library.find((t) => t.id === currentId) ?? null, [library, currentId]);
   const isDesktop = useIsDesktop();
   const volumeRowRef = useRef<HTMLDivElement>(null);
   const volumeRef = useRef(volume);
@@ -103,13 +86,7 @@ export function NowPlaying({
         <X size={24} />
       </chakra.button>
 
-      <Flex
-        w="full"
-        maxW={{ base: 'md', md: 'lg' }}
-        flexDir="column"
-        alignItems="center"
-        gap="6"
-      >
+      <Flex w="full" maxW={{ base: 'md', md: 'lg' }} flexDir="column" alignItems="center" gap="6">
         <Box position="relative" w="full" maxW={{ base: 'sm', md: 'md' }}>
           {current.artUrl ? (
             <chakra.img
@@ -168,12 +145,7 @@ export function NowPlaying({
               transition="height 0.15s"
               overflow="hidden"
             >
-              <Box
-                h="full"
-                rounded="full"
-                layerStyle="accentGradient"
-                style={{ width: `${pct}%` }}
-              />
+              <Box h="full" rounded="full" layerStyle="accentGradient" style={{ width: `${pct}%` }} />
             </Box>
           </Box>
           <Flex
@@ -222,11 +194,7 @@ export function NowPlaying({
             color="primaryForeground"
             _active={{ transform: 'scale(0.95)' }}
           >
-            {isPlaying ? (
-              <Pause size={24} />
-            ) : (
-              <Play size={24} style={{ marginLeft: '2px' }} />
-            )}
+            {isPlaying ? <Pause size={24} /> : <Play size={24} style={{ marginLeft: '2px' }} />}
           </chakra.button>
           <chakra.button
             type="button"
@@ -254,26 +222,14 @@ export function NowPlaying({
           >
             <Repeat size={20} />
             {repeat === 'one' && (
-              <Text
-                position="absolute"
-                top="-0.5"
-                right="0.5"
-                fontSize="0.5rem"
-                fontWeight="bold"
-              >
+              <Text position="absolute" top="-0.5" right="0.5" fontSize="0.5rem" fontWeight="bold">
                 1
               </Text>
             )}
           </chakra.button>
         </Flex>
 
-        <Flex
-          ref={volumeRowRef}
-          w="full"
-          maxW={{ base: 'sm', md: 'xs' }}
-          alignItems="center"
-          gap="3"
-        >
+        <Flex ref={volumeRowRef} w="full" maxW={{ base: 'sm', md: 'xs' }} alignItems="center" gap="3">
           <chakra.button
             type="button"
             onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
@@ -293,9 +249,7 @@ export function NowPlaying({
             max={1}
             step={0.01}
             value={volume}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setVolume(Number(e.target.value))
-            }
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVolume(Number(e.target.value))}
             flex="1"
             accentColor="var(--chakra-colors-primary)"
           />

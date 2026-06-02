@@ -44,7 +44,6 @@ export const PlayerProgressCtx = createContext<PlayerProgress | null>(null);
 
 export function usePlayerProgress(): PlayerProgress {
   const ctx = useContext(PlayerProgressCtx);
-  if (!ctx)
-    throw new Error('usePlayerProgress must be used within PlayerProvider');
+  if (!ctx) throw new Error('usePlayerProgress must be used within PlayerProvider');
   return ctx;
 }

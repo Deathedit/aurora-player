@@ -77,17 +77,13 @@ export async function getStoredHandle(): Promise<FileSystemDirectoryHandle | nul
 
 export type FsPermissionStatus = 'granted' | 'prompt' | 'denied';
 
-export async function queryPermission(
-  handle: FileSystemDirectoryHandle,
-): Promise<FsPermissionStatus> {
+export async function queryPermission(handle: FileSystemDirectoryHandle): Promise<FsPermissionStatus> {
   return handle.queryPermission({
     mode: 'read',
   }) as unknown as FsPermissionStatus;
 }
 
-export async function requestPermission(
-  handle: FileSystemDirectoryHandle,
-): Promise<FsPermissionStatus> {
+export async function requestPermission(handle: FileSystemDirectoryHandle): Promise<FsPermissionStatus> {
   return handle.requestPermission({
     mode: 'read',
   }) as unknown as FsPermissionStatus;
@@ -95,11 +91,7 @@ export async function requestPermission(
 
 export type { FileEntry };
 
-async function walkDir(
-  handle: FileSystemDirectoryHandle,
-  path: string,
-  entries: FileEntry[],
-): Promise<void> {
+async function walkDir(handle: FileSystemDirectoryHandle, path: string, entries: FileEntry[]): Promise<void> {
   for await (const entry of handle.values()) {
     if (entry.kind === 'file') {
       const fileHandle = entry as FileSystemFileHandle;
@@ -119,9 +111,7 @@ async function walkDir(
   }
 }
 
-export async function readDirectory(
-  handle: FileSystemDirectoryHandle,
-): Promise<FileEntry[]> {
+export async function readDirectory(handle: FileSystemDirectoryHandle): Promise<FileEntry[]> {
   const entries: FileEntry[] = [];
   await walkDir(handle, '', entries);
   return entries;

@@ -23,8 +23,7 @@ function makeId(file: File): string {
 async function hashBytes(bytes: Uint8Array): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', bytes as BufferSource);
   let hex = '';
-  for (const b of new Uint8Array(digest))
-    hex += b.toString(16).padStart(2, '0');
+  for (const b of new Uint8Array(digest)) hex += b.toString(16).padStart(2, '0');
   return hex;
 }
 
@@ -66,9 +65,7 @@ function audioMime(f: File): boolean {
   return f.type.startsWith('audio/') || isAudioFile(f.name);
 }
 
-async function parseEntry(
-  entry: FileEntry,
-): Promise<{ track: Track; art?: Blob }> {
+async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob }> {
   try {
     const meta = await parseBlob(entry.file);
     const url = URL.createObjectURL(entry.file);
@@ -83,10 +80,7 @@ async function parseEntry(
     }
 
     const metaAlbum = meta.common.album;
-    const album =
-      metaAlbum && metaAlbum !== 'Unknown Album'
-        ? metaAlbum
-        : (entry.folder ?? 'Unknown Album');
+    const album = metaAlbum && metaAlbum !== 'Unknown Album' ? metaAlbum : (entry.folder ?? 'Unknown Album');
 
     return {
       track: {
@@ -129,8 +123,7 @@ async function resolveEntry(entry: FileEntry): Promise<Track> {
   const key = cacheKey(entry.file, entry.folder);
   const cached = await getCached(key);
   if (cached) {
-    if (cached.artHash && cached.artColor)
-      artColors.set(cached.artHash, cached.artColor);
+    if (cached.artHash && cached.artColor) artColors.set(cached.artHash, cached.artColor);
     return {
       id: makeId(entry.file),
       file: entry.file,
@@ -169,31 +162,25 @@ async function resolveEntry(entry: FileEntry): Promise<Track> {
 const CONCURRENCY = 5;
 const BATCH_SIZE = 20;
 
-export async function parseFiles(
-  entries: FileEntry[],
-  onBatch?: (tracks: Track[]) => void,
-): Promise<Track[]> {
+export async function parseFiles(entries: FileEntry[], onBatch?: (tracks: Track[]) => void): Promise<Track[]> {
   const audio = entries.filter((e) => audioMime(e.file));
   const all: Track[] = [];
   let batch: Track[] = [];
 
   let i = 0;
-  const workers = Array.from(
-    { length: Math.min(CONCURRENCY, audio.length) },
-    async () => {
-      while (true) {
-        const idx = i++;
-        if (idx >= audio.length) break;
-        const track = await resolveEntry(audio[idx]);
-        all.push(track);
-        batch.push(track);
-        if (batch.length >= BATCH_SIZE) {
-          onBatch?.(batch);
-          batch = [];
-        }
+  const workers = Array.from({ length: Math.min(CONCURRENCY, audio.length) }, async () => {
+    while (true) {
+      const idx = i++;
+      if (idx >= audio.length) break;
+      const track = await resolveEntry(audio[idx]);
+      all.push(track);
+      batch.push(track);
+      if (batch.length >= BATCH_SIZE) {
+        onBatch?.(batch);
+        batch = [];
       }
-    },
-  );
+    }
+  });
 
   await Promise.all(workers);
 
@@ -206,18 +193,13 @@ export async function parseFiles(
   return all;
 }
 
-let facPromise: Promise<import('fast-average-color').FastAverageColor> | null =
-  null;
+let facPromise: Promise<import('fast-average-color').FastAverageColor> | null = null;
 
 function getFac() {
-  return (facPromise ??= import('fast-average-color').then(
-    (m) => new m.FastAverageColor(),
-  ));
+  return (facPromise ??= import('fast-average-color').then((m) => new m.FastAverageColor()));
 }
 
-export async function extractArtColor(
-  artUrl: string,
-): Promise<string | undefined> {
+export async function extractArtColor(artUrl: string): Promise<string | undefined> {
   try {
     const analyzer = await getFac();
     const result = await analyzer.getColorAsync(artUrl);
@@ -227,11 +209,7 @@ export async function extractArtColor(
   }
 }
 
-export async function cacheColor(
-  file: File,
-  folder: string | undefined,
-  color: string,
-): Promise<void> {
+export async function cacheColor(file: File, folder: string | undefined, color: string): Promise<void> {
   await setCachedColor(cacheKey(file, folder), color);
 }
 

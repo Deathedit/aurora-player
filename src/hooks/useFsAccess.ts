@@ -19,10 +19,7 @@ export interface FsAccessState {
   supported: boolean;
 }
 
-export function useFsAccess(
-  addFiles: (entries: FileEntry[]) => Promise<void>,
-  clearLibrary: () => void,
-) {
+export function useFsAccess(addFiles: (entries: FileEntry[]) => Promise<void>, clearLibrary: () => void) {
   const [dirName, setDirName] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [reconnectNeeded, setReconnectNeeded] = useState(false);

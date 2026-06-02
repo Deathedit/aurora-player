@@ -20,10 +20,8 @@ export const RECONNECT_FOLDER = 'Reconnect';
 export const REFRESH_FOLDER = 'Refresh';
 export const DISCONNECT_FOLDER = 'Disconnect';
 export const SCANNING = 'Scanning…';
-export const FOLDER_NOT_SUPPORTED =
-  'Folder access not supported in this browser. Use Chrome or Edge.';
-export const TRACKS_LOADED = (n: number) =>
-  `${n} track${n === 1 ? '' : 's'} loaded`;
+export const FOLDER_NOT_SUPPORTED = 'Folder access not supported in this browser. Use Chrome or Edge.';
+export const TRACKS_LOADED = (n: number) => `${n} track${n === 1 ? '' : 's'} loaded`;
 export const THEME_LABEL = 'Theme';
 export const GLASS_LABEL = 'Glass Effect';
 export const DARK = 'dark';

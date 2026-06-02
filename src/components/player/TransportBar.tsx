@@ -1,15 +1,6 @@
 import { usePlayer, usePlayerProgress } from '@/player-context';
 import { formatTime } from '@/text';
-import {
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
-  Repeat,
-  Shuffle,
-  ChevronUp,
-  Maximize2,
-} from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, ChevronUp, Maximize2 } from 'lucide-react';
 import { VolumeIcon } from '@/components/ui/volume-icon';
 import { useEffect, useMemo, useRef } from 'react';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
@@ -38,10 +29,7 @@ export function TransportBar({
     seek,
   } = usePlayer();
   const { currentTime, duration } = usePlayerProgress();
-  const current = useMemo(
-    () => library.find((t) => t.id === currentId) ?? null,
-    [library, currentId],
-  );
+  const current = useMemo(() => library.find((t) => t.id === currentId) ?? null, [library, currentId]);
   const isDesktop = useIsDesktop();
   const showArt = isDesktop || !nowPlayingOpen;
   const footerRef = useRef<HTMLElement>(null);
@@ -92,14 +80,7 @@ export function TransportBar({
         cursor={{ base: 'pointer', md: 'default' }}
       >
         {showArt && current?.artUrl ? (
-          <chakra.img
-            src={current.artUrl}
-            alt=""
-            boxSize="11"
-            flexShrink={0}
-            rounded="md"
-            objectFit="cover"
-          />
+          <chakra.img src={current.artUrl} alt="" boxSize="11" flexShrink={0} rounded="md" objectFit="cover" />
         ) : (
           <Box boxSize="11" flexShrink={0} rounded="md" bg="muted" />
         )}
@@ -111,11 +92,7 @@ export function TransportBar({
             {current?.artist ?? '—'}
           </Text>
         </Box>
-        <Box
-          color="mutedForeground"
-          display={{ base: 'block', md: 'none' }}
-          flexShrink={0}
-        >
+        <Box color="mutedForeground" display={{ base: 'block', md: 'none' }} flexShrink={0}>
           <ChevronUp size={16} />
         </Box>
       </chakra.button>
@@ -191,32 +168,15 @@ export function TransportBar({
         >
           <Repeat size={14} />
           {repeat === 'one' && (
-            <Text
-              position="absolute"
-              top="-0.5"
-              right="0"
-              fontSize="0.5rem"
-              fontWeight="bold"
-            >
+            <Text position="absolute" top="-0.5" right="0" fontSize="0.5rem" fontWeight="bold">
               1
             </Text>
           )}
         </chakra.button>
       </Flex>
 
-      <Flex
-        display={{ base: 'none', md: 'flex' }}
-        flex="1"
-        minW={0}
-        alignItems="center"
-        gap="3"
-      >
-        <Text
-          flexShrink={0}
-          fontSize="xs"
-          color="mutedForeground"
-          css={{ fontVariantNumeric: 'tabular-nums' }}
-        >
+      <Flex display={{ base: 'none', md: 'flex' }} flex="1" minW={0} alignItems="center" gap="3">
+        <Text flexShrink={0} fontSize="xs" color="mutedForeground" css={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatTime(currentTime)}
         </Text>
         <Box
@@ -242,20 +202,10 @@ export function TransportBar({
             transition="height 0.15s"
             overflow="hidden"
           >
-            <Box
-              h="full"
-              rounded="full"
-              layerStyle="accentGradient"
-              style={{ width: `${pct}%` }}
-            />
+            <Box h="full" rounded="full" layerStyle="accentGradient" style={{ width: `${pct}%` }} />
           </Box>
         </Box>
-        <Text
-          flexShrink={0}
-          fontSize="xs"
-          color="mutedForeground"
-          css={{ fontVariantNumeric: 'tabular-nums' }}
-        >
+        <Text flexShrink={0} fontSize="xs" color="mutedForeground" css={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatTime(duration)}
         </Text>
         <chakra.button
@@ -277,9 +227,7 @@ export function TransportBar({
           max={1}
           step={0.01}
           value={volume}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setVolume(Number(e.target.value))
-          }
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVolume(Number(e.target.value))}
           w="20"
           accentColor="var(--chakra-colors-primary)"
         />

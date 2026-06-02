@@ -46,12 +46,7 @@ export function Settings() {
       </Text>
       <Flex flexDir="column" mt="6" gap="4">
         <Box rounded="lg" bg="elevated" p="4">
-          <Flex
-            flexWrap="wrap"
-            alignItems="center"
-            justifyContent="space-between"
-            gap="3"
-          >
+          <Flex flexWrap="wrap" alignItems="center" justifyContent="space-between" gap="3">
             <Text fontSize="sm" fontWeight="medium">
               Music Library
             </Text>
@@ -81,11 +76,7 @@ export function Settings() {
                     opacity={fs.scanning ? 0.5 : 1}
                     cursor={fs.scanning ? 'not-allowed' : 'pointer'}
                   >
-                    {fs.scanning ? (
-                      <Loader2 size={16} style={spinCss} />
-                    ) : (
-                      <FolderOpen size={16} />
-                    )}
+                    {fs.scanning ? <Loader2 size={16} style={spinCss} /> : <FolderOpen size={16} />}
                     {fs.scanning ? SCANNING : CONNECT_FOLDER}
                   </chakra.button>
                 )}
@@ -114,15 +105,7 @@ export function Settings() {
 
                 {fs.connected && !fs.reconnectNeeded && (
                   <>
-                    <Flex
-                      alignItems="center"
-                      gap="1.5"
-                      rounded="md"
-                      bg="muted"
-                      px="3"
-                      py="2"
-                      fontSize="sm"
-                    >
+                    <Flex alignItems="center" gap="1.5" rounded="md" bg="muted" px="3" py="2" fontSize="sm">
                       <FolderOpen size={16} />
                       {fs.dirName}
                       {fs.scanning && <Loader2 size={14} style={spinCss} />}
@@ -146,10 +129,7 @@ export function Settings() {
                       opacity={fs.scanning ? 0.5 : 1}
                       cursor={fs.scanning ? 'not-allowed' : 'pointer'}
                     >
-                      <RefreshCw
-                        size={14}
-                        style={fs.scanning ? spinCss : undefined}
-                      />
+                      <RefreshCw size={14} style={fs.scanning ? spinCss : undefined} />
                       {REFRESH_FOLDER}
                     </chakra.button>
                     <chakra.button
@@ -178,13 +158,7 @@ export function Settings() {
           </Flex>
         </Box>
 
-        <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          rounded="lg"
-          bg="elevated"
-          p="4"
-        >
+        <Flex alignItems="center" justifyContent="space-between" rounded="lg" bg="elevated" p="4">
           <Text fontSize="sm" fontWeight="medium">
             {THEME_LABEL}
           </Text>
@@ -218,13 +192,7 @@ export function Settings() {
           </Flex>
         </Flex>
 
-        <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          rounded="lg"
-          bg="elevated"
-          p="4"
-        >
+        <Flex alignItems="center" justifyContent="space-between" rounded="lg" bg="elevated" p="4">
           <Text fontSize="sm" fontWeight="medium">
             {GLASS_LABEL}
           </Text>

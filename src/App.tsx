@@ -23,12 +23,7 @@ function AppShell() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'f' && e.key !== 'F') return;
       const tag = (e.target as HTMLElement).tagName;
-      if (
-        tag === 'INPUT' ||
-        tag === 'TEXTAREA' ||
-        (e.target as HTMLElement).isContentEditable
-      )
-        return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) return;
       e.preventDefault();
       toggleNowPlaying();
     };
@@ -63,27 +58,15 @@ function AppShell() {
         pb={{ base: '8.5rem', md: '4rem' }}
       >
         <Routes>
-          <Route
-            path="/"
-            element={withScroll(<Library scrollParent={scrollParent!} />)}
-          />
-          <Route
-            path="/albums"
-            element={withScroll(<Albums scrollParent={scrollParent!} />)}
-          />
+          <Route path="/" element={withScroll(<Library scrollParent={scrollParent!} />)} />
+          <Route path="/albums" element={withScroll(<Albums scrollParent={scrollParent!} />)} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Box>
 
-      <TransportBar
-        onNowPlaying={toggleNowPlaying}
-        nowPlayingOpen={nowPlayingOpen}
-      />
+      <TransportBar onNowPlaying={toggleNowPlaying} nowPlayingOpen={nowPlayingOpen} />
       <TabBar />
-      <NowPlaying
-        open={nowPlayingOpen}
-        onClose={() => setNowPlayingOpen(false)}
-      />
+      <NowPlaying open={nowPlayingOpen} onClose={() => setNowPlayingOpen(false)} />
     </Grid>
   );
 }

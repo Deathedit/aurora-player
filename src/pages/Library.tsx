@@ -11,10 +11,7 @@ export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
   const sorted = useMemo(
     () =>
       [...library].sort(
-        (a, b) =>
-          a.artist.localeCompare(b.artist) ||
-          a.album.localeCompare(b.album) ||
-          a.title.localeCompare(b.title),
+        (a, b) => a.artist.localeCompare(b.artist) || a.album.localeCompare(b.album) || a.title.localeCompare(b.title),
       ),
     [library],
   );
@@ -22,12 +19,7 @@ export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
   if (library.length === 0) {
     return (
       <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6">
-        <Text
-          as="h1"
-          fontSize="2xl"
-          fontWeight="semibold"
-          letterSpacing="tight"
-        >
+        <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
           Library
         </Text>
         <Text mt="8" color="mutedForeground">

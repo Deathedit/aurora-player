@@ -1,11 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import {
-  Library,
-  Disc3,
-  Settings,
-  ChevronsRight,
-  ChevronsLeft,
-} from 'lucide-react';
+import { Library, Disc3, Settings, ChevronsRight, ChevronsLeft } from 'lucide-react';
 import { APP_NAME, NAV_ITEMS } from '@/text';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 
@@ -18,8 +12,7 @@ const ChakraNavLink = chakra(NavLink);
 
 const navLinkCss = {
   '&[aria-current=page]': {
-    background:
-      'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)',
+    background: 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)',
     color: 'var(--chakra-colors-primary)',
   },
 } as const;
@@ -30,13 +23,7 @@ const scrollbarHiddenCss = {
   '&::-webkit-scrollbar': { display: 'none' },
 } as const;
 
-export function Sidebar({
-  collapsed,
-  onToggle,
-}: {
-  collapsed: boolean;
-  onToggle: () => void;
-}) {
+export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   return (
     <Box
       as="aside"
@@ -61,34 +48,15 @@ export function Sidebar({
         gap={collapsed ? undefined : '2.5'}
         px={collapsed ? undefined : '6'}
       >
-        <chakra.img
-          src="/favicon.svg"
-          alt=""
-          w="6"
-          h="6"
-          flexShrink={0}
-          aria-hidden="true"
-        />
+        <chakra.img src="/favicon.svg" alt="" w="6" h="6" flexShrink={0} aria-hidden="true" />
         {!collapsed && (
-          <Text
-            fontSize="lg"
-            fontWeight="semibold"
-            letterSpacing="tight"
-            layerStyle="accentGradientText"
-          >
+          <Text fontSize="lg" fontWeight="semibold" letterSpacing="tight" layerStyle="accentGradientText">
             {APP_NAME}
           </Text>
         )}
       </Flex>
 
-      <Box
-        as="nav"
-        flex="1"
-        overflowY="auto"
-        px={collapsed ? '2' : '3'}
-        pt="2"
-        css={scrollbarHiddenCss}
-      >
+      <Box as="nav" flex="1" overflowY="auto" px={collapsed ? '2' : '3'} pt="2" css={scrollbarHiddenCss}>
         <Flex flexDir="column" gap="1">
           {NAV_ITEMS.map((item) => {
             const Icon = icons[item.path as keyof typeof icons];

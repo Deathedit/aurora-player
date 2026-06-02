@@ -151,8 +151,7 @@ const config = defineConfig({
     layerStyles: {
       glass: {
         value: {
-          background:
-            'color-mix(in oklch, {colors.sidebar} / 72%, transparent)',
+          background: 'color-mix(in oklch, {colors.sidebar} / 72%, transparent)',
           backdropFilter: 'blur(24px) saturate(1.2)',
           WebkitBackdropFilter: 'blur(24px) saturate(1.2)',
           borderColor: '{colors.border}',
@@ -165,8 +164,7 @@ const config = defineConfig({
       },
       glassSidebar: {
         value: {
-          background:
-            'color-mix(in oklch, {colors.sidebar} / 80%, transparent)',
+          background: 'color-mix(in oklch, {colors.sidebar} / 80%, transparent)',
           backdropFilter: 'blur(24px) saturate(1.2)',
           WebkitBackdropFilter: 'blur(24px) saturate(1.2)',
           _noGlass: {
@@ -178,8 +176,7 @@ const config = defineConfig({
       },
       glassElevated: {
         value: {
-          background:
-            'color-mix(in oklch, {colors.elevated} / 70%, transparent)',
+          background: 'color-mix(in oklch, {colors.elevated} / 70%, transparent)',
           backdropFilter: 'blur(24px) saturate(1.2)',
           WebkitBackdropFilter: 'blur(24px) saturate(1.2)',
           _noGlass: {
@@ -191,14 +188,12 @@ const config = defineConfig({
       },
       accentGradient: {
         value: {
-          background:
-            'linear-gradient(120deg, {colors.accentGradientStart}, {colors.accentGradientEnd})',
+          background: 'linear-gradient(120deg, {colors.accentGradientStart}, {colors.accentGradientEnd})',
         },
       },
       accentGradientText: {
         value: {
-          background:
-            'linear-gradient(120deg, {colors.accentGradientStart}, {colors.accentGradientEnd})',
+          background: 'linear-gradient(120deg, {colors.accentGradientStart}, {colors.accentGradientEnd})',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',

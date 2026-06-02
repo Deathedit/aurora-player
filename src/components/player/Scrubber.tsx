@@ -34,12 +34,7 @@ export function Scrubber() {
         transition="height 0.15s"
         overflow="hidden"
       >
-        <Box
-          h="full"
-          rounded="full"
-          layerStyle="accentGradient"
-          style={{ width: `${pct}%` }}
-        />
+        <Box h="full" rounded="full" layerStyle="accentGradient" style={{ width: `${pct}%` }} />
       </Box>
     </Box>
   );

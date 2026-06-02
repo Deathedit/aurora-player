@@ -21,11 +21,9 @@ function open(): Promise<IDBDatabase> {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       const d = req.result;
-      if (d.objectStoreNames.contains(TRACKS_STORE))
-        d.deleteObjectStore(TRACKS_STORE);
+      if (d.objectStoreNames.contains(TRACKS_STORE)) d.deleteObjectStore(TRACKS_STORE);
       d.createObjectStore(TRACKS_STORE);
-      if (!d.objectStoreNames.contains(ART_STORE))
-        d.createObjectStore(ART_STORE);
+      if (!d.objectStoreNames.contains(ART_STORE)) d.createObjectStore(ART_STORE);
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
@@ -44,10 +42,7 @@ export async function getCached(key: string): Promise<CachedTrack | undefined> {
   try {
     const d = await db();
     return await new Promise((resolve, reject) => {
-      const req = d
-        .transaction(TRACKS_STORE, 'readonly')
-        .objectStore(TRACKS_STORE)
-        .get(key);
+      const req = d.transaction(TRACKS_STORE, 'readonly').objectStore(TRACKS_STORE).get(key);
       req.onsuccess = () => resolve(req.result as CachedTrack | undefined);
       req.onerror = () => reject(req.error);
     });
@@ -56,10 +51,7 @@ export async function getCached(key: string): Promise<CachedTrack | undefined> {
   }
 }
 
-export async function putCached(
-  key: string,
-  value: CachedTrack,
-): Promise<void> {
+export async function putCached(key: string, value: CachedTrack): Promise<void> {
   try {
     const d = await db();
     await new Promise<void>((resolve, reject) => {
@@ -73,10 +65,7 @@ export async function putCached(
   }
 }
 
-export async function setCachedColor(
-  key: string,
-  color: string,
-): Promise<void> {
+export async function setCachedColor(key: string, color: string): Promise<void> {
   const cached = await getCached(key);
   if (!cached) return;
   await putCached(key, { ...cached, artColor: color });
@@ -86,10 +75,7 @@ export async function getArt(hash: string): Promise<Blob | undefined> {
   try {
     const d = await db();
     return await new Promise((resolve, reject) => {
-      const req = d
-        .transaction(ART_STORE, 'readonly')
-        .objectStore(ART_STORE)
-        .get(hash);
+      const req = d.transaction(ART_STORE, 'readonly').objectStore(ART_STORE).get(hash);
       req.onsuccess = () => resolve(req.result as Blob | undefined);
       req.onerror = () => reject(req.error);
     });
@@ -112,9 +98,7 @@ export async function putArt(hash: string, blob: Blob): Promise<void> {
   }
 }
 
-export async function pruneCacheToScan(
-  allScannedKeys: Set<string>,
-): Promise<void> {
+export async function pruneCacheToScan(allScannedKeys: Set<string>): Promise<void> {
   try {
     const d = await db();
     await new Promise<void>((resolve, reject) => {

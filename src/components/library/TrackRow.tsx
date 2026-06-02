@@ -7,24 +7,9 @@ import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 function Equalizer() {
   return (
     <Flex h="4" alignItems="flex-end" gap="0.5">
-      <Box
-        w="3px"
-        rounded="full"
-        bg="primary"
-        css={{ animation: 'equalizer1 0.8s ease-in-out infinite' }}
-      />
-      <Box
-        w="3px"
-        rounded="full"
-        bg="primary"
-        css={{ animation: 'equalizer2 0.8s ease-in-out infinite 0.12s' }}
-      />
-      <Box
-        w="3px"
-        rounded="full"
-        bg="primary"
-        css={{ animation: 'equalizer3 0.8s ease-in-out infinite 0.24s' }}
-      />
+      <Box w="3px" rounded="full" bg="primary" css={{ animation: 'equalizer1 0.8s ease-in-out infinite' }} />
+      <Box w="3px" rounded="full" bg="primary" css={{ animation: 'equalizer2 0.8s ease-in-out infinite 0.12s' }} />
+      <Box w="3px" rounded="full" bg="primary" css={{ animation: 'equalizer3 0.8s ease-in-out infinite 0.24s' }} />
     </Flex>
   );
 }
@@ -54,11 +39,7 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
       py="2"
       transition="colors 0.15s"
       _hover={{ bg: 'muted' }}
-      bg={
-        active
-          ? 'color-mix(in srgb, var(--chakra-colors-primary) 8%, transparent)'
-          : undefined
-      }
+      bg={active ? 'color-mix(in srgb, var(--chakra-colors-primary) 8%, transparent)' : undefined}
       borderLeftWidth={active ? '2px' : undefined}
       borderLeftColor={active ? 'primary' : undefined}
       style={{ height: 56 }}
@@ -67,13 +48,7 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
         '&:hover .track-hide': { display: 'none' },
       }}
     >
-      <Flex
-        w="8"
-        flexShrink={0}
-        justifyContent="center"
-        fontSize="sm"
-        color="mutedForeground"
-      >
+      <Flex w="8" flexShrink={0} justifyContent="center" fontSize="sm" color="mutedForeground">
         {active && isPlaying ? (
           <Equalizer />
         ) : active ? (
@@ -89,14 +64,7 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
       </Flex>
 
       {track.artUrl ? (
-        <chakra.img
-          src={track.artUrl}
-          alt=""
-          boxSize="10"
-          flexShrink={0}
-          rounded="sm"
-          objectFit="cover"
-        />
+        <chakra.img src={track.artUrl} alt="" boxSize="10" flexShrink={0} rounded="sm" objectFit="cover" />
       ) : (
         <Box boxSize="10" flexShrink={0} rounded="sm" bg="muted" />
       )}
@@ -120,11 +88,7 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
         <Heart size={16} color="var(--chakra-colors-mutedForeground)" />
       </chakra.button>
 
-      <Text
-        fontSize="xs"
-        color="mutedForeground"
-        css={{ fontVariantNumeric: 'tabular-nums' }}
-      >
+      <Text fontSize="xs" color="mutedForeground" css={{ fontVariantNumeric: 'tabular-nums' }}>
         {formatTime(track.durationSec)}
       </Text>
     </Flex>

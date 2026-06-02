@@ -12,7 +12,6 @@ export const FsAccessCtx = createContext<FsAccessContextType | null>(null);
 
 export function useFsAccessCtx(): FsAccessContextType {
   const ctx = useContext(FsAccessCtx);
-  if (!ctx)
-    throw new Error('useFsAccessCtx must be used within FsAccessProvider');
+  if (!ctx) throw new Error('useFsAccessCtx must be used within FsAccessProvider');
   return ctx;
 }

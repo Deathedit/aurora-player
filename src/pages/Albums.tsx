@@ -7,14 +7,7 @@ import { useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { LayoutGrid, List } from 'lucide-react';
 import type { Track } from '@/types';
-import {
-  Box,
-  Container,
-  Flex,
-  SimpleGrid,
-  Text,
-  chakra,
-} from '@chakra-ui/react';
+import { Box, Container, Flex, SimpleGrid, Text, chakra } from '@chakra-ui/react';
 
 function albumKey(t: Track): string {
   return t.folder ?? t.album;
@@ -55,22 +48,14 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
   }, [library]);
 
   const sortedAlbums = useMemo(
-    () =>
-      [...albums.values()].sort((a, b) =>
-        a.displayName.localeCompare(b.displayName),
-      ),
+    () => [...albums.values()].sort((a, b) => a.displayName.localeCompare(b.displayName)),
     [albums],
   );
 
   if (library.length === 0) {
     return (
       <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6">
-        <Text
-          as="h1"
-          fontSize="2xl"
-          fontWeight="semibold"
-          letterSpacing="tight"
-        >
+        <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
           Albums
         </Text>
         <Text mt="4" color="mutedForeground">
@@ -96,12 +81,7 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
           >
             &larr; All Albums
           </chakra.button>
-          <Text
-            as="h1"
-            fontSize="2xl"
-            fontWeight="semibold"
-            letterSpacing="tight"
-          >
+          <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
             {album.displayName}
           </Text>
           <Text mt="1" fontSize="sm" color="mutedForeground">
@@ -119,12 +99,7 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
       ) : (
         <>
           <Flex alignItems="center" justifyContent="space-between">
-            <Text
-              as="h1"
-              fontSize="2xl"
-              fontWeight="semibold"
-              letterSpacing="tight"
-            >
+            <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
               Albums
             </Text>
             <Flex alignItems="center" gap="1">
@@ -135,11 +110,7 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
                 p="1.5"
                 transition="colors 0.15s"
                 color={view === 'grid' ? 'primary' : 'mutedForeground'}
-                bg={
-                  view === 'grid'
-                    ? 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)'
-                    : undefined
-                }
+                bg={view === 'grid' ? 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)' : undefined}
                 _hover={{ color: view === 'grid' ? 'primary' : 'foreground' }}
               >
                 <LayoutGrid size={16} />
@@ -151,11 +122,7 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
                 p="1.5"
                 transition="colors 0.15s"
                 color={view === 'list' ? 'primary' : 'mutedForeground'}
-                bg={
-                  view === 'list'
-                    ? 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)'
-                    : undefined
-                }
+                bg={view === 'list' ? 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)' : undefined}
                 _hover={{ color: view === 'list' ? 'primary' : 'foreground' }}
               >
                 <List size={16} />
@@ -182,31 +149,16 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
                     style={{ height: 64 }}
                   >
                     {a.artUrl ? (
-                      <chakra.img
-                        src={a.artUrl}
-                        alt=""
-                        boxSize="12"
-                        flexShrink={0}
-                        rounded="sm"
-                        objectFit="cover"
-                      />
+                      <chakra.img src={a.artUrl} alt="" boxSize="12" flexShrink={0} rounded="sm" objectFit="cover" />
                     ) : (
-                      <Box
-                        boxSize="12"
-                        flexShrink={0}
-                        rounded="sm"
-                        bg="muted"
-                      />
+                      <Box boxSize="12" flexShrink={0} rounded="sm" bg="muted" />
                     )}
                     <Box minW={0} flex="1" textAlign="left">
                       <Text truncate fontSize="sm" fontWeight="medium">
                         {a.displayName}
                       </Text>
                       <Text fontSize="xs" color="mutedForeground">
-                        {a.tracks.length} tracks &middot;{' '}
-                        {formatTime(
-                          a.tracks.reduce((s, t) => s + t.durationSec, 0),
-                        )}
+                        {a.tracks.length} tracks &middot; {formatTime(a.tracks.reduce((s, t) => s + t.durationSec, 0))}
                       </Text>
                     </Box>
                   </chakra.button>
@@ -216,11 +168,7 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
               />
             </Box>
           ) : (
-            <SimpleGrid
-              mt="6"
-              columns={{ base: 2, sm: 3, lg: 4, xl: 6 }}
-              gap="4"
-            >
+            <SimpleGrid mt="6" columns={{ base: 2, sm: 3, lg: 4, xl: 6 }} gap="4">
               {sortedAlbums.map((a) => (
                 <chakra.button
                   key={a.key}
@@ -236,14 +184,7 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
                   _hover={{ bg: 'muted' }}
                 >
                   {a.artUrl ? (
-                    <chakra.img
-                      src={a.artUrl}
-                      alt=""
-                      aspectRatio="1"
-                      w="full"
-                      rounded="md"
-                      objectFit="cover"
-                    />
+                    <chakra.img src={a.artUrl} alt="" aspectRatio="1" w="full" rounded="md" objectFit="cover" />
                   ) : (
                     <Box aspectRatio="1" w="full" rounded="md" bg="muted" />
                   )}

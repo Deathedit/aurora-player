@@ -300,10 +300,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (el) el.volume = volume;
   }, [volume]);
 
-  const current = useMemo(
-    () => library.find((t) => t.id === currentId) ?? null,
-    [library, currentId],
-  );
+  const current = useMemo(() => library.find((t) => t.id === currentId) ?? null, [library, currentId]);
 
   useEffect(() => {
     if (!current?.artUrl) return;
@@ -319,25 +316,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       if (hash) setArtColor(hash, color);
       document.documentElement.style.setProperty('--art', color);
       setLibrary((prev) =>
-        prev.map((t) =>
-          t.id === current.id || (hash && t.artHash === hash)
-            ? { ...t, artColor: color }
-            : t,
-        ),
+        prev.map((t) => (t.id === current.id || (hash && t.artHash === hash) ? { ...t, artColor: color } : t)),
       );
       cacheColor(current.file, current.folder, color);
     });
     return () => {
       cancelled = true;
     };
-  }, [
-    current?.id,
-    current?.artUrl,
-    current?.artHash,
-    current?.artColor,
-    current?.file,
-    current?.folder,
-  ]);
+  }, [current?.id, current?.artUrl, current?.artHash, current?.artColor, current?.file, current?.folder]);
 
   useEffect(() => {
     if (!('mediaSession' in navigator)) return;
@@ -404,10 +390,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     ],
   );
 
-  const progress = useMemo(
-    () => ({ currentTime, duration }),
-    [currentTime, duration],
-  );
+  const progress = useMemo(() => ({ currentTime, duration }), [currentTime, duration]);
 
   return (
     <PlayerCtx.Provider value={value}>
