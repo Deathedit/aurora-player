@@ -1,5 +1,5 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { ReactElement } from 'react';
 import { PlayerProvider } from '@/components/PlayerProvider';
 import { FsAccessProvider } from '@/components/FsAccessProvider';
@@ -14,8 +14,6 @@ import { cn } from '@/lib/utils';
 
 function AppShell() {
   const [nowPlayingOpen, setNowPlayingOpen] = useState(false);
-  const openRef = useRef(nowPlayingOpen);
-  useEffect(() => { openRef.current = nowPlayingOpen; });
   const [collapsed, setCollapsed] = useState(true);
   const [scrollParent, setScrollParent] = useState<HTMLElement | null>(null);
 
