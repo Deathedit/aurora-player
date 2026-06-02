@@ -103,6 +103,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       if (!track) return;
       setCurrentId(id);
       historyRef.current.push(id);
+      if (historyRef.current.length > 100) {
+        historyRef.current = historyRef.current.slice(-100);
+      }
 
       let newQueue: Track[];
       if (shuffleRef.current) {
