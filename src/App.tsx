@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import type { ReactElement } from 'react';
+import { Box, Grid } from '@chakra-ui/react';
 import { PlayerProvider } from '@/components/PlayerProvider';
 import { FsAccessProvider } from '@/components/FsAccessProvider';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -10,23 +11,24 @@ import { NowPlaying } from '@/components/player/NowPlaying';
 import { Library } from '@/pages/Library';
 import { Albums } from '@/pages/Albums';
 import { Settings } from '@/pages/Settings';
-import { cn } from '@/lib/utils';
 
 function AppShell() {
   const [nowPlayingOpen, setNowPlayingOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [scrollParent, setScrollParent] = useState<HTMLElement | null>(null);
 
-  const toggleNowPlaying = useCallback(
-    () => setNowPlayingOpen((o) => !o),
-    [],
-  );
+  const toggleNowPlaying = useCallback(() => setNowPlayingOpen((o) => !o), []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'f' && e.key !== 'F') return;
       const tag = (e.target as HTMLElement).tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) return;
+      if (
+        tag === 'INPUT' ||
+        tag === 'TEXTAREA' ||
+        (e.target as HTMLElement).isContentEditable
+      )
+        return;
       e.preventDefault();
       toggleNowPlaying();
     };
@@ -37,16 +39,28 @@ function AppShell() {
   const withScroll = (el: ReactElement) => (scrollParent ? el : null);
 
   return (
-    <div
-      className={cn(
-        'h-dvh flex flex-col overflow-hidden md:h-svh md:grid',
-        collapsed ? 'md:grid-cols-[4rem_1fr]' : 'md:grid-cols-[16rem_1fr]',
-      )}
+    <Grid
+      h="100dvh"
+      overflow="hidden"
+      gridTemplateColumns={{
+        base: '1fr',
+        md: collapsed ? '4rem 1fr' : '16rem 1fr',
+      }}
+      gridTemplateRows={{ base: '1fr', md: '1fr' }}
+      css={{
+        '@media (max-width: 767px)': {
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      }}
     >
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
-      <main
-        ref={setScrollParent}
-        className="flex-1 overflow-y-auto pb-[8.5rem] md:pb-16"
+      <Box
+        as="main"
+        ref={setScrollParent as React.Ref<HTMLDivElement>}
+        flex="1"
+        overflowY="auto"
+        pb={{ base: '8.5rem', md: '4rem' }}
       >
         <Routes>
           <Route
@@ -59,7 +73,7 @@ function AppShell() {
           />
           <Route path="/settings" element={<Settings />} />
         </Routes>
-      </main>
+      </Box>
 
       <TransportBar
         onNowPlaying={toggleNowPlaying}
@@ -70,7 +84,7 @@ function AppShell() {
         open={nowPlayingOpen}
         onClose={() => setNowPlayingOpen(false)}
       />
-    </div>
+    </Grid>
   );
 }
 

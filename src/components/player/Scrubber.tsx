@@ -1,4 +1,5 @@
 import { usePlayer, usePlayerProgress } from '@/player-context';
+import { Box } from '@chakra-ui/react';
 
 export function Scrubber() {
   const { seek } = usePlayer();
@@ -6,20 +7,40 @@ export function Scrubber() {
   const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div
-      className="group relative flex h-5 cursor-pointer items-center"
-      onClick={(e) => {
+    <Box
+      role="button"
+      position="relative"
+      display="flex"
+      h="5"
+      cursor="pointer"
+      alignItems="center"
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
         seek((x / rect.width) * duration);
       }}
+      css={{
+        '&:hover .scrubber-track': {
+          height: '6px',
+        },
+      }}
     >
-      <div className="h-1 w-full rounded-full bg-muted transition-all group-hover:h-1.5">
-        <div
-          className="h-full rounded-full accent-gradient"
+      <Box
+        className="scrubber-track"
+        h="1"
+        w="full"
+        rounded="full"
+        bg="muted"
+        transition="height 0.15s"
+        overflow="hidden"
+      >
+        <Box
+          h="full"
+          rounded="full"
+          layerStyle="accentGradient"
           style={{ width: `${pct}%` }}
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

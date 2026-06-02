@@ -1,16 +1,31 @@
 import { usePlayer } from '@/player-context';
 import { formatTime } from '@/text';
 import { Play, Pause, Heart } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import type { Track } from '@/types';
+import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 
 function Equalizer() {
   return (
-    <div className="flex h-4 items-end gap-[2px]">
-      <div className="eq-bar-1 w-[3px] rounded-full bg-primary" />
-      <div className="eq-bar-2 w-[3px] rounded-full bg-primary" />
-      <div className="eq-bar-3 w-[3px] rounded-full bg-primary" />
-    </div>
+    <Flex h="4" alignItems="flex-end" gap="0.5">
+      <Box
+        w="3px"
+        rounded="full"
+        bg="primary"
+        css={{ animation: 'equalizer1 0.8s ease-in-out infinite' }}
+      />
+      <Box
+        w="3px"
+        rounded="full"
+        bg="primary"
+        css={{ animation: 'equalizer2 0.8s ease-in-out infinite 0.12s' }}
+      />
+      <Box
+        w="3px"
+        rounded="full"
+        bg="primary"
+        css={{ animation: 'equalizer3 0.8s ease-in-out infinite 0.24s' }}
+      />
+    </Flex>
   );
 }
 
@@ -21,62 +36,97 @@ export function TrackRow({ track, index }: { track: Track; index: number }) {
   const activate = () => (active ? toggle() : play(track.id));
 
   return (
-    <div
+    <Flex
       role="button"
       tabIndex={0}
       onClick={activate}
-      onKeyDown={(e) => {
+      onKeyDown={(e: React.KeyboardEvent) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;
         e.preventDefault();
         activate();
       }}
-      className={cn(
-        'group flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-150 hover:bg-muted',
-        active && 'border-l-2 border-l-primary bg-primary/8',
-      )}
+      w="full"
+      cursor="pointer"
+      alignItems="center"
+      gap="3"
+      rounded="lg"
+      px="3"
+      py="2"
+      transition="colors 0.15s"
+      _hover={{ bg: 'muted' }}
+      bg={
+        active
+          ? 'color-mix(in srgb, var(--chakra-colors-primary) 8%, transparent)'
+          : undefined
+      }
+      borderLeftWidth={active ? '2px' : undefined}
+      borderLeftColor={active ? 'primary' : undefined}
       style={{ height: 56 }}
+      css={{
+        '&:hover .track-show': { display: 'block' },
+        '&:hover .track-hide': { display: 'none' },
+      }}
     >
-      <span className="flex w-8 shrink-0 justify-center text-sm tabular-nums text-muted-foreground">
+      <Flex
+        w="8"
+        flexShrink={0}
+        justifyContent="center"
+        fontSize="sm"
+        color="mutedForeground"
+      >
         {active && isPlaying ? (
           <Equalizer />
         ) : active ? (
-          <Pause className="size-4 text-primary" />
+          <Pause size={16} color="var(--chakra-colors-primary)" />
         ) : (
-          <span className="group-hover:hidden">{index + 1}</span>
+          <>
+            <Box className="track-hide">{index + 1}</Box>
+            <Box className="track-show" display="none">
+              <Play size={16} />
+            </Box>
+          </>
         )}
-        {!active && !isPlaying && (
-          <Play className="hidden size-4 group-hover:block" />
-        )}
-      </span>
+      </Flex>
 
       {track.artUrl ? (
-        <img
+        <chakra.img
           src={track.artUrl}
           alt=""
-          className="size-10 shrink-0 rounded object-cover"
+          boxSize="10"
+          flexShrink={0}
+          rounded="sm"
+          objectFit="cover"
         />
       ) : (
-        <div className="size-10 shrink-0 rounded bg-muted" />
+        <Box boxSize="10" flexShrink={0} rounded="sm" bg="muted" />
       )}
 
-      <div className="min-w-0 flex-1">
-        <p className={cn('truncate text-sm', active && 'text-primary')}>
+      <Box minW={0} flex="1">
+        <Text truncate fontSize="sm" color={active ? 'primary' : undefined}>
           {track.title}
-        </p>
-        <p className="truncate text-xs text-muted-foreground">{track.artist}</p>
-      </div>
+        </Text>
+        <Text truncate fontSize="xs" color="mutedForeground">
+          {track.artist}
+        </Text>
+      </Box>
 
-      <button
+      <chakra.button
         type="button"
-        onClick={(e) => e.stopPropagation()}
-        className="opacity-0 transition-opacity group-hover:opacity-100"
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        opacity={0}
+        transition="opacity 0.15s"
+        css={{ 'div:hover > &': { opacity: 1 } }}
       >
-        <Heart className="size-4 text-muted-foreground hover:text-primary" />
-      </button>
+        <Heart size={16} color="var(--chakra-colors-mutedForeground)" />
+      </chakra.button>
 
-      <span className="text-xs tabular-nums text-muted-foreground">
+      <Text
+        fontSize="xs"
+        color="mutedForeground"
+        css={{ fontVariantNumeric: 'tabular-nums' }}
+      >
         {formatTime(track.durationSec)}
-      </span>
-    </div>
+      </Text>
+    </Flex>
   );
 }

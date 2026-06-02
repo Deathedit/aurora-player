@@ -7,11 +7,27 @@ import {
   ChevronsLeft,
 } from 'lucide-react';
 import { APP_NAME, NAV_ITEMS } from '@/text';
-import { cn } from '@/lib/utils';
+import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 
 const icons = {
   '/': Library,
   '/albums': Disc3,
+} as const;
+
+const ChakraNavLink = chakra(NavLink);
+
+const navLinkCss = {
+  '&[aria-current=page]': {
+    background:
+      'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)',
+    color: 'var(--chakra-colors-primary)',
+  },
+} as const;
+
+const scrollbarHiddenCss = {
+  scrollbarWidth: 'none',
+  msOverflowStyle: 'none',
+  '&::-webkit-scrollbar': { display: 'none' },
 } as const;
 
 export function Sidebar({
@@ -22,107 +38,128 @@ export function Sidebar({
   onToggle: () => void;
 }) {
   return (
-    <aside
-      className={cn(
-        'glass-sidebar hidden flex-col border-r border-border md:flex md:sticky md:top-0 md:max-h-[calc(100svh-4rem)] overflow-y-auto scrollbar-hidden transition-[width] duration-200',
-        collapsed ? 'w-16' : 'w-64',
-      )}
+    <Box
+      as="aside"
+      layerStyle="glassSidebar"
+      display={{ base: 'none', md: 'flex' }}
+      flexDir="column"
+      borderRightWidth="1px"
+      borderColor="sidebarBorder"
+      position="sticky"
+      top={0}
+      maxH="calc(100svh - 4rem)"
+      overflowY="auto"
+      w={collapsed ? '4rem' : '16rem'}
+      transition="width 0.2s"
+      css={scrollbarHiddenCss}
     >
-      <div
-        className={cn(
-          'flex h-14 shrink-0 items-center',
-          collapsed ? 'justify-center' : 'gap-2.5 px-6',
-        )}
+      <Flex
+        h="14"
+        flexShrink={0}
+        alignItems="center"
+        justifyContent={collapsed ? 'center' : undefined}
+        gap={collapsed ? undefined : '2.5'}
+        px={collapsed ? undefined : '6'}
       >
-        <img
+        <chakra.img
           src="/favicon.svg"
           alt=""
-          className="size-6 shrink-0"
+          w="6"
+          h="6"
+          flexShrink={0}
           aria-hidden="true"
         />
         {!collapsed && (
-          <span className="accent-gradient-text text-lg font-semibold tracking-tight">
+          <Text
+            fontSize="lg"
+            fontWeight="semibold"
+            letterSpacing="tight"
+            layerStyle="accentGradientText"
+          >
             {APP_NAME}
-          </span>
+          </Text>
         )}
-      </div>
+      </Flex>
 
-      <nav
-        className={cn(
-          'flex-1 space-y-1 overflow-y-auto scrollbar-hidden',
-          collapsed ? 'px-2 pt-2' : 'px-3 pt-2',
-        )}
+      <Box
+        as="nav"
+        flex="1"
+        overflowY="auto"
+        px={collapsed ? '2' : '3'}
+        pt="2"
+        css={scrollbarHiddenCss}
       >
-        {NAV_ITEMS.map((item) => {
-          const Icon = icons[item.path];
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              title={collapsed ? item.label : undefined}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center rounded-lg text-sm font-medium transition-colors duration-150',
-                  collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2',
-                  isActive
-                    ? 'bg-primary/12 text-primary'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                )
-              }
-            >
-              <Icon className="size-4 shrink-0" />
-              {!collapsed && item.label}
-            </NavLink>
-          );
-        })}
-      </nav>
+        <Flex flexDir="column" gap="1">
+          {NAV_ITEMS.map((item) => {
+            const Icon = icons[item.path as keyof typeof icons];
+            return (
+              <ChakraNavLink
+                key={item.path}
+                to={item.path}
+                title={collapsed ? item.label : undefined}
+                display="flex"
+                alignItems="center"
+                rounded="lg"
+                fontSize="sm"
+                fontWeight="medium"
+                transition="colors 0.15s"
+                justifyContent={collapsed ? 'center' : undefined}
+                px={collapsed ? '0' : '3'}
+                py={collapsed ? '2.5' : '2'}
+                gap={collapsed ? undefined : '3'}
+                color="mutedForeground"
+                _hover={{ bg: 'muted', color: 'foreground' }}
+                css={navLinkCss}
+              >
+                <Icon size={16} style={{ flexShrink: 0 }} />
+                {!collapsed && item.label}
+              </ChakraNavLink>
+            );
+          })}
+        </Flex>
+      </Box>
 
-      <div
-        className={cn(
-          'shrink-0',
-          collapsed ? 'px-2 pt-2 pb-1' : 'px-3 pt-2 pb-1',
-        )}
-      >
-        <button
+      <Box flexShrink={0} px={collapsed ? '2' : '3'} pt="2" pb="1">
+        <chakra.button
           type="button"
           onClick={onToggle}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className={cn(
-            'flex items-center rounded-lg p-1.5 text-foreground transition-colors hover:bg-muted',
-            collapsed ? 'mx-auto' : 'ml-auto',
-          )}
+          display="flex"
+          alignItems="center"
+          rounded="lg"
+          p="1.5"
+          color="foreground"
+          transition="colors 0.15s"
+          _hover={{ bg: 'muted' }}
+          mx={collapsed ? 'auto' : undefined}
+          ml={collapsed ? undefined : 'auto'}
         >
-          {collapsed ? (
-            <ChevronsRight className="size-5" />
-          ) : (
-            <ChevronsLeft className="size-4" />
-          )}
-        </button>
-      </div>
+          {collapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={16} />}
+        </chakra.button>
+      </Box>
 
-      <div
-        className={cn(
-          'shrink-0',
-          collapsed ? 'px-2 pt-1 pb-2' : 'px-3 pt-1 pb-2',
-        )}
-      >
-        <NavLink
+      <Box flexShrink={0} px={collapsed ? '2' : '3'} pt="1" pb="2">
+        <ChakraNavLink
           to="/settings"
           title={collapsed ? 'Settings' : undefined}
-          className={({ isActive }) =>
-            cn(
-              'flex items-center rounded-lg text-sm font-medium transition-colors duration-150',
-              collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2',
-              isActive
-                ? 'bg-primary/12 text-primary'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-            )
-          }
+          display="flex"
+          alignItems="center"
+          rounded="lg"
+          fontSize="sm"
+          fontWeight="medium"
+          transition="colors 0.15s"
+          justifyContent={collapsed ? 'center' : undefined}
+          px={collapsed ? '0' : '3'}
+          py={collapsed ? '2.5' : '2'}
+          gap={collapsed ? undefined : '3'}
+          color="mutedForeground"
+          _hover={{ bg: 'muted', color: 'foreground' }}
+          css={navLinkCss}
         >
-          <Settings className="size-4 shrink-0" />
+          <Settings size={16} style={{ flexShrink: 0 }} />
           {!collapsed && 'Settings'}
-        </NavLink>
-      </div>
-    </aside>
+        </ChakraNavLink>
+      </Box>
+    </Box>
   );
 }

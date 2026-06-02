@@ -10,9 +10,9 @@ import {
   Repeat,
 } from 'lucide-react';
 import { VolumeIcon } from '@/components/ui/volume-icon';
-import { cn } from '@/lib/utils';
 import { useEffect, useMemo, useRef } from 'react';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
+import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 
 export function NowPlaying({
   open,
@@ -44,7 +44,9 @@ export function NowPlaying({
   const isDesktop = useIsDesktop();
   const volumeRowRef = useRef<HTMLDivElement>(null);
   const volumeRef = useRef(volume);
-  useEffect(() => { volumeRef.current = volume; });
+  useEffect(() => {
+    volumeRef.current = volume;
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -63,9 +65,7 @@ export function NowPlaying({
       e.preventDefault();
       const delta = e.deltaY < 0 ? 0.05 : -0.05;
       const v = volumeRef.current;
-      setVolume(
-        Math.max(0, Math.min(1, Math.round((v + delta) * 100) / 100)),
-      );
+      setVolume(Math.max(0, Math.min(1, Math.round((v + delta) * 100) / 100)));
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
@@ -76,145 +76,241 @@ export function NowPlaying({
   const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div
-      className="glass-elevated fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 p-6 md:p-10"
-      style={
-        {
-          '--player-glow': `radial-gradient(at 50% 0%, ${current.artColor ?? '#8B5CF6'} 22%, transparent)`,
-        } as React.CSSProperties
-      }
+    <Box
+      layerStyle="glassElevated"
+      position="fixed"
+      inset={0}
+      zIndex={50}
+      display="flex"
+      flexDir="column"
+      alignItems="center"
+      justifyContent="center"
+      gap="6"
+      p={{ base: '6', md: '10' }}
+      css={{
+        '--player-glow': `radial-gradient(at 50% 0%, ${current.artColor ?? '#8B5CF6'} 22%, transparent)`,
+      }}
     >
-      <button
+      <chakra.button
         type="button"
         onClick={onClose}
-        className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+        position="absolute"
+        right="4"
+        top="4"
+        color="mutedForeground"
+        _hover={{ color: 'foreground' }}
       >
-        <X className="size-6" />
-      </button>
+        <X size={24} />
+      </chakra.button>
 
-      <div className="flex w-full max-w-md md:max-w-lg flex-col items-center gap-6">
-        <div className="relative w-full max-w-sm md:max-w-md">
+      <Flex
+        w="full"
+        maxW={{ base: 'md', md: 'lg' }}
+        flexDir="column"
+        alignItems="center"
+        gap="6"
+      >
+        <Box position="relative" w="full" maxW={{ base: 'sm', md: 'md' }}>
           {current.artUrl ? (
-            <img
+            <chakra.img
               src={current.artUrl}
               alt=""
-              className="aspect-square w-full rounded-xl object-cover shadow-2xl"
+              aspectRatio="1"
+              w="full"
+              rounded="xl"
+              objectFit="cover"
+              shadow="2xl"
             />
           ) : (
-            <div className="aspect-square w-full rounded-xl bg-muted" />
+            <Box aspectRatio="1" w="full" rounded="xl" bg="muted" />
           )}
-          <div
-            className="pointer-events-none absolute inset-0 rounded-xl"
-            style={{ background: 'var(--player-glow)', opacity: 0.15 }}
+          <Box
+            pointerEvents="none"
+            position="absolute"
+            inset={0}
+            rounded="xl"
+            css={{
+              background: 'var(--player-glow)',
+              opacity: 0.15,
+            }}
           />
-        </div>
+        </Box>
 
-        <div className="w-full text-center">
-          <p className="text-lg font-semibold">{current.title}</p>
-          <p className="text-sm text-muted-foreground">{current.artist}</p>
-        </div>
+        <Box w="full" textAlign="center">
+          <Text fontSize="lg" fontWeight="semibold">
+            {current.title}
+          </Text>
+          <Text fontSize="sm" color="mutedForeground">
+            {current.artist}
+          </Text>
+        </Box>
 
-        <div className="w-full">
-          <div
-            className="group relative flex h-5 cursor-pointer items-center"
-            onClick={(e) => {
+        <Box w="full">
+          <Box
+            position="relative"
+            display="flex"
+            h="5"
+            cursor="pointer"
+            alignItems="center"
+            onClick={(e: React.MouseEvent<HTMLDivElement>) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const x = e.clientX - rect.left;
               seek((x / rect.width) * duration);
             }}
+            css={{ '&:hover .np-track': { height: '6px' } }}
           >
-            <div className="h-1 w-full rounded-full bg-muted transition-all group-hover:h-1.5">
-              <div
-                className="h-full rounded-full accent-gradient"
+            <Box
+              className="np-track"
+              h="1"
+              w="full"
+              rounded="full"
+              bg="muted"
+              transition="height 0.15s"
+              overflow="hidden"
+            >
+              <Box
+                h="full"
+                rounded="full"
+                layerStyle="accentGradient"
                 style={{ width: `${pct}%` }}
               />
-            </div>
-          </div>
-          <div className="mt-1 flex justify-between text-xs tabular-nums text-muted-foreground">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-        </div>
+            </Box>
+          </Box>
+          <Flex
+            mt="1"
+            justifyContent="space-between"
+            fontSize="xs"
+            color="mutedForeground"
+            css={{ fontVariantNumeric: 'tabular-nums' }}
+          >
+            <Text>{formatTime(currentTime)}</Text>
+            <Text>{formatTime(duration)}</Text>
+          </Flex>
+        </Box>
 
-        <div className="flex w-full items-center justify-between">
-          <button
+        <Flex w="full" alignItems="center" justifyContent="space-between">
+          <chakra.button
             type="button"
             onClick={() => setShuffle(!shuffle)}
-            className={cn(
-              'rounded-full p-2 transition-colors hover:text-foreground',
-              shuffle ? 'text-primary' : 'text-muted-foreground',
-            )}
+            rounded="full"
+            p="2"
+            transition="colors 0.15s"
+            color={shuffle ? 'primary' : 'mutedForeground'}
+            _hover={{ color: 'foreground' }}
           >
-            <Shuffle className="size-5" />
-          </button>
-          <button
+            <Shuffle size={20} />
+          </chakra.button>
+          <chakra.button
             type="button"
             onClick={prev}
-            className="rounded-full p-2 text-foreground hover:text-primary"
+            rounded="full"
+            p="2"
+            color="foreground"
+            _hover={{ color: 'primary' }}
           >
-            <SkipBack className="size-6" />
-          </button>
-          <button
+            <SkipBack size={24} />
+          </chakra.button>
+          <chakra.button
             type="button"
             onClick={toggle}
-            className="accent-gradient flex size-14 items-center justify-center rounded-full text-primary-foreground active:scale-95"
+            layerStyle="accentGradient"
+            display="flex"
+            boxSize="14"
+            alignItems="center"
+            justifyContent="center"
+            rounded="full"
+            color="primaryForeground"
+            _active={{ transform: 'scale(0.95)' }}
           >
             {isPlaying ? (
-              <Pause className="size-6" />
+              <Pause size={24} />
             ) : (
-              <Play className="size-6 ml-0.5" />
+              <Play size={24} style={{ marginLeft: '2px' }} />
             )}
-          </button>
-          <button
+          </chakra.button>
+          <chakra.button
             type="button"
             onClick={next}
-            className="rounded-full p-2 text-foreground hover:text-primary"
+            rounded="full"
+            p="2"
+            color="foreground"
+            _hover={{ color: 'primary' }}
           >
-            <SkipForward className="size-6" />
-          </button>
-          <button
+            <SkipForward size={24} />
+          </chakra.button>
+          <chakra.button
             type="button"
             onClick={() => {
               const modes = ['off', 'all', 'one'] as const;
               const idx = modes.indexOf(repeat);
               setRepeat(modes[(idx + 1) % 3]);
             }}
-            className={cn(
-              'relative rounded-full p-2 transition-colors hover:text-foreground',
-              repeat !== 'off' ? 'text-primary' : 'text-muted-foreground',
-            )}
+            position="relative"
+            rounded="full"
+            p="2"
+            transition="colors 0.15s"
+            color={repeat !== 'off' ? 'primary' : 'mutedForeground'}
+            _hover={{ color: 'foreground' }}
           >
-            <Repeat className="size-5" />
+            <Repeat size={20} />
             {repeat === 'one' && (
-              <span className="absolute -top-0.5 right-0.5 text-[0.5rem] font-bold">
+              <Text
+                position="absolute"
+                top="-0.5"
+                right="0.5"
+                fontSize="0.5rem"
+                fontWeight="bold"
+              >
                 1
-              </span>
+              </Text>
             )}
-          </button>
-        </div>
+          </chakra.button>
+        </Flex>
 
-        <div ref={volumeRowRef} className="flex w-full max-w-sm md:max-w-xs items-center gap-3">
-          <button
+        <Flex
+          ref={volumeRowRef}
+          w="full"
+          maxW={{ base: 'sm', md: 'xs' }}
+          alignItems="center"
+          gap="3"
+        >
+          <chakra.button
             type="button"
             onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
-            className="flex size-5 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+            display="flex"
+            boxSize="5"
+            alignItems="center"
+            justifyContent="center"
+            color="mutedForeground"
+            transition="colors 0.15s"
+            _hover={{ color: 'foreground' }}
           >
-            <VolumeIcon volume={volume} className="size-4" />
-          </button>
-          <input
+            <VolumeIcon volume={volume} style={{ width: 16, height: 16 }} />
+          </chakra.button>
+          <chakra.input
             type="range"
             min={0}
             max={1}
             step={0.01}
             value={volume}
-            onChange={(e) => setVolume(Number(e.target.value))}
-            className="flex-1 accent-[var(--primary)]"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setVolume(Number(e.target.value))
+            }
+            flex="1"
+            accentColor="var(--chakra-colors-primary)"
           />
-          <span className="w-9 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+          <Text
+            w="9"
+            flexShrink={0}
+            textAlign="right"
+            fontSize="xs"
+            color="mutedForeground"
+            css={{ fontVariantNumeric: 'tabular-nums' }}
+          >
             {Math.round(volume * 100)}%
-          </span>
-        </div>
-      </div>
-    </div>
+          </Text>
+        </Flex>
+      </Flex>
+    </Box>
   );
 }

@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { Library, Disc3, Settings } from 'lucide-react';
 import { NAV_ITEMS } from '@/text';
-import { cn } from '@/lib/utils';
+import { Box, chakra } from '@chakra-ui/react';
 
 const icons = {
   '/': Library,
@@ -9,39 +9,67 @@ const icons = {
   '/settings': Settings,
 } as const;
 
+const ChakraNavLink = chakra(NavLink);
+
+const activeCss = {
+  '&[aria-current=page]': {
+    color: 'var(--chakra-colors-primary)',
+  },
+} as const;
+
 export function TabBar() {
   return (
-    <nav className="glass fixed inset-x-0 bottom-0 z-50 flex h-14 border-t border-border md:hidden">
+    <Box
+      as="nav"
+      layerStyle="glass"
+      position="fixed"
+      insetX={0}
+      bottom={0}
+      zIndex={50}
+      h="14"
+      borderTopWidth="1px"
+      display={{ base: 'flex', md: 'none' }}
+    >
       {NAV_ITEMS.map((item) => {
-        const Icon = icons[item.path];
+        const Icon = icons[item.path as keyof typeof icons];
         return (
-          <NavLink
+          <ChakraNavLink
             key={item.path}
             to={item.path}
-            className={({ isActive }) =>
-              cn(
-                'flex flex-1 flex-col items-center justify-center gap-0.5 text-[0.65rem] font-medium transition-colors',
-                isActive ? 'text-primary' : 'text-muted-foreground',
-              )
-            }
+            flex="1"
+            display="flex"
+            flexDir="column"
+            alignItems="center"
+            justifyContent="center"
+            gap="0.5"
+            fontSize="0.65rem"
+            fontWeight="medium"
+            transition="colors 0.15s"
+            color="mutedForeground"
+            css={activeCss}
           >
-            <Icon className="size-5" />
+            <Icon size={20} />
             {item.label}
-          </NavLink>
+          </ChakraNavLink>
         );
       })}
-      <NavLink
+      <ChakraNavLink
         to="/settings"
-        className={({ isActive }) =>
-          cn(
-            'flex flex-1 flex-col items-center justify-center gap-0.5 text-[0.65rem] font-medium transition-colors',
-            isActive ? 'text-primary' : 'text-muted-foreground',
-          )
-        }
+        flex="1"
+        display="flex"
+        flexDir="column"
+        alignItems="center"
+        justifyContent="center"
+        gap="0.5"
+        fontSize="0.65rem"
+        fontWeight="medium"
+        transition="colors 0.15s"
+        color="mutedForeground"
+        css={activeCss}
       >
-        <Settings className="size-5" />
+        <Settings size={20} />
         Settings
-      </NavLink>
-    </nav>
+      </ChakraNavLink>
+    </Box>
   );
 }

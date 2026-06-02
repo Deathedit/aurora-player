@@ -6,8 +6,15 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { LayoutGrid, List } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import type { Track } from '@/types';
+import {
+  Box,
+  Container,
+  Flex,
+  SimpleGrid,
+  Text,
+  chakra,
+} from '@chakra-ui/react';
 
 function albumKey(t: Track): string {
   return t.folder ?? t.album;
@@ -57,136 +64,198 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
 
   if (library.length === 0) {
     return (
-      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Albums</h1>
-        <p className="mt-4 text-muted-foreground">{NO_ALBUMS}</p>
-      </div>
+      <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6">
+        <Text
+          as="h1"
+          fontSize="2xl"
+          fontWeight="semibold"
+          letterSpacing="tight"
+        >
+          Albums
+        </Text>
+        <Text mt="4" color="mutedForeground">
+          {NO_ALBUMS}
+        </Text>
+      </Container>
     );
   }
 
   const album = selectedAlbum ? albums.get(selectedAlbum) : null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-6 pb-4 sm:px-6 lg:px-8">
+    <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6" pb="4">
       {album ? (
         <>
-          <button
+          <chakra.button
             type="button"
             onClick={() => setSelectedAlbum(null)}
-            className="mb-4 text-sm text-primary hover:underline"
+            mb="4"
+            fontSize="sm"
+            color="primary"
+            _hover={{ textDecoration: 'underline' }}
           >
             &larr; All Albums
-          </button>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          </chakra.button>
+          <Text
+            as="h1"
+            fontSize="2xl"
+            fontWeight="semibold"
+            letterSpacing="tight"
+          >
             {album.displayName}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          </Text>
+          <Text mt="1" fontSize="sm" color="mutedForeground">
             {album.tracks.length} tracks
-          </p>
-          <div className="mt-4">
+          </Text>
+          <Box mt="4">
             <Virtuoso
               data={album.tracks}
               itemContent={(i, track) => <TrackRow track={track} index={i} />}
               fixedItemHeight={56}
               customScrollParent={scrollParent}
             />
-          </div>
+          </Box>
         </>
       ) : (
         <>
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold tracking-tight">Albums</h1>
-            <div className="flex items-center gap-1">
-              <button
+          <Flex alignItems="center" justifyContent="space-between">
+            <Text
+              as="h1"
+              fontSize="2xl"
+              fontWeight="semibold"
+              letterSpacing="tight"
+            >
+              Albums
+            </Text>
+            <Flex alignItems="center" gap="1">
+              <chakra.button
                 type="button"
                 onClick={() => setView('grid')}
-                className={cn(
-                  'rounded-md p-1.5 transition-colors',
+                rounded="md"
+                p="1.5"
+                transition="colors 0.15s"
+                color={view === 'grid' ? 'primary' : 'mutedForeground'}
+                bg={
                   view === 'grid'
-                    ? 'text-primary bg-primary/12'
-                    : 'text-muted-foreground hover:text-foreground',
-                )}
+                    ? 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)'
+                    : undefined
+                }
+                _hover={{ color: view === 'grid' ? 'primary' : 'foreground' }}
               >
-                <LayoutGrid className="size-4" />
-              </button>
-              <button
+                <LayoutGrid size={16} />
+              </chakra.button>
+              <chakra.button
                 type="button"
                 onClick={() => setView('list')}
-                className={cn(
-                  'rounded-md p-1.5 transition-colors',
+                rounded="md"
+                p="1.5"
+                transition="colors 0.15s"
+                color={view === 'list' ? 'primary' : 'mutedForeground'}
+                bg={
                   view === 'list'
-                    ? 'text-primary bg-primary/12'
-                    : 'text-muted-foreground hover:text-foreground',
-                )}
+                    ? 'color-mix(in srgb, var(--chakra-colors-primary) 12%, transparent)'
+                    : undefined
+                }
+                _hover={{ color: view === 'list' ? 'primary' : 'foreground' }}
               >
-                <List className="size-4" />
-              </button>
-            </div>
-          </div>
+                <List size={16} />
+              </chakra.button>
+            </Flex>
+          </Flex>
           {view === 'list' ? (
-            <div className="mt-4">
+            <Box mt="4">
               <Virtuoso
                 data={sortedAlbums}
                 itemContent={(_i, a) => (
-                  <button
+                  <chakra.button
                     type="button"
                     onClick={() => setSelectedAlbum(a.key)}
-                    className="group flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-muted"
+                    display="flex"
+                    w="full"
+                    alignItems="center"
+                    gap="3"
+                    rounded="lg"
+                    px="3"
+                    py="2"
+                    transition="colors 0.15s"
+                    _hover={{ bg: 'muted' }}
                     style={{ height: 64 }}
                   >
                     {a.artUrl ? (
-                      <img
+                      <chakra.img
                         src={a.artUrl}
                         alt=""
-                        className="size-12 shrink-0 rounded object-cover"
+                        boxSize="12"
+                        flexShrink={0}
+                        rounded="sm"
+                        objectFit="cover"
                       />
                     ) : (
-                      <div className="size-12 shrink-0 rounded bg-muted" />
+                      <Box
+                        boxSize="12"
+                        flexShrink={0}
+                        rounded="sm"
+                        bg="muted"
+                      />
                     )}
-                    <div className="min-w-0 flex-1 text-left">
-                      <p className="truncate text-sm font-medium">
+                    <Box minW={0} flex="1" textAlign="left">
+                      <Text truncate fontSize="sm" fontWeight="medium">
                         {a.displayName}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
+                      </Text>
+                      <Text fontSize="xs" color="mutedForeground">
                         {a.tracks.length} tracks &middot;{' '}
                         {formatTime(
                           a.tracks.reduce((s, t) => s + t.durationSec, 0),
                         )}
-                      </p>
-                    </div>
-                  </button>
+                      </Text>
+                    </Box>
+                  </chakra.button>
                 )}
                 fixedItemHeight={64}
                 customScrollParent={scrollParent}
               />
-            </div>
+            </Box>
           ) : (
-            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+            <SimpleGrid
+              mt="6"
+              columns={{ base: 2, sm: 3, lg: 4, xl: 6 }}
+              gap="4"
+            >
               {sortedAlbums.map((a) => (
-                <button
+                <chakra.button
                   key={a.key}
                   type="button"
                   onClick={() => setSelectedAlbum(a.key)}
-                  className="group flex flex-col items-start gap-2 overflow-hidden rounded-lg transition-colors hover:bg-muted"
+                  display="flex"
+                  flexDir="column"
+                  alignItems="flex-start"
+                  gap="2"
+                  overflow="hidden"
+                  rounded="lg"
+                  transition="colors 0.15s"
+                  _hover={{ bg: 'muted' }}
                 >
                   {a.artUrl ? (
-                    <img
+                    <chakra.img
                       src={a.artUrl}
                       alt=""
-                      className="aspect-square w-full rounded-md object-cover"
+                      aspectRatio="1"
+                      w="full"
+                      rounded="md"
+                      objectFit="cover"
                     />
                   ) : (
-                    <div className="aspect-square w-full rounded-md bg-muted" />
+                    <Box aspectRatio="1" w="full" rounded="md" bg="muted" />
                   )}
-                  <span className="w-full truncate text-sm font-medium">
+                  <Text w="full" truncate fontSize="sm" fontWeight="medium">
                     {a.displayName}
-                  </span>
-                </button>
+                  </Text>
+                </chakra.button>
               ))}
-            </div>
+            </SimpleGrid>
           )}
         </>
       )}
-    </div>
+    </Container>
   );
 }

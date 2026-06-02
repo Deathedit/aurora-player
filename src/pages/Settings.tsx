@@ -14,6 +14,7 @@ import {
 } from '@/text';
 import type { Theme } from '@/types';
 import { FolderOpen, RefreshCw, Unplug, Loader2 } from 'lucide-react';
+import { Box, Container, Flex, Text, chakra } from '@chakra-ui/react';
 
 export function Settings() {
   const [theme, setTheme] = useLocalStorage<Theme>('theme', DARK);
@@ -36,118 +37,221 @@ export function Settings() {
     document.documentElement.classList.toggle('no-glass', !next);
   }
 
+  const spinCss = { animation: 'spin 1s linear infinite' } as const;
+
   return (
-    <div className="mx-auto max-w-2xl px-4 pt-6 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-      <div className="mt-6 space-y-4">
-        <div className="rounded-lg bg-elevated p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-sm font-medium">Music Library</h2>
+    <Container maxW="2xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6">
+      <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
+        Settings
+      </Text>
+      <Flex flexDir="column" mt="6" gap="4">
+        <Box rounded="lg" bg="elevated" p="4">
+          <Flex
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+            gap="3"
+          >
+            <Text fontSize="sm" fontWeight="medium">
+              Music Library
+            </Text>
             {!fs.supported ? (
-              <p className="text-sm text-muted-foreground">
+              <Text fontSize="sm" color="mutedForeground">
                 {FOLDER_NOT_SUPPORTED}
-              </p>
+              </Text>
             ) : (
-              <div className="flex flex-wrap items-center gap-3">
+              <Flex flexWrap="wrap" alignItems="center" gap="3">
                 {!fs.connected && !fs.reconnectNeeded && (
-                  <button
+                  <chakra.button
                     type="button"
                     onClick={fs.connect}
                     disabled={fs.scanning}
-                    className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+                    display="flex"
+                    alignItems="center"
+                    gap="2"
+                    rounded="md"
+                    bg="primary"
+                    px="4"
+                    py="2"
+                    fontSize="sm"
+                    fontWeight="medium"
+                    color="primaryForeground"
+                    transition="opacity 0.15s"
+                    _hover={{ opacity: 0.9 }}
+                    opacity={fs.scanning ? 0.5 : 1}
+                    cursor={fs.scanning ? 'not-allowed' : 'pointer'}
                   >
                     {fs.scanning ? (
-                      <Loader2 className="size-4 animate-spin" />
+                      <Loader2 size={16} style={spinCss} />
                     ) : (
-                      <FolderOpen className="size-4" />
+                      <FolderOpen size={16} />
                     )}
                     {fs.scanning ? SCANNING : CONNECT_FOLDER}
-                  </button>
+                  </chakra.button>
                 )}
 
                 {fs.reconnectNeeded && (
-                  <button
+                  <chakra.button
                     type="button"
                     onClick={fs.reconnect}
-                    className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                    display="flex"
+                    alignItems="center"
+                    gap="2"
+                    rounded="md"
+                    bg="primary"
+                    px="4"
+                    py="2"
+                    fontSize="sm"
+                    fontWeight="medium"
+                    color="primaryForeground"
+                    transition="opacity 0.15s"
+                    _hover={{ opacity: 0.9 }}
                   >
-                    <FolderOpen className="size-4" />
+                    <FolderOpen size={16} />
                     {RECONNECT_FOLDER}
-                  </button>
+                  </chakra.button>
                 )}
 
                 {fs.connected && !fs.reconnectNeeded && (
                   <>
-                    <span className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-2 text-sm">
-                      <FolderOpen className="size-4" />
+                    <Flex
+                      alignItems="center"
+                      gap="1.5"
+                      rounded="md"
+                      bg="muted"
+                      px="3"
+                      py="2"
+                      fontSize="sm"
+                    >
+                      <FolderOpen size={16} />
                       {fs.dirName}
-                      {fs.scanning && (
-                        <Loader2 className="size-3.5 animate-spin" />
-                      )}
-                    </span>
-                    <button
+                      {fs.scanning && <Loader2 size={14} style={spinCss} />}
+                    </Flex>
+                    <chakra.button
                       type="button"
                       onClick={fs.refresh}
                       disabled={fs.scanning}
-                      className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/80 disabled:opacity-50"
+                      display="flex"
+                      alignItems="center"
+                      gap="1.5"
+                      rounded="md"
+                      bg="muted"
+                      px="3"
+                      py="2"
+                      fontSize="sm"
+                      fontWeight="medium"
+                      color="foreground"
+                      transition="opacity 0.15s"
+                      _hover={{ opacity: 0.8 }}
+                      opacity={fs.scanning ? 0.5 : 1}
+                      cursor={fs.scanning ? 'not-allowed' : 'pointer'}
                     >
                       <RefreshCw
-                        className={`size-3.5 ${fs.scanning ? 'animate-spin' : ''}`}
+                        size={14}
+                        style={fs.scanning ? spinCss : undefined}
                       />
                       {REFRESH_FOLDER}
-                    </button>
-                    <button
+                    </chakra.button>
+                    <chakra.button
                       type="button"
                       onClick={fs.disconnect}
-                      className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/80"
+                      display="flex"
+                      alignItems="center"
+                      gap="1.5"
+                      rounded="md"
+                      bg="muted"
+                      px="3"
+                      py="2"
+                      fontSize="sm"
+                      fontWeight="medium"
+                      color="foreground"
+                      transition="opacity 0.15s"
+                      _hover={{ opacity: 0.8 }}
                     >
-                      <Unplug className="size-3.5" />
+                      <Unplug size={14} />
                       {DISCONNECT_FOLDER}
-                    </button>
+                    </chakra.button>
                   </>
                 )}
-
-                
-              </div>
+              </Flex>
             )}
-          </div>
-        </div>
+          </Flex>
+        </Box>
 
-        <div className="flex items-center justify-between rounded-lg bg-elevated p-4">
-          <span className="text-sm font-medium">{THEME_LABEL}</span>
-          <div className="flex gap-2">
-            <button
+        <Flex
+          alignItems="center"
+          justifyContent="space-between"
+          rounded="lg"
+          bg="elevated"
+          p="4"
+        >
+          <Text fontSize="sm" fontWeight="medium">
+            {THEME_LABEL}
+          </Text>
+          <Flex gap="2">
+            <chakra.button
               type="button"
               onClick={() => handleTheme(SPOTIFY)}
-              className={`rounded-md px-3 py-1.5 text-sm ${theme === SPOTIFY ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}
+              rounded="md"
+              px="3"
+              py="1.5"
+              fontSize="sm"
+              bg={theme === SPOTIFY ? 'primary' : 'muted'}
+              color={theme === SPOTIFY ? 'primaryForeground' : 'foreground'}
+              cursor="pointer"
             >
               Spotify
-            </button>
-            <button
+            </chakra.button>
+            <chakra.button
               type="button"
               onClick={() => handleTheme(DARK)}
-              className={`rounded-md px-3 py-1.5 text-sm ${theme === DARK ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}
+              rounded="md"
+              px="3"
+              py="1.5"
+              fontSize="sm"
+              bg={theme === DARK ? 'primary' : 'muted'}
+              color={theme === DARK ? 'primaryForeground' : 'foreground'}
+              cursor="pointer"
             >
               Dark
-            </button>
-          </div>
-        </div>
+            </chakra.button>
+          </Flex>
+        </Flex>
 
-        <div className="flex items-center justify-between rounded-lg bg-elevated p-4">
-          <span className="text-sm font-medium">{GLASS_LABEL}</span>
-          <button
+        <Flex
+          alignItems="center"
+          justifyContent="space-between"
+          rounded="lg"
+          bg="elevated"
+          p="4"
+        >
+          <Text fontSize="sm" fontWeight="medium">
+            {GLASS_LABEL}
+          </Text>
+          <chakra.button
             type="button"
             onClick={() => handleGlass(!glass)}
-            className={`relative h-6 w-11 rounded-full transition-colors ${glass ? 'bg-primary' : 'bg-muted'}`}
+            position="relative"
+            h="6"
+            w="11"
+            rounded="full"
+            transition="colors 0.15s"
+            bg={glass ? 'primary' : 'muted'}
+            cursor="pointer"
           >
-            <span
-              className={`absolute left-0.5 top-0.5 size-5 rounded-full bg-white transition-transform ${glass ? 'translate-x-5' : ''}`}
+            <Box
+              position="absolute"
+              left="0.5"
+              top="0.5"
+              boxSize="5"
+              rounded="full"
+              bg="white"
+              transition="transform 0.15s"
+              transform={glass ? 'translateX(20px)' : 'translateX(0)'}
             />
-          </button>
-        </div>
-
-        
-      </div>
-    </div>
+          </chakra.button>
+        </Flex>
+      </Flex>
+    </Container>
   );
 }

@@ -3,6 +3,7 @@ import { TrackRow } from '@/components/library/TrackRow';
 import { EMPTY_LIBRARY } from '@/text';
 import { useMemo } from 'react';
 import { Virtuoso } from 'react-virtuoso';
+import { Box, Container, Text } from '@chakra-ui/react';
 
 export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
   const { library } = usePlayer();
@@ -20,27 +21,38 @@ export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
 
   if (library.length === 0) {
     return (
-      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Library</h1>
-        <p className="mt-8 text-muted-foreground">{EMPTY_LIBRARY}</p>
-      </div>
+      <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6">
+        <Text
+          as="h1"
+          fontSize="2xl"
+          fontWeight="semibold"
+          letterSpacing="tight"
+        >
+          Library
+        </Text>
+        <Text mt="8" color="mutedForeground">
+          {EMPTY_LIBRARY}
+        </Text>
+      </Container>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-6 pb-4 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Library</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+    <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6" pb="4">
+      <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
+        Library
+      </Text>
+      <Text mt="2" fontSize="sm" color="mutedForeground">
         {library.length} tracks
-      </p>
-      <div className="mt-4">
+      </Text>
+      <Box mt="4">
         <Virtuoso
           data={sorted}
           itemContent={(i, track) => <TrackRow track={track} index={i} />}
           fixedItemHeight={56}
           customScrollParent={scrollParent}
         />
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 }

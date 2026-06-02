@@ -11,9 +11,9 @@ import {
   Maximize2,
 } from 'lucide-react';
 import { VolumeIcon } from '@/components/ui/volume-icon';
-import { cn } from '@/lib/utils';
 import { useEffect, useMemo, useRef } from 'react';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
+import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 
 export function TransportBar({
   onNowPlaying,
@@ -46,7 +46,9 @@ export function TransportBar({
   const showArt = isDesktop || !nowPlayingOpen;
   const footerRef = useRef<HTMLElement>(null);
   const volumeRef = useRef(volume);
-  useEffect(() => { volumeRef.current = volume; });
+  useEffect(() => {
+    volumeRef.current = volume;
+  });
 
   useEffect(() => {
     if (!isDesktop) return;
@@ -56,9 +58,7 @@ export function TransportBar({
       e.preventDefault();
       const delta = e.deltaY < 0 ? 0.05 : -0.05;
       const v = volumeRef.current;
-      setVolume(
-        Math.max(0, Math.min(1, Math.round((v + delta) * 100) / 100)),
-      );
+      setVolume(Math.max(0, Math.min(1, Math.round((v + delta) * 100) / 100)));
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
@@ -67,141 +67,244 @@ export function TransportBar({
   const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <footer
-      ref={footerRef}
-      className="glass fixed inset-x-0 bottom-14 md:bottom-0 z-40 flex items-center border-t border-border px-3 h-20 md:h-16"
+    <Box
+      as="footer"
+      ref={footerRef as React.Ref<HTMLDivElement>}
+      layerStyle="glass"
+      position="fixed"
+      insetX={0}
+      bottom={{ base: '14', md: '0' }}
+      zIndex={40}
+      display="flex"
+      alignItems="center"
+      borderTopWidth="1px"
+      px="3"
+      h={{ base: '20', md: '16' }}
     >
-      <button
+      <chakra.button
         type="button"
         onClick={onNowPlaying}
-        className="flex min-w-0 flex-1 items-center gap-3 md:cursor-default"
+        display="flex"
+        minW={0}
+        flex="1"
+        alignItems="center"
+        gap="3"
+        cursor={{ base: 'pointer', md: 'default' }}
       >
         {showArt && current?.artUrl ? (
-          <img
+          <chakra.img
             src={current.artUrl}
             alt=""
-            className="size-11 shrink-0 rounded-md object-cover"
+            boxSize="11"
+            flexShrink={0}
+            rounded="md"
+            objectFit="cover"
           />
         ) : (
-          <div className="size-11 shrink-0 rounded-md bg-muted" />
+          <Box boxSize="11" flexShrink={0} rounded="md" bg="muted" />
         )}
-        <div className="min-w-0 md:block">
-          <p className="truncate text-sm font-medium">
+        <Box minW={0}>
+          <Text truncate fontSize="sm" fontWeight="medium">
             {current?.title ?? '—'}
-          </p>
-          <p className="truncate text-xs text-muted-foreground">
+          </Text>
+          <Text truncate fontSize="xs" color="mutedForeground">
             {current?.artist ?? '—'}
-          </p>
-        </div>
-        <ChevronUp className="size-4 shrink-0 text-muted-foreground md:hidden" />
-      </button>
+          </Text>
+        </Box>
+        <Box
+          color="mutedForeground"
+          display={{ base: 'block', md: 'none' }}
+          flexShrink={0}
+        >
+          <ChevronUp size={16} />
+        </Box>
+      </chakra.button>
 
-      <div className="flex shrink-0 items-center gap-1 md:gap-1.5">
-        <button
+      <Flex flexShrink={0} alignItems="center" gap={{ base: '1', md: '1.5' }}>
+        <chakra.button
           type="button"
           onClick={() => setShuffle(!shuffle)}
-          className={cn(
-            'hidden md:inline-flex rounded-full p-1.5 text-muted-foreground transition-colors hover:text-foreground',
-            shuffle && 'text-primary',
-          )}
+          display={{ base: 'none', md: 'inline-flex' }}
+          rounded="full"
+          p="1.5"
+          color={shuffle ? 'primary' : 'mutedForeground'}
+          transition="colors 0.15s"
+          _hover={{ color: 'foreground' }}
         >
-          <Shuffle className="size-3.5" />
-        </button>
-        <button
+          <Shuffle size={14} />
+        </chakra.button>
+        <chakra.button
           type="button"
           onClick={prev}
-          className="rounded-full p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+          rounded="full"
+          p="1.5"
+          color="mutedForeground"
+          transition="colors 0.15s"
+          _hover={{ color: 'foreground' }}
         >
-          <SkipBack className="size-4" />
-        </button>
-        <button
+          <SkipBack size={16} />
+        </chakra.button>
+        <chakra.button
           type="button"
           onClick={toggle}
-          className="accent-gradient flex size-10 items-center justify-center rounded-full text-primary-foreground transition-transform active:scale-95 md:size-9"
+          layerStyle="accentGradient"
+          display="flex"
+          boxSize={{ base: '10', md: '9' }}
+          alignItems="center"
+          justifyContent="center"
+          rounded="full"
+          color="primaryForeground"
+          transition="transform 0.15s"
+          _active={{ transform: 'scale(0.95)' }}
         >
           {isPlaying ? (
-            <Pause className="size-5 md:size-4" />
+            <Pause size={isDesktop ? 16 : 20} />
           ) : (
-            <Play className="size-5 ml-0.5 md:size-4 md:ml-0.5" />
+            <Play size={isDesktop ? 16 : 20} style={{ marginLeft: '2px' }} />
           )}
-        </button>
-        <button
+        </chakra.button>
+        <chakra.button
           type="button"
           onClick={next}
-          className="rounded-full p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+          rounded="full"
+          p="1.5"
+          color="mutedForeground"
+          transition="colors 0.15s"
+          _hover={{ color: 'foreground' }}
         >
-          <SkipForward className="size-4" />
-        </button>
-        <button
+          <SkipForward size={16} />
+        </chakra.button>
+        <chakra.button
           type="button"
           onClick={() => {
             const modes = ['off', 'all', 'one'] as const;
             const idx = modes.indexOf(repeat);
             setRepeat(modes[(idx + 1) % 3]);
           }}
-          className={cn(
-            'hidden md:inline-flex relative rounded-full p-1.5 text-muted-foreground transition-colors hover:text-foreground',
-            repeat !== 'off' && 'text-primary',
-          )}
+          display={{ base: 'none', md: 'inline-flex' }}
+          position="relative"
+          rounded="full"
+          p="1.5"
+          color={repeat !== 'off' ? 'primary' : 'mutedForeground'}
+          transition="colors 0.15s"
+          _hover={{ color: 'foreground' }}
         >
-          <Repeat className="size-3.5" />
+          <Repeat size={14} />
           {repeat === 'one' && (
-            <span className="absolute -top-0.5 right-0 text-[0.5rem] font-bold">
+            <Text
+              position="absolute"
+              top="-0.5"
+              right="0"
+              fontSize="0.5rem"
+              fontWeight="bold"
+            >
               1
-            </span>
+            </Text>
           )}
-        </button>
-      </div>
+        </chakra.button>
+      </Flex>
 
-      <div className="hidden md:flex flex-1 min-w-0 items-center gap-3">
-        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+      <Flex
+        display={{ base: 'none', md: 'flex' }}
+        flex="1"
+        minW={0}
+        alignItems="center"
+        gap="3"
+      >
+        <Text
+          flexShrink={0}
+          fontSize="xs"
+          color="mutedForeground"
+          css={{ fontVariantNumeric: 'tabular-nums' }}
+        >
           {formatTime(currentTime)}
-        </span>
-        <div
-          className="group relative flex h-5 flex-1 cursor-pointer items-center"
-          onClick={(e) => {
+        </Text>
+        <Box
+          position="relative"
+          display="flex"
+          flex="1"
+          h="5"
+          cursor="pointer"
+          alignItems="center"
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => {
             const rect = e.currentTarget.getBoundingClientRect();
             const x = e.clientX - rect.left;
             seek((x / rect.width) * duration);
           }}
+          css={{ '&:hover .transport-track': { height: '6px' } }}
         >
-          <div className="h-1 w-full rounded-full bg-muted transition-all group-hover:h-1.5">
-            <div
-              className="h-full rounded-full accent-gradient"
+          <Box
+            className="transport-track"
+            h="1"
+            w="full"
+            rounded="full"
+            bg="muted"
+            transition="height 0.15s"
+            overflow="hidden"
+          >
+            <Box
+              h="full"
+              rounded="full"
+              layerStyle="accentGradient"
               style={{ width: `${pct}%` }}
             />
-          </div>
-        </div>
-        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+          </Box>
+        </Box>
+        <Text
+          flexShrink={0}
+          fontSize="xs"
+          color="mutedForeground"
+          css={{ fontVariantNumeric: 'tabular-nums' }}
+        >
           {formatTime(duration)}
-        </span>
-        <button
+        </Text>
+        <chakra.button
           type="button"
           onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
-          className="flex size-5 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+          display="flex"
+          boxSize="5"
+          alignItems="center"
+          justifyContent="center"
+          color="mutedForeground"
+          transition="colors 0.15s"
+          _hover={{ color: 'foreground' }}
         >
-          <VolumeIcon volume={volume} className="size-4" />
-        </button>
-        <input
+          <VolumeIcon volume={volume} style={{ width: 16, height: 16 }} />
+        </chakra.button>
+        <chakra.input
           type="range"
           min={0}
           max={1}
           step={0.01}
           value={volume}
-          onChange={(e) => setVolume(Number(e.target.value))}
-          className="w-20 accent-[var(--primary)]"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setVolume(Number(e.target.value))
+          }
+          w="20"
+          accentColor="var(--chakra-colors-primary)"
         />
-        <span className="w-9 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+        <Text
+          w="9"
+          flexShrink={0}
+          textAlign="right"
+          fontSize="xs"
+          color="mutedForeground"
+          css={{ fontVariantNumeric: 'tabular-nums' }}
+        >
           {Math.round(volume * 100)}%
-        </span>
-        <button
+        </Text>
+        <chakra.button
           type="button"
           onClick={onNowPlaying}
-          className="rounded-full p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+          rounded="full"
+          p="1.5"
+          color="mutedForeground"
+          transition="colors 0.15s"
+          _hover={{ color: 'foreground' }}
         >
-          <Maximize2 className="size-3.5" />
-        </button>
-      </div>
-    </footer>
+          <Maximize2 size={14} />
+        </chakra.button>
+      </Flex>
+    </Box>
   );
 }

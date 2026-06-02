@@ -1,13 +1,14 @@
 import { Volume2, Volume1, VolumeX } from 'lucide-react';
+import type { CSSProperties } from 'react';
 
 export function VolumeIcon({
   volume,
-  className,
+  style,
 }: {
   volume: number;
-  className?: string;
+  style?: CSSProperties;
 }) {
-  if (volume === 0) return <VolumeX className={className} />;
-  if (volume < 0.5) return <Volume1 className={className} />;
-  return <Volume2 className={className} />;
+  if (volume === 0) return <VolumeX style={style} />;
+  if (volume < 0.5) return <Volume1 style={style} />;
+  return <Volume2 style={style} />;
 }
