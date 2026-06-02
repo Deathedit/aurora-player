@@ -37,16 +37,15 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const shuffleRef = useSyncedRef(shuffle);
   const historyRef = useRef<string[]>([]);
 
-  const { savePosition, restoreLastPlayed, restoringRef, restoredRef, lastSaveRef } =
-    usePositionPersistence({
-      audioRef,
-      currentIdRef,
-      libraryRef,
-      shuffleRef,
-      historyRef,
-      setQueue,
-      setCurrentId,
-    });
+  const { savePosition, restoreLastPlayed, restoringRef, restoredRef, lastSaveRef } = usePositionPersistence({
+    audioRef,
+    currentIdRef,
+    libraryRef,
+    shuffleRef,
+    historyRef,
+    setQueue,
+    setCurrentId,
+  });
 
   const playId = useCallback(
     (id: string) => {

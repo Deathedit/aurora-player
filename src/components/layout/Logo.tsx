@@ -9,14 +9,7 @@ export function Logo(props: HTMLChakraProps<'svg'>) {
   return (
     <chakra.svg viewBox="0 0 200 200" fill="none" aria-hidden="true" {...props}>
       <defs>
-        <linearGradient
-          id="auroraLogoGradient"
-          x1="40%"
-          y1="30%"
-          x2="160%"
-          y2="170%"
-          gradientUnits="userSpaceOnUse"
-        >
+        <linearGradient id="auroraLogoGradient" x1="40%" y1="30%" x2="160%" y2="170%" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor={ACCENT_START}>
             <animate attributeName="offset" values="0%;20%;0%" dur="8s" repeatCount="indefinite" />
           </stop>

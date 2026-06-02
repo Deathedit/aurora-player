@@ -32,14 +32,7 @@ export function VolumeControl({ sliderProps }: { sliderProps?: HTMLChakraProps<'
         accentColor="var(--chakra-colors-primary)"
         {...sliderProps}
       />
-      <Text
-        w="9"
-        flexShrink={0}
-        textAlign="right"
-        fontSize="xs"
-        color="mutedForeground"
-        css={tabularNumsCss}
-      >
+      <Text w="9" flexShrink={0} textAlign="right" fontSize="xs" color="mutedForeground" css={tabularNumsCss}>
         {Math.round(volume * 100)}%
       </Text>
     </>

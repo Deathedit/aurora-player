@@ -6,10 +6,7 @@ const variants = {
   muted: { bg: 'muted', color: 'foreground', px: '3', gap: '1.5', _hover: { opacity: 0.8 } },
 } as const;
 
-export function SettingsButton({
-  variant,
-  ...rest
-}: { variant: 'primary' | 'muted' } & HTMLChakraProps<'button'>) {
+export function SettingsButton({ variant, ...rest }: { variant: 'primary' | 'muted' } & HTMLChakraProps<'button'>) {
   return (
     <chakra.button
       type="button"

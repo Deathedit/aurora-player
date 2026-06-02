@@ -1,12 +1,7 @@
 import { useEffect } from 'react';
 import type { Track } from '@/types';
 
-export function useMediaSession(
-  current: Track | null,
-  toggle: () => void,
-  next: () => void,
-  prev: () => void,
-) {
+export function useMediaSession(current: Track | null, toggle: () => void, next: () => void, prev: () => void) {
   useEffect(() => {
     if (!('mediaSession' in navigator)) return;
     navigator.mediaSession.metadata = current
