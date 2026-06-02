@@ -1,4 +1,4 @@
-import { usePlayer } from '@/player-context';
+import { usePlayer, usePlayerProgress } from '@/player-context';
 import { formatTime } from '@/text';
 import {
   Play,
@@ -12,20 +12,8 @@ import {
 } from 'lucide-react';
 import { VolumeIcon } from '@/components/ui/volume-icon';
 import { cn } from '@/lib/utils';
-import { useEffect, useRef, useState } from 'react';
-
-function useIsDesktop() {
-  const [desktop, setDesktop] = useState(
-    () => window.matchMedia('(min-width: 768px)').matches,
-  );
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    const onChange = () => setDesktop(mq.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, []);
-  return desktop;
-}
+import { useEffect, useMemo, useRef } from 'react';
+import { useIsDesktop } from '@/hooks/useIsDesktop';
 
 export function TransportBar({
   onNowPlaying,
@@ -47,11 +35,13 @@ export function TransportBar({
     setShuffle,
     volume,
     setVolume,
-    currentTime,
-    duration,
     seek,
   } = usePlayer();
-  const current = library.find((t) => t.id === currentId) ?? null;
+  const { currentTime, duration } = usePlayerProgress();
+  const current = useMemo(
+    () => library.find((t) => t.id === currentId) ?? null,
+    [library, currentId],
+  );
   const isDesktop = useIsDesktop();
   const showArt = isDesktop || !nowPlayingOpen;
   const footerRef = useRef<HTMLElement>(null);
@@ -59,6 +49,7 @@ export function TransportBar({
   useEffect(() => { volumeRef.current = volume; });
 
   useEffect(() => {
+    if (!isDesktop) return;
     const el = footerRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
@@ -71,7 +62,7 @@ export function TransportBar({
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
-  }, [setVolume]);
+  }, [setVolume, isDesktop]);
 
   const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 

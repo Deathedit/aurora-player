@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { PlayerCtx } from '@/player-context';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { PlayerCtx, PlayerProgressCtx } from '@/player-context';
 import {
   parseFiles,
   revokeTrack,
@@ -79,24 +79,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const playId = useCallback(
     (id: string) => {
       restoringRef.current = false;
-      const prevEl = audioRef.current;
-      const prevId = currentIdRef.current;
-      if (prevEl && prevId) {
-        const prevTrack = libraryRef.current.find((t) => t.id === prevId);
-        if (prevTrack) {
-          try {
-            localStorage.setItem(
-              LAST_PLAYED_KEY,
-              JSON.stringify({
-                key: cacheKey(prevTrack.file, prevTrack.folder),
-                time: prevEl.currentTime,
-              }),
-            );
-          } catch {
-            /* quota exceeded */
-          }
-        }
-      }
+      savePosition();
 
       const lib = libraryRef.current;
       const track = lib.find((t) => t.id === id);
@@ -122,7 +105,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         el.play();
       }
     },
-    [libraryRef, shuffleRef, audioRef, currentIdRef, restoringRef],
+    [libraryRef, shuffleRef, audioRef, restoringRef, savePosition],
   );
 
   const addFiles = useCallback(
@@ -212,6 +195,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       const prevId = historyRef.current[historyRef.current.length - 1];
       const track = libraryRef.current.find((t) => t.id === prevId);
       if (!track) return;
+      savePosition();
       setCurrentId(prevId);
       if (el) {
         el.src = track.url;
@@ -220,7 +204,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       return;
     }
     if (el) el.currentTime = 0;
-  }, [libraryRef, audioRef]);
+  }, [libraryRef, audioRef, savePosition]);
 
   const seek = useCallback((seconds: number) => {
     const el = audioRef.current;
@@ -268,9 +252,15 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       if (repeatRef.current === 'one') {
         el.currentTime = 0;
         el.play();
-      } else {
-        next();
+        return;
       }
+      const q = queueRef.current;
+      const idx = q.findIndex((t) => t.id === currentIdRef.current);
+      if (repeatRef.current === 'off' && idx === q.length - 1) {
+        savePosition();
+        return;
+      }
+      next();
     };
     const onPlay = () => setIsPlaying(true);
     const onPause = () => {
@@ -289,7 +279,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       el.removeEventListener('play', onPlay);
       el.removeEventListener('pause', onPause);
     };
-  }, [next, repeatRef, savePosition]);
+  }, [next, repeatRef, queueRef, currentIdRef, savePosition]);
 
   useEffect(() => {
     const onSave = () => savePosition();
@@ -310,7 +300,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (el) el.volume = volume;
   }, [volume]);
 
-  const current = library.find((t) => t.id === currentId) ?? null;
+  const current = useMemo(
+    () => library.find((t) => t.id === currentId) ?? null,
+    [library, currentId],
+  );
 
   useEffect(() => {
     if (!current?.artUrl) return;
@@ -354,7 +347,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
           artist: current.artist,
           album: current.album,
           artwork: current.artUrl
-            ? [{ src: current.artUrl, sizes: '512x512', type: 'image/jpeg' }]
+            ? [
+                {
+                  src: current.artUrl,
+                  sizes: '512x512',
+                  type: current.artType ?? 'image/jpeg',
+                },
+              ]
             : [],
         })
       : null;
@@ -364,32 +363,58 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     navigator.mediaSession.setActionHandler('previoustrack', () => prev());
   }, [current, toggle, next, prev]);
 
+  const value = useMemo(
+    () => ({
+      library,
+      currentId,
+      isPlaying,
+      volume,
+      repeat,
+      shuffle,
+      queue,
+      addFiles,
+      play: playId,
+      toggle,
+      next,
+      prev,
+      seek,
+      setVolume,
+      setRepeat,
+      setShuffle,
+      clearLibrary,
+    }),
+    [
+      library,
+      currentId,
+      isPlaying,
+      volume,
+      repeat,
+      shuffle,
+      queue,
+      addFiles,
+      playId,
+      toggle,
+      next,
+      prev,
+      seek,
+      setVolume,
+      setRepeat,
+      setShuffle,
+      clearLibrary,
+    ],
+  );
+
+  const progress = useMemo(
+    () => ({ currentTime, duration }),
+    [currentTime, duration],
+  );
+
   return (
-    <PlayerCtx.Provider
-      value={{
-        library,
-        currentId,
-        isPlaying,
-        currentTime,
-        duration,
-        volume,
-        repeat,
-        shuffle,
-        queue,
-        addFiles,
-        play: playId,
-        toggle,
-        next,
-        prev,
-        seek,
-        setVolume,
-        setRepeat,
-        setShuffle,
-        clearLibrary,
-      }}
-    >
-      <audio ref={audioRef} />
-      {children}
+    <PlayerCtx.Provider value={value}>
+      <PlayerProgressCtx.Provider value={progress}>
+        <audio ref={audioRef} />
+        {children}
+      </PlayerProgressCtx.Provider>
     </PlayerCtx.Provider>
   );
 }

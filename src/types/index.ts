@@ -10,6 +10,7 @@ export interface Track {
   artUrl?: string;
   artHash?: string;
   artColor?: string;
+  artType?: string;
 }
 
 export type RepeatMode = 'off' | 'all' | 'one';

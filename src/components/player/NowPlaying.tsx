@@ -1,4 +1,4 @@
-import { usePlayer } from '@/player-context';
+import { usePlayer, usePlayerProgress } from '@/player-context';
 import { formatTime } from '@/text';
 import {
   X,
@@ -11,7 +11,8 @@ import {
 } from 'lucide-react';
 import { VolumeIcon } from '@/components/ui/volume-icon';
 import { cn } from '@/lib/utils';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { useIsDesktop } from '@/hooks/useIsDesktop';
 
 export function NowPlaying({
   open,
@@ -28,8 +29,6 @@ export function NowPlaying({
     next,
     prev,
     seek,
-    currentTime,
-    duration,
     shuffle,
     setShuffle,
     repeat,
@@ -37,7 +36,12 @@ export function NowPlaying({
     volume,
     setVolume,
   } = usePlayer();
-  const current = library.find((t) => t.id === currentId) ?? null;
+  const { currentTime, duration } = usePlayerProgress();
+  const current = useMemo(
+    () => library.find((t) => t.id === currentId) ?? null,
+    [library, currentId],
+  );
+  const isDesktop = useIsDesktop();
   const volumeRowRef = useRef<HTMLDivElement>(null);
   const volumeRef = useRef(volume);
   useEffect(() => { volumeRef.current = volume; });
@@ -52,6 +56,7 @@ export function NowPlaying({
   }, [open, onClose]);
 
   useEffect(() => {
+    if (!isDesktop) return;
     const el = volumeRowRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
@@ -64,7 +69,7 @@ export function NowPlaying({
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
-  }, [setVolume, open]);
+  }, [setVolume, open, isDesktop]);
 
   if (!open || !current) return null;
 

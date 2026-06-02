@@ -1,7 +1,8 @@
-import { usePlayer } from '@/player-context';
+import { usePlayer, usePlayerProgress } from '@/player-context';
 
 export function Scrubber() {
-  const { currentTime, duration, seek } = usePlayer();
+  const { seek } = usePlayer();
+  const { currentTime, duration } = usePlayerProgress();
   const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (

@@ -9,11 +9,10 @@ import {
   pruneCacheToScan,
   setCachedColor,
 } from '@/services/library-cache';
+import { isAudioFile } from '@/services/audio-files';
+import type { FileEntry } from '@/services/audio-files';
 
-export interface FileEntry {
-  file: File;
-  folder?: string;
-}
+export type { FileEntry };
 
 let nextId = 0;
 
@@ -64,10 +63,7 @@ export function revokeAllArt() {
 }
 
 function audioMime(f: File): boolean {
-  return (
-    f.type.startsWith('audio/') ||
-    /\.(mp3|flac|wav|ogg|m4a|aac|wma|opus|webm)$/i.test(f.name)
-  );
+  return f.type.startsWith('audio/') || isAudioFile(f.name);
 }
 
 async function parseEntry(
@@ -105,6 +101,7 @@ async function parseEntry(
         artUrl: undefined,
         artHash,
         artColor: undefined,
+        artType: picture?.format,
       },
       art,
     };
@@ -146,6 +143,7 @@ async function resolveEntry(entry: FileEntry): Promise<Track> {
       artUrl: cached.artHash ? await artUrlForHash(cached.artHash) : undefined,
       artHash: cached.artHash,
       artColor: cached.artColor,
+      artType: cached.artType,
     };
   }
 
@@ -163,6 +161,7 @@ async function resolveEntry(entry: FileEntry): Promise<Track> {
     durationSec: track.durationSec,
     artColor: track.artColor,
     artHash: track.artHash,
+    artType: track.artType,
   });
   return track;
 }
@@ -207,12 +206,20 @@ export async function parseFiles(
   return all;
 }
 
+let facPromise: Promise<import('fast-average-color').FastAverageColor> | null =
+  null;
+
+function getFac() {
+  return (facPromise ??= import('fast-average-color').then(
+    (m) => new m.FastAverageColor(),
+  ));
+}
+
 export async function extractArtColor(
   artUrl: string,
 ): Promise<string | undefined> {
   try {
-    const { FastAverageColor } = await import('fast-average-color');
-    const analyzer = new FastAverageColor();
+    const analyzer = await getFac();
     const result = await analyzer.getColorAsync(artUrl);
     return result.hex;
   } catch {

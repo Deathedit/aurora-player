@@ -1,7 +1,9 @@
+import { isAudioFile } from '@/services/audio-files';
+import type { FileEntry } from '@/services/audio-files';
+
 const DB_NAME = 'aurora-fs';
 const STORE_NAME = 'handles';
 const KEY = 'music';
-const AUDIO_EXTS = /\.(mp3|flac|wav|ogg|m4a|aac|wma|opus|webm)$/i;
 
 function idbOpen(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -91,10 +93,7 @@ export async function requestPermission(
   }) as unknown as FsPermissionStatus;
 }
 
-export interface FileEntry {
-  file: File;
-  folder: string;
-}
+export type { FileEntry };
 
 async function walkDir(
   handle: FileSystemDirectoryHandle,
@@ -104,7 +103,7 @@ async function walkDir(
   for await (const entry of handle.values()) {
     if (entry.kind === 'file') {
       const fileHandle = entry as FileSystemFileHandle;
-      if (AUDIO_EXTS.test(fileHandle.name)) {
+      if (isAudioFile(fileHandle.name)) {
         try {
           const file = await fileHandle.getFile();
           entries.push({ file, folder: path });

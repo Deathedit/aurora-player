@@ -30,56 +30,46 @@ export function useFsAccess(
 
   const supported = isSupported();
 
+  const runScan = useCallback(
+    async (handle: FileSystemDirectoryHandle, clearFirst = false) => {
+      if (scanningRef.current) return;
+      scanningRef.current = true;
+      setScanning(true);
+      try {
+        const files = await readDirectory(handle);
+        if (clearFirst) clearLibrary();
+        await addFiles(files);
+      } finally {
+        scanningRef.current = false;
+        setScanning(false);
+      }
+    },
+    [addFiles, clearLibrary],
+  );
+
   const connect = useCallback(async () => {
+    if (scanningRef.current) return;
     const result = await pickDirectory();
     if (!result) return;
-    if (scanningRef.current) return;
     setDirName(result.name);
     setReconnectNeeded(false);
-    scanningRef.current = true;
-    setScanning(true);
-    try {
-      const files = await readDirectory(result.handle);
-      await addFiles(files);
-    } finally {
-      scanningRef.current = false;
-      setScanning(false);
-    }
-  }, [addFiles]);
+    await runScan(result.handle);
+  }, [runScan]);
 
   const reconnect = useCallback(async () => {
     const handle = await getStoredHandle();
     if (!handle) return;
     const perm = await requestPermission(handle);
     if (perm !== 'granted') return;
-    if (scanningRef.current) return;
     setReconnectNeeded(false);
-    scanningRef.current = true;
-    setScanning(true);
-    try {
-      const files = await readDirectory(handle);
-      await addFiles(files);
-    } finally {
-      scanningRef.current = false;
-      setScanning(false);
-    }
-  }, [addFiles]);
+    await runScan(handle);
+  }, [runScan]);
 
   const refresh = useCallback(async () => {
     const handle = await getStoredHandle();
     if (!handle) return;
-    if (scanningRef.current) return;
-    scanningRef.current = true;
-    setScanning(true);
-    try {
-      const files = await readDirectory(handle);
-      clearLibrary();
-      await addFiles(files);
-    } finally {
-      scanningRef.current = false;
-      setScanning(false);
-    }
-  }, [addFiles, clearLibrary]);
+    await runScan(handle, true);
+  }, [runScan]);
 
   const disconnect = useCallback(async () => {
     await clearStoredHandle();
@@ -96,20 +86,11 @@ export function useFsAccess(
     setDirName(handle.name);
     const perm = await queryPermission(handle);
     if (perm === 'granted') {
-      if (scanningRef.current) return;
-      scanningRef.current = true;
-      setScanning(true);
-      try {
-        const files = await readDirectory(handle);
-        await addFiles(files);
-      } finally {
-        scanningRef.current = false;
-        setScanning(false);
-      }
+      await runScan(handle);
     } else {
       setReconnectNeeded(true);
     }
-  }, [supported, addFiles]);
+  }, [supported, runScan]);
 
   return {
     connected: dirName !== null,

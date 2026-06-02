@@ -11,6 +11,7 @@ export interface CachedTrack {
   durationSec: number;
   artColor?: string;
   artHash?: string;
+  artType?: string;
 }
 
 let dbPromise: Promise<IDBDatabase> | null = null;
