@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Library, Disc3, Settings } from 'lucide-react';
-import { NAV_ITEMS } from '@/text';
+import { NAV_ITEMS, SETTINGS } from '@/constants/text';
 import { Box, chakra } from '@chakra-ui/react';
 
 const icons = {
@@ -68,7 +68,7 @@ export function TabBar() {
         css={activeCss}
       >
         <Settings size={20} />
-        Settings
+        {SETTINGS}
       </ChakraNavLink>
     </Box>
   );

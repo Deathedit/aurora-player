@@ -9,4 +9,22 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (!id.includes('node_modules')) return
+          if (id.includes('@chakra-ui') || id.includes('@emotion')) return 'chakra'
+          if (id.includes('react-virtuoso')) return 'virtuoso'
+          if (
+            id.includes('react-router') ||
+            id.includes('react-dom') ||
+            id.includes('scheduler') ||
+            /[\\/]react[\\/]/.test(id)
+          )
+            return 'react'
+        },
+      },
+    },
+  },
 })

@@ -1,35 +1,21 @@
-import { usePlayer, usePlayerProgress } from '@/player-context';
-import { formatTime } from '@/text';
-import { X, SkipBack, SkipForward, Play, Pause, Shuffle, Repeat } from 'lucide-react';
-import { VolumeIcon } from '@/components/ui/volume-icon';
+import { usePlayer, usePlayerProgress } from '@/contexts/player-context';
+import { formatTime } from '@/utils/time';
+import { X, SkipBack, SkipForward, Play, Pause } from 'lucide-react';
 import { Scrubber } from '@/components/player/Scrubber';
-import { useEffect, useMemo, useRef } from 'react';
-import { useIsDesktop } from '@/hooks/useIsDesktop';
+import { ShuffleButton } from '@/components/player/ShuffleButton';
+import { RepeatButton } from '@/components/player/RepeatButton';
+import { VolumeControl } from '@/components/player/VolumeControl';
+import { useCurrentTrack } from '@/hooks/useCurrentTrack';
+import { useVolumeWheel } from '@/hooks/useVolumeWheel';
+import { useEffect, useRef } from 'react';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 
 export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const {
-    library,
-    currentId,
-    isPlaying,
-    toggle,
-    next,
-    prev,
-    shuffle,
-    setShuffle,
-    repeat,
-    setRepeat,
-    volume,
-    setVolume,
-  } = usePlayer();
+  const { isPlaying, toggle, next, prev } = usePlayer();
   const { currentTime, duration } = usePlayerProgress();
-  const current = useMemo(() => library.find((t) => t.id === currentId) ?? null, [library, currentId]);
-  const isDesktop = useIsDesktop();
+  const current = useCurrentTrack();
   const volumeRowRef = useRef<HTMLDivElement>(null);
-  const volumeRef = useRef(volume);
-  useEffect(() => {
-    volumeRef.current = volume;
-  });
+  useVolumeWheel(volumeRowRef, open);
 
   useEffect(() => {
     if (!open) return;
@@ -39,20 +25,6 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
-
-  useEffect(() => {
-    if (!isDesktop) return;
-    const el = volumeRowRef.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const delta = e.deltaY < 0 ? 0.05 : -0.05;
-      const v = volumeRef.current;
-      setVolume(Math.max(0, Math.min(1, Math.round((v + delta) * 100) / 100)));
-    };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, [setVolume, open, isDesktop]);
 
   if (!open || !current) return null;
 
@@ -135,17 +107,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
         </Box>
 
         <Flex w="full" alignItems="center" justifyContent="space-between">
-          <chakra.button
-            type="button"
-            onClick={() => setShuffle(!shuffle)}
-            rounded="full"
-            p="2"
-            transition="colors"
-            color={shuffle ? 'primary' : 'mutedForeground'}
-            _hover={{ color: 'foreground' }}
-          >
-            <Shuffle size={20} />
-          </chakra.button>
+          <ShuffleButton iconSize={20} p="2" />
           <chakra.button
             type="button"
             onClick={prev}
@@ -180,63 +142,11 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
           >
             <SkipForward size={24} />
           </chakra.button>
-          <chakra.button
-            type="button"
-            onClick={() => {
-              const modes = ['off', 'all', 'one'] as const;
-              const idx = modes.indexOf(repeat);
-              setRepeat(modes[(idx + 1) % 3]);
-            }}
-            position="relative"
-            rounded="full"
-            p="2"
-            transition="colors"
-            color={repeat !== 'off' ? 'primary' : 'mutedForeground'}
-            _hover={{ color: 'foreground' }}
-          >
-            <Repeat size={20} />
-            {repeat === 'one' && (
-              <Text position="absolute" top="-0.5" right="0.5" fontSize="0.5rem" fontWeight="bold">
-                1
-              </Text>
-            )}
-          </chakra.button>
+          <RepeatButton iconSize={20} p="2" badgeRight="0.5" />
         </Flex>
 
         <Flex ref={volumeRowRef} w="full" maxW={{ base: 'sm', md: 'xs' }} alignItems="center" gap="3">
-          <chakra.button
-            type="button"
-            onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
-            display="flex"
-            boxSize="5"
-            alignItems="center"
-            justifyContent="center"
-            color="mutedForeground"
-            transition="colors"
-            _hover={{ color: 'foreground' }}
-          >
-            <VolumeIcon volume={volume} style={{ width: 16, height: 16 }} />
-          </chakra.button>
-          <chakra.input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={volume}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVolume(Number(e.target.value))}
-            flex="1"
-            accentColor="var(--chakra-colors-primary)"
-          />
-          <Text
-            w="9"
-            flexShrink={0}
-            textAlign="right"
-            fontSize="xs"
-            color="mutedForeground"
-            css={{ fontVariantNumeric: 'tabular-nums' }}
-          >
-            {Math.round(volume * 100)}%
-          </Text>
+          <VolumeControl sliderProps={{ flex: '1' }} />
         </Flex>
       </Flex>
     </Box>

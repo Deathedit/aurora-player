@@ -1,4 +1,4 @@
-import { usePlayer, usePlayerProgress } from '@/player-context';
+import { usePlayer, usePlayerProgress } from '@/contexts/player-context';
 import { Box, type BoxProps } from '@chakra-ui/react';
 
 export function Scrubber(props: BoxProps) {

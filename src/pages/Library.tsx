@@ -1,6 +1,6 @@
-import { usePlayer } from '@/player-context';
+import { usePlayer } from '@/contexts/player-context';
 import { TrackRow } from '@/components/library/TrackRow';
-import { EMPTY_LIBRARY } from '@/text';
+import { EMPTY_LIBRARY, LIBRARY, TRACK_COUNT } from '@/constants/text';
 import { useMemo } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import type { Track } from '@/types';
@@ -23,7 +23,7 @@ export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
     return (
       <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6">
         <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
-          Library
+          {LIBRARY}
         </Text>
         <Text mt="8" color="mutedForeground">
           {EMPTY_LIBRARY}
@@ -35,10 +35,10 @@ export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
   return (
     <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6" pb="4">
       <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
-        Library
+        {LIBRARY}
       </Text>
       <Text mt="2" fontSize="sm" color="mutedForeground">
-        {library.length} tracks
+        {TRACK_COUNT(library.length)}
       </Text>
       <Box mt="4">
         <Virtuoso data={sorted} itemContent={renderTrack} fixedItemHeight={56} customScrollParent={scrollParent} />

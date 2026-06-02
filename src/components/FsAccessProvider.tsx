@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useFsAccess } from '@/hooks/useFsAccess';
-import { usePlayer } from '@/player-context';
-import { FsAccessCtx } from '@/fs-access-context';
+import { usePlayer } from '@/contexts/player-context';
+import { FsAccessCtx } from '@/contexts/fs-access-context';
 
 export function FsAccessProvider({ children }: { children: ReactNode }) {
   const { addFiles, clearLibrary } = usePlayer();

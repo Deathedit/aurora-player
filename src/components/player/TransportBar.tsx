@@ -1,10 +1,14 @@
-import { usePlayer, usePlayerProgress } from '@/player-context';
-import { formatTime } from '@/text';
-import { Play, Pause, SkipBack, SkipForward, Repeat, Shuffle, ChevronUp, Maximize2 } from 'lucide-react';
-import { VolumeIcon } from '@/components/ui/volume-icon';
+import { usePlayer, usePlayerProgress } from '@/contexts/player-context';
+import { formatTime } from '@/utils/time';
+import { Play, Pause, SkipBack, SkipForward, ChevronUp, Maximize2 } from 'lucide-react';
 import { Scrubber } from '@/components/player/Scrubber';
-import { useEffect, useMemo, useRef } from 'react';
+import { ShuffleButton } from '@/components/player/ShuffleButton';
+import { RepeatButton } from '@/components/player/RepeatButton';
+import { VolumeControl } from '@/components/player/VolumeControl';
+import { useCurrentTrack } from '@/hooks/useCurrentTrack';
+import { useVolumeWheel } from '@/hooks/useVolumeWheel';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
+import { useRef } from 'react';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 
 const CPlay = chakra(Play);
@@ -17,43 +21,13 @@ export function TransportBar({
   onNowPlaying?: () => void;
   nowPlayingOpen?: boolean;
 }) {
-  const {
-    currentId,
-    library,
-    isPlaying,
-    toggle,
-    next,
-    prev,
-    repeat,
-    setRepeat,
-    shuffle,
-    setShuffle,
-    volume,
-    setVolume,
-  } = usePlayer();
+  const { isPlaying, toggle, next, prev } = usePlayer();
   const { currentTime, duration } = usePlayerProgress();
-  const current = useMemo(() => library.find((t) => t.id === currentId) ?? null, [library, currentId]);
+  const current = useCurrentTrack();
   const isDesktop = useIsDesktop();
   const showArt = isDesktop || !nowPlayingOpen;
   const footerRef = useRef<HTMLElement>(null);
-  const volumeRef = useRef(volume);
-  useEffect(() => {
-    volumeRef.current = volume;
-  });
-
-  useEffect(() => {
-    if (!isDesktop) return;
-    const el = footerRef.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const delta = e.deltaY < 0 ? 0.05 : -0.05;
-      const v = volumeRef.current;
-      setVolume(Math.max(0, Math.min(1, Math.round((v + delta) * 100) / 100)));
-    };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, [setVolume, isDesktop]);
+  useVolumeWheel(footerRef);
 
   return (
     <Box
@@ -99,18 +73,7 @@ export function TransportBar({
       </chakra.button>
 
       <Flex flexShrink={0} alignItems="center" gap={{ base: '1', md: '1.5' }}>
-        <chakra.button
-          type="button"
-          onClick={() => setShuffle(!shuffle)}
-          display={{ base: 'none', md: 'inline-flex' }}
-          rounded="full"
-          p="1.5"
-          color={shuffle ? 'primary' : 'mutedForeground'}
-          transition="colors"
-          _hover={{ color: 'foreground' }}
-        >
-          <Shuffle size={14} />
-        </chakra.button>
+        <ShuffleButton iconSize={14} display={{ base: 'none', md: 'inline-flex' }} p="1.5" />
         <chakra.button
           type="button"
           onClick={prev}
@@ -148,28 +111,7 @@ export function TransportBar({
         >
           <SkipForward size={16} />
         </chakra.button>
-        <chakra.button
-          type="button"
-          onClick={() => {
-            const modes = ['off', 'all', 'one'] as const;
-            const idx = modes.indexOf(repeat);
-            setRepeat(modes[(idx + 1) % 3]);
-          }}
-          display={{ base: 'none', md: 'inline-flex' }}
-          position="relative"
-          rounded="full"
-          p="1.5"
-          color={repeat !== 'off' ? 'primary' : 'mutedForeground'}
-          transition="colors"
-          _hover={{ color: 'foreground' }}
-        >
-          <Repeat size={14} />
-          {repeat === 'one' && (
-            <Text position="absolute" top="-0.5" right="0" fontSize="0.5rem" fontWeight="bold">
-              1
-            </Text>
-          )}
-        </chakra.button>
+        <RepeatButton iconSize={14} display={{ base: 'none', md: 'inline-flex' }} p="1.5" />
       </Flex>
 
       <Flex display={{ base: 'none', md: 'flex' }} flex="1" minW={0} alignItems="center" gap="3">
@@ -180,39 +122,7 @@ export function TransportBar({
         <Text flexShrink={0} fontSize="xs" color="mutedForeground" css={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatTime(duration)}
         </Text>
-        <chakra.button
-          type="button"
-          onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
-          display="flex"
-          boxSize="5"
-          alignItems="center"
-          justifyContent="center"
-          color="mutedForeground"
-          transition="colors"
-          _hover={{ color: 'foreground' }}
-        >
-          <VolumeIcon volume={volume} style={{ width: 16, height: 16 }} />
-        </chakra.button>
-        <chakra.input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVolume(Number(e.target.value))}
-          w="20"
-          accentColor="var(--chakra-colors-primary)"
-        />
-        <Text
-          w="9"
-          flexShrink={0}
-          textAlign="right"
-          fontSize="xs"
-          color="mutedForeground"
-          css={{ fontVariantNumeric: 'tabular-nums' }}
-        >
-          {Math.round(volume * 100)}%
-        </Text>
+        <VolumeControl sliderProps={{ w: '20' }} />
         <chakra.button
           type="button"
           onClick={onNowPlaying}

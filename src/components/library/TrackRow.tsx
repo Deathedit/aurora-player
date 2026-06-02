@@ -1,5 +1,5 @@
-import { usePlayer } from '@/player-context';
-import { formatTime } from '@/text';
+import { usePlayer } from '@/contexts/player-context';
+import { formatTime } from '@/utils/time';
 import { Play, Pause, Heart } from 'lucide-react';
 import type { Track } from '@/types';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';

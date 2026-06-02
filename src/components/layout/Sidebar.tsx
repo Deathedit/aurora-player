@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Library, Disc3, Settings, ChevronsRight, ChevronsLeft } from 'lucide-react';
-import { APP_NAME, NAV_ITEMS } from '@/text';
+import { APP_NAME, NAV_ITEMS, SETTINGS, EXPAND_SIDEBAR, COLLAPSE_SIDEBAR } from '@/constants/text';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 
 const icons = {
@@ -91,7 +91,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         <chakra.button
           type="button"
           onClick={onToggle}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? EXPAND_SIDEBAR : COLLAPSE_SIDEBAR}
           display="flex"
           alignItems="center"
           rounded="lg"
@@ -109,7 +109,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       <Box flexShrink={0} px={collapsed ? '2' : '3'} pt="1" pb="2">
         <ChakraNavLink
           to="/settings"
-          title={collapsed ? 'Settings' : undefined}
+          title={collapsed ? SETTINGS : undefined}
           display="flex"
           alignItems="center"
           rounded="lg"
@@ -125,7 +125,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
           css={navLinkCss}
         >
           <Settings size={16} style={{ flexShrink: 0 }} />
-          {!collapsed && 'Settings'}
+          {!collapsed && SETTINGS}
         </ChakraNavLink>
       </Box>
     </Box>

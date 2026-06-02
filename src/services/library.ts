@@ -1,4 +1,3 @@
-import { parseBlob } from 'music-metadata';
 import type { Track } from '@/types';
 import {
   cacheKey,
@@ -13,6 +12,12 @@ import { isAudioFile } from '@/services/audio-files';
 import type { FileEntry } from '@/services/audio-files';
 
 export type { FileEntry };
+
+let mmPromise: Promise<typeof import('music-metadata')> | null = null;
+
+function getMusicMetadata() {
+  return (mmPromise ??= import('music-metadata'));
+}
 
 let nextId = 0;
 
@@ -67,6 +72,7 @@ function audioMime(f: File): boolean {
 
 async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob }> {
   try {
+    const { parseBlob } = await getMusicMetadata();
     const meta = await parseBlob(entry.file);
     const url = URL.createObjectURL(entry.file);
 

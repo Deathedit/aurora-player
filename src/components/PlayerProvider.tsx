@@ -1,30 +1,14 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { PlayerCtx, PlayerProgressCtx } from '@/player-context';
-import {
-  parseFiles,
-  revokeTrack,
-  revokeAllArt,
-  extractArtColor,
-  getArtColor,
-  setArtColor,
-  cacheColor,
-} from '@/services/library';
+import { PlayerCtx, PlayerProgressCtx } from '@/contexts/player-context';
+import { parseFiles, revokeTrack, revokeAllArt } from '@/services/library';
 import type { FileEntry } from '@/services/library';
-import { cacheKey } from '@/services/library-cache';
+import { buildQueue } from '@/services/queue';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { usePositionPersistence } from '@/hooks/usePositionPersistence';
+import { useArtColor } from '@/hooks/useArtColor';
+import { useMediaSession } from '@/hooks/useMediaSession';
 import type { Track, RepeatMode } from '@/types';
 import type { ReactNode } from 'react';
-
-const LAST_PLAYED_KEY = 'aurora-lastplayed';
-
-function shuffleArray<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 function useSyncedRef<T>(value: T) {
   const ref = useRef(value);
@@ -51,30 +35,18 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const queueRef = useSyncedRef(queue);
   const repeatRef = useSyncedRef(repeat);
   const shuffleRef = useSyncedRef(shuffle);
-
-  const restoredRef = useRef(false);
-  const restoringRef = useRef(false);
-  const lastSaveRef = useRef(0);
   const historyRef = useRef<string[]>([]);
 
-  const savePosition = useCallback(() => {
-    if (restoringRef.current) return;
-    const el = audioRef.current;
-    if (!el || !currentIdRef.current) return;
-    const track = libraryRef.current.find((t) => t.id === currentIdRef.current);
-    if (!track) return;
-    try {
-      localStorage.setItem(
-        LAST_PLAYED_KEY,
-        JSON.stringify({
-          key: cacheKey(track.file, track.folder),
-          time: el.currentTime,
-        }),
-      );
-    } catch {
-      /* quota exceeded */
-    }
-  }, [audioRef, currentIdRef, libraryRef, restoringRef]);
+  const { savePosition, restoreLastPlayed, restoringRef, restoredRef, lastSaveRef } =
+    usePositionPersistence({
+      audioRef,
+      currentIdRef,
+      libraryRef,
+      shuffleRef,
+      historyRef,
+      setQueue,
+      setCurrentId,
+    });
 
   const playId = useCallback(
     (id: string) => {
@@ -90,14 +62,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         historyRef.current = historyRef.current.slice(-100);
       }
 
-      let newQueue: Track[];
-      if (shuffleRef.current) {
-        const rest = lib.filter((t) => t.id !== id);
-        newQueue = [track, ...shuffleArray(rest)];
-      } else {
-        newQueue = [...lib];
-      }
-      setQueue(newQueue);
+      setQueue(buildQueue(lib, id, shuffleRef.current));
 
       const el = audioRef.current;
       if (el) {
@@ -113,53 +78,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       const tracks = await parseFiles(entries, (batch) => {
         setLibrary((prev) => [...prev, ...batch]);
       });
-
-      if (restoredRef.current) return;
-
-      try {
-        const raw = localStorage.getItem(LAST_PLAYED_KEY);
-        if (!raw) return;
-        const { key, time } = JSON.parse(raw) as { key: string; time: number };
-        const match = tracks.find((t) => cacheKey(t.file, t.folder) === key);
-        if (!match) return;
-
-        restoredRef.current = true;
-        restoringRef.current = true;
-
-        let newQueue: Track[];
-        if (shuffleRef.current) {
-          const rest = tracks.filter((t) => t.id !== match.id);
-          newQueue = [match, ...shuffleArray(rest)];
-        } else {
-          newQueue = [...tracks];
-        }
-        setQueue(newQueue);
-        setCurrentId(match.id);
-        historyRef.current.push(match.id);
-
-        const el = audioRef.current;
-        if (el) {
-          el.src = match.url;
-          const onLoaded = () => {
-            if (time > 0 && time < el.duration) {
-              el.currentTime = time;
-            }
-            restoringRef.current = false;
-            el.removeEventListener('loadedmetadata', onLoaded);
-          };
-          el.addEventListener('loadedmetadata', onLoaded);
-          setTimeout(() => {
-            restoringRef.current = false;
-            el.removeEventListener('loadedmetadata', onLoaded);
-          }, 5000);
-        } else {
-          restoringRef.current = false;
-        }
-      } catch {
-        /* restore is best-effort */
-      }
+      restoreLastPlayed(tracks);
     },
-    [shuffleRef, audioRef],
+    [restoreLastPlayed],
   );
 
   const toggle = useCallback(() => {
@@ -234,7 +155,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       el.pause();
       el.src = '';
     }
-  }, [libraryRef]);
+  }, [libraryRef, restoredRef]);
 
   useEffect(() => {
     const el = audioRef.current;
@@ -279,21 +200,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       el.removeEventListener('play', onPlay);
       el.removeEventListener('pause', onPause);
     };
-  }, [next, repeatRef, queueRef, currentIdRef, savePosition]);
-
-  useEffect(() => {
-    const onSave = () => savePosition();
-    window.addEventListener('beforeunload', onSave);
-    return () => window.removeEventListener('beforeunload', onSave);
-  }, [savePosition]);
-
-  useEffect(() => {
-    const onHidden = () => {
-      if (document.visibilityState === 'hidden') savePosition();
-    };
-    document.addEventListener('visibilitychange', onHidden);
-    return () => document.removeEventListener('visibilitychange', onHidden);
-  }, [savePosition]);
+  }, [next, repeatRef, queueRef, currentIdRef, savePosition, lastSaveRef]);
 
   useEffect(() => {
     const el = audioRef.current;
@@ -302,52 +209,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const current = useMemo(() => library.find((t) => t.id === currentId) ?? null, [library, currentId]);
 
-  useEffect(() => {
-    if (!current?.artUrl) return;
-    const hash = current.artHash;
-    const known = current.artColor ?? (hash ? getArtColor(hash) : undefined);
-    if (known) {
-      document.documentElement.style.setProperty('--art', known);
-      return;
-    }
-    let cancelled = false;
-    extractArtColor(current.artUrl).then((color) => {
-      if (cancelled || !color) return;
-      if (hash) setArtColor(hash, color);
-      document.documentElement.style.setProperty('--art', color);
-      setLibrary((prev) =>
-        prev.map((t) => (t.id === current.id || (hash && t.artHash === hash) ? { ...t, artColor: color } : t)),
-      );
-      cacheColor(current.file, current.folder, color);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [current?.id, current?.artUrl, current?.artHash, current?.artColor, current?.file, current?.folder]);
-
-  useEffect(() => {
-    if (!('mediaSession' in navigator)) return;
-    navigator.mediaSession.metadata = current
-      ? new MediaMetadata({
-          title: current.title,
-          artist: current.artist,
-          album: current.album,
-          artwork: current.artUrl
-            ? [
-                {
-                  src: current.artUrl,
-                  sizes: '512x512',
-                  type: current.artType ?? 'image/jpeg',
-                },
-              ]
-            : [],
-        })
-      : null;
-    navigator.mediaSession.setActionHandler('play', () => toggle());
-    navigator.mediaSession.setActionHandler('pause', () => toggle());
-    navigator.mediaSession.setActionHandler('nexttrack', () => next());
-    navigator.mediaSession.setActionHandler('previoustrack', () => prev());
-  }, [current, toggle, next, prev]);
+  useArtColor(current, setLibrary);
+  useMediaSession(current, toggle, next, prev);
 
   const value = useMemo(
     () => ({

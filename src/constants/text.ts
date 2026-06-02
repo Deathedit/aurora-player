@@ -1,19 +1,23 @@
 export const APP_NAME = 'Aurora';
 
-export const NAV_ITEMS = [
-  { label: 'Library', path: '/' },
-  { label: 'Albums', path: '/albums' },
-] as const;
+export const LIBRARY = 'Library';
+export const ALBUMS = 'Albums';
+export const SETTINGS = 'Settings';
 
-export function formatTime(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
-}
+export const NAV_ITEMS = [
+  { label: LIBRARY, path: '/' },
+  { label: ALBUMS, path: '/albums' },
+] as const;
 
 export const EMPTY_LIBRARY = 'No music yet — connect a folder in Settings';
 export const NO_ALBUMS = 'No albums yet — add music first';
+export const MUSIC_LIBRARY = 'Music Library';
+export const ALL_ALBUMS = '← All Albums';
+export const TRACK_COUNT = (n: number) => `${n} tracks`;
+export const EXPAND_SIDEBAR = 'Expand sidebar';
+export const COLLAPSE_SIDEBAR = 'Collapse sidebar';
+export const THEME_DARK_LABEL = 'Dark';
+export const THEME_SPOTIFY_LABEL = 'Spotify';
 export const CLEAR_LIBRARY = 'Clear Library';
 export const CONNECT_FOLDER = 'Connect Folder';
 export const RECONNECT_FOLDER = 'Reconnect';
@@ -24,5 +28,3 @@ export const FOLDER_NOT_SUPPORTED = 'Folder access not supported in this browser
 export const TRACKS_LOADED = (n: number) => `${n} track${n === 1 ? '' : 's'} loaded`;
 export const THEME_LABEL = 'Theme';
 export const GLASS_LABEL = 'Glass Effect';
-export const DARK = 'dark';
-export const SPOTIFY = 'spotify';
