@@ -1,15 +1,12 @@
-import { usePlayer } from '@/player-context';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useFsAccessCtx } from '@/fs-access-context';
 import {
-  CLEAR_LIBRARY,
   CONNECT_FOLDER,
   RECONNECT_FOLDER,
   REFRESH_FOLDER,
   DISCONNECT_FOLDER,
   SCANNING,
   FOLDER_NOT_SUPPORTED,
-  TRACKS_LOADED,
   THEME_LABEL,
   GLASS_LABEL,
   DARK,
@@ -19,7 +16,6 @@ import type { Theme } from '@/types';
 import { FolderOpen, RefreshCw, Unplug, Loader2 } from 'lucide-react';
 
 export function Settings() {
-  const { library, clearLibrary } = usePlayer();
   const [theme, setTheme] = useLocalStorage<Theme>('theme', DARK);
   const [glass, setGlass] = useLocalStorage<boolean>('glass', true);
   const fs = useFsAccessCtx();
@@ -43,85 +39,81 @@ export function Settings() {
   return (
     <div className="mx-auto max-w-2xl px-4 pt-6 sm:px-6 lg:px-8">
       <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-      <div className="mt-6 space-y-6">
-        <div>
-          <h2 className="text-sm font-medium text-muted-foreground">
-            Music Library
-          </h2>
-          {!fs.supported ? (
-            <p className="mt-2 text-sm text-muted-foreground">
-              {FOLDER_NOT_SUPPORTED}
-            </p>
-          ) : (
-            <div className="mt-2 flex flex-wrap items-center gap-3">
-              {!fs.connected && !fs.reconnectNeeded && (
-                <button
-                  type="button"
-                  onClick={fs.connect}
-                  disabled={fs.scanning}
-                  className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-                >
-                  {fs.scanning ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <FolderOpen className="size-4" />
-                  )}
-                  {fs.scanning ? SCANNING : CONNECT_FOLDER}
-                </button>
-              )}
-
-              {fs.reconnectNeeded && (
-                <button
-                  type="button"
-                  onClick={fs.reconnect}
-                  className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-                >
-                  <FolderOpen className="size-4" />
-                  {RECONNECT_FOLDER}
-                </button>
-              )}
-
-              {fs.connected && !fs.reconnectNeeded && (
-                <>
-                  <span className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-2 text-sm">
-                    <FolderOpen className="size-4" />
-                    {fs.dirName}
-                    {fs.scanning && (
-                      <Loader2 className="size-3.5 animate-spin" />
-                    )}
-                  </span>
+      <div className="mt-6 space-y-4">
+        <div className="rounded-lg bg-elevated p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-medium">Music Library</h2>
+            {!fs.supported ? (
+              <p className="text-sm text-muted-foreground">
+                {FOLDER_NOT_SUPPORTED}
+              </p>
+            ) : (
+              <div className="flex flex-wrap items-center gap-3">
+                {!fs.connected && !fs.reconnectNeeded && (
                   <button
                     type="button"
-                    onClick={fs.refresh}
+                    onClick={fs.connect}
                     disabled={fs.scanning}
-                    className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/80 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
                   >
-                    <RefreshCw
-                      className={`size-3.5 ${fs.scanning ? 'animate-spin' : ''}`}
-                    />
-                    {REFRESH_FOLDER}
+                    {fs.scanning ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <FolderOpen className="size-4" />
+                    )}
+                    {fs.scanning ? SCANNING : CONNECT_FOLDER}
                   </button>
+                )}
+
+                {fs.reconnectNeeded && (
                   <button
                     type="button"
-                    onClick={fs.disconnect}
-                    className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/80"
+                    onClick={fs.reconnect}
+                    className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                   >
-                    <Unplug className="size-3.5" />
-                    {DISCONNECT_FOLDER}
+                    <FolderOpen className="size-4" />
+                    {RECONNECT_FOLDER}
                   </button>
-                </>
-              )}
+                )}
 
-              {library.length > 0 && (
-                <span className="text-sm text-muted-foreground">
-                  {TRACKS_LOADED(library.length)}
-                </span>
-              )}
-            </div>
-          )}
+                {fs.connected && !fs.reconnectNeeded && (
+                  <>
+                    <span className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-2 text-sm">
+                      <FolderOpen className="size-4" />
+                      {fs.dirName}
+                      {fs.scanning && (
+                        <Loader2 className="size-3.5 animate-spin" />
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={fs.refresh}
+                      disabled={fs.scanning}
+                      className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/80 disabled:opacity-50"
+                    >
+                      <RefreshCw
+                        className={`size-3.5 ${fs.scanning ? 'animate-spin' : ''}`}
+                      />
+                      {REFRESH_FOLDER}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={fs.disconnect}
+                      className="flex items-center gap-1.5 rounded-md bg-muted px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/80"
+                    >
+                      <Unplug className="size-3.5" />
+                      {DISCONNECT_FOLDER}
+                    </button>
+                  </>
+                )}
+
+                
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-lg bg-elevated p-4">
           <span className="text-sm font-medium">{THEME_LABEL}</span>
           <div className="flex gap-2">
             <button
@@ -141,7 +133,7 @@ export function Settings() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-lg bg-elevated p-4">
           <span className="text-sm font-medium">{GLASS_LABEL}</span>
           <button
             type="button"
@@ -154,15 +146,7 @@ export function Settings() {
           </button>
         </div>
 
-        <div className="pt-4">
-          <button
-            type="button"
-            onClick={clearLibrary}
-            className="rounded-md bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20"
-          >
-            {CLEAR_LIBRARY}
-          </button>
-        </div>
+        
       </div>
     </div>
   );

@@ -24,33 +24,27 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        'glass-sidebar hidden flex-col border-r border-border md:flex md:sticky md:top-0 md:max-h-[calc(100svh-4rem)] overflow-y-auto transition-[width] duration-200',
+        'glass-sidebar hidden flex-col border-r border-border md:flex md:sticky md:top-0 md:max-h-[calc(100svh-4rem)] overflow-y-auto scrollbar-hidden transition-[width] duration-200',
         collapsed ? 'w-16' : 'w-64',
       )}
     >
       <div
         className={cn(
           'flex h-14 shrink-0 items-center',
-          collapsed ? 'justify-center' : 'justify-between px-6',
+          collapsed ? 'justify-center' : 'gap-2.5 px-6',
         )}
       >
+        <img
+          src="/favicon.svg"
+          alt=""
+          className="size-6 shrink-0"
+          aria-hidden="true"
+        />
         {!collapsed && (
           <span className="accent-gradient-text text-lg font-semibold tracking-tight">
             {APP_NAME}
           </span>
         )}
-        <button
-          type="button"
-          onClick={onToggle}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-muted"
-        >
-          {collapsed ? (
-            <ChevronsRight className="size-5" />
-          ) : (
-            <ChevronsLeft className="size-4" />
-          )}
-        </button>
       </div>
 
       <nav
@@ -85,8 +79,31 @@ export function Sidebar({
 
       <div
         className={cn(
-          'shrink-0 border-t border-border',
-          collapsed ? 'px-2 pt-2 pb-2' : 'px-3 pt-2 pb-2',
+          'shrink-0',
+          collapsed ? 'px-2 pt-2 pb-1' : 'px-3 pt-2 pb-1',
+        )}
+      >
+        <button
+          type="button"
+          onClick={onToggle}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className={cn(
+            'flex items-center rounded-lg p-1.5 text-foreground transition-colors hover:bg-muted',
+            collapsed ? 'mx-auto' : 'ml-auto',
+          )}
+        >
+          {collapsed ? (
+            <ChevronsRight className="size-5" />
+          ) : (
+            <ChevronsLeft className="size-4" />
+          )}
+        </button>
+      </div>
+
+      <div
+        className={cn(
+          'shrink-0',
+          collapsed ? 'px-2 pt-1 pb-2' : 'px-3 pt-1 pb-2',
         )}
       >
         <NavLink
