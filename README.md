@@ -25,4 +25,30 @@ npm run build   # tsc -b && vite build
 npm run lint    # eslint
 ```
 
+## Run with Docker
+
+Pull the prebuilt image from GHCR and serve it with nginx (SPA fallback included). Create a `compose.yaml`:
+
+```yaml
+services:
+  aurora:
+    image: ghcr.io/deathedit/aurora-player:latest
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+```
+
+```sh
+docker compose up -d
+# Open http://localhost:8080 in Chrome/Edge (FS Access API required)
+```
+
+`http://localhost` is a secure context, so the File System Access API works.
+
+To build the image from source locally (build/test), use the bundled [docker-compose.yml](./docker-compose.yml):
+
+```sh
+docker compose up -d --build   # build/test; stop with docker compose down
+```
+
 See [AGENTS.md](./AGENTS.md) for architecture details.
