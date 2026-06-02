@@ -8,10 +8,8 @@ import {
   Pause,
   Shuffle,
   Repeat,
-  Volume2,
-  Volume1,
-  VolumeX,
 } from 'lucide-react';
+import { VolumeIcon } from '@/components/ui/volume-icon';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef } from 'react';
 
@@ -194,15 +192,9 @@ export function NowPlaying({
           <button
             type="button"
             onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
-            className="text-muted-foreground transition-colors hover:text-foreground"
+            className="flex size-5 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
           >
-            {volume === 0 ? (
-              <VolumeX className="size-4" />
-            ) : volume < 0.5 ? (
-              <Volume1 className="size-4" />
-            ) : (
-              <Volume2 className="size-4" />
-            )}
+            <VolumeIcon volume={volume} className="size-4" />
           </button>
           <input
             type="range"
@@ -213,7 +205,7 @@ export function NowPlaying({
             onChange={(e) => setVolume(Number(e.target.value))}
             className="flex-1 accent-[var(--primary)]"
           />
-          <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+          <span className="w-9 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
             {Math.round(volume * 100)}%
           </span>
         </div>

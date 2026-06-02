@@ -7,12 +7,10 @@ import {
   SkipForward,
   Repeat,
   Shuffle,
-  Volume2,
-  Volume1,
-  VolumeX,
   ChevronUp,
   Maximize2,
 } from 'lucide-react';
+import { VolumeIcon } from '@/components/ui/volume-icon';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
 
@@ -189,15 +187,9 @@ export function TransportBar({
         <button
           type="button"
           onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
-          className="text-muted-foreground transition-colors hover:text-foreground"
+          className="flex size-5 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
         >
-          {volume === 0 ? (
-            <VolumeX className="size-4" />
-          ) : volume < 0.5 ? (
-            <Volume1 className="size-4" />
-          ) : (
-            <Volume2 className="size-4" />
-          )}
+          <VolumeIcon volume={volume} className="size-4" />
         </button>
         <input
           type="range"
@@ -208,7 +200,7 @@ export function TransportBar({
           onChange={(e) => setVolume(Number(e.target.value))}
           className="w-20 accent-[var(--primary)]"
         />
-        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+        <span className="w-9 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
           {Math.round(volume * 100)}%
         </span>
         <button
