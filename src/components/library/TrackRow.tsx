@@ -1,6 +1,6 @@
 import { usePlayer } from '@/contexts/player-context';
 import { formatTime } from '@/utils/time';
-import { Play, Pause, Heart } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 import type { Track } from '@/types';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 import { memo, useCallback } from 'react';
@@ -10,11 +10,7 @@ const rowHoverCss = {
   '&:hover .track-hide': { display: 'none' },
 } as const;
 
-const heartCss = { 'div:hover > &': { opacity: 1 } } as const;
-
 const tabularNumsCss = { fontVariantNumeric: 'tabular-nums' } as const;
-
-const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
 function Equalizer() {
   return (
@@ -112,10 +108,6 @@ function TrackRowImpl({ track, index }: { track: Track; index: number }) {
           {track.artist}
         </Text>
       </Box>
-
-      <chakra.button type="button" onClick={stopPropagation} opacity={0} transition="opacity 0.15s" css={heartCss}>
-        <Heart size={16} color="var(--chakra-colors-muted-foreground)" />
-      </chakra.button>
 
       <Text fontSize="xs" color="mutedForeground" css={tabularNumsCss}>
         {formatTime(track.durationSec)}
