@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { Library, Disc3, Settings, ChevronsRight, ChevronsLeft } from 'lucide-react';
 import { APP_NAME, NAV_ITEMS, SETTINGS, EXPAND_SIDEBAR, COLLAPSE_SIDEBAR } from '@/constants/text';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
+import { Logo } from '@/components/layout/Logo';
 
 const icons = {
   '/': Library,
@@ -48,7 +49,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         gap={collapsed ? undefined : '2.5'}
         px={collapsed ? undefined : '6'}
       >
-        <chakra.img src="/favicon.svg" alt="" w="6" h="6" flexShrink={0} aria-hidden="true" />
+        <Logo w="8" h="8" flexShrink={0} />
         {!collapsed && (
           <Text fontSize="lg" fontWeight="semibold" letterSpacing="tight" layerStyle="accentGradientText">
             {APP_NAME}

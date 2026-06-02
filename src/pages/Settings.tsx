@@ -1,7 +1,6 @@
 import { Container, Flex, Text } from '@chakra-ui/react';
 import { SETTINGS } from '@/constants/text';
 import { LibrarySection } from '@/components/settings/LibrarySection';
-import { ThemeToggle } from '@/components/settings/ThemeToggle';
 import { GlassToggle } from '@/components/settings/GlassToggle';
 
 export function Settings() {
@@ -12,7 +11,6 @@ export function Settings() {
       </Text>
       <Flex flexDir="column" mt="6" gap="4">
         <LibrarySection />
-        <ThemeToggle />
         <GlassToggle />
       </Flex>
     </Container>

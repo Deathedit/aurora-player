@@ -14,7 +14,3 @@ export interface Track {
 }
 
 export type RepeatMode = 'off' | 'all' | 'one';
-
-export type Theme = 'dark' | 'spotify';
-export const DARK: Theme = 'dark';
-export const SPOTIFY: Theme = 'spotify';

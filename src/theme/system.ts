@@ -2,7 +2,6 @@ import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
 
 const config = defineConfig({
   conditions: {
-    spotify: '.spotify &',
     noGlass: '.no-glass &',
   },
   theme: {
@@ -30,108 +29,37 @@ const config = defineConfig({
     },
     semanticTokens: {
       colors: {
-        background: {
-          value: { base: '#0a0a0f', _spotify: '#121212' },
-        },
-        foreground: {
-          value: { base: '#f4f4f8', _spotify: '#ffffff' },
-        },
-        card: {
-          value: { base: '#14141c', _spotify: '#181818' },
-        },
-        cardForeground: {
-          value: { base: '#f4f4f8', _spotify: '#ffffff' },
-        },
-        popover: {
-          value: { base: '#1c1c26', _spotify: '#282828' },
-        },
-        popoverForeground: {
-          value: { base: '#f4f4f8', _spotify: '#ffffff' },
-        },
-        primary: {
-          value: { base: '#8b5cf6', _spotify: '#1db954' },
-        },
-        primaryForeground: {
-          value: { base: '#0a0a0f', _spotify: '#000000' },
-        },
-        primary2: {
-          value: { base: '#ff5ca8', _spotify: '#1ed760' },
-        },
-        secondary: {
-          value: { base: '#232330', _spotify: '#232323' },
-        },
-        secondaryForeground: {
-          value: { base: '#f4f4f8', _spotify: '#ffffff' },
-        },
-        muted: {
-          value: { base: '#232330', _spotify: '#282828' },
-        },
-        mutedForeground: {
-          value: { base: '#9a9aa8', _spotify: '#b3b3b3' },
-        },
-        accent: {
-          value: { base: '#2a2a3a', _spotify: '#2a2a2a' },
-        },
-        accentForeground: {
-          value: { base: '#f4f4f8', _spotify: '#ffffff' },
-        },
-        destructive: {
-          value: { base: '#ff5c5c', _spotify: '#ff5c5c' },
-        },
-        success: {
-          value: { base: '#36d399', _spotify: '#1db954' },
-        },
-        border: {
-          value: {
-            base: 'rgba(255, 255, 255, 0.08)',
-            _spotify: 'rgba(255, 255, 255, 0.1)',
-          },
-        },
-        input: {
-          value: {
-            base: 'rgba(255, 255, 255, 0.12)',
-            _spotify: 'rgba(255, 255, 255, 0.1)',
-          },
-        },
-        ring: {
-          value: { base: '#8b5cf6', _spotify: '#1db954' },
-        },
-        elevated: {
-          value: { base: '#1c1c26', _spotify: '#1a1a1a' },
-        },
-        sidebar: {
-          value: { base: '#0a0a0f', _spotify: '#000000' },
-        },
-        sidebarForeground: {
-          value: { base: '#f4f4f8', _spotify: '#ffffff' },
-        },
-        sidebarPrimary: {
-          value: { base: '#8b5cf6', _spotify: '#1db954' },
-        },
-        sidebarPrimaryForeground: {
-          value: { base: '#0a0a0f', _spotify: '#000000' },
-        },
-        sidebarAccent: {
-          value: { base: '#232330', _spotify: '#282828' },
-        },
-        sidebarAccentForeground: {
-          value: { base: '#f4f4f8', _spotify: '#ffffff' },
-        },
-        sidebarBorder: {
-          value: {
-            base: 'rgba(255, 255, 255, 0.08)',
-            _spotify: 'rgba(255, 255, 255, 0.1)',
-          },
-        },
-        sidebarRing: {
-          value: { base: '#8b5cf6', _spotify: '#1db954' },
-        },
-        accentGradientStart: {
-          value: { base: '#8B5CF6', _spotify: '#1db954' },
-        },
-        accentGradientEnd: {
-          value: { base: '#FF5CA8', _spotify: '#1ed760' },
-        },
+        background: { value: '#121212' },
+        foreground: { value: '#ffffff' },
+        card: { value: '#181818' },
+        cardForeground: { value: '#ffffff' },
+        popover: { value: '#282828' },
+        popoverForeground: { value: '#ffffff' },
+        primary: { value: '#1db954' },
+        primaryForeground: { value: '#000000' },
+        primary2: { value: '#1ed760' },
+        secondary: { value: '#232323' },
+        secondaryForeground: { value: '#ffffff' },
+        muted: { value: '#282828' },
+        mutedForeground: { value: '#b3b3b3' },
+        accent: { value: '#2a2a2a' },
+        accentForeground: { value: '#ffffff' },
+        destructive: { value: '#ff5c5c' },
+        success: { value: '#1db954' },
+        border: { value: 'rgba(255, 255, 255, 0.1)' },
+        input: { value: 'rgba(255, 255, 255, 0.1)' },
+        ring: { value: '#1db954' },
+        elevated: { value: '#1a1a1a' },
+        sidebar: { value: '#000000' },
+        sidebarForeground: { value: '#ffffff' },
+        sidebarPrimary: { value: '#1db954' },
+        sidebarPrimaryForeground: { value: '#000000' },
+        sidebarAccent: { value: '#282828' },
+        sidebarAccentForeground: { value: '#ffffff' },
+        sidebarBorder: { value: 'rgba(255, 255, 255, 0.1)' },
+        sidebarRing: { value: '#1db954' },
+        accentGradientStart: { value: '#1db954' },
+        accentGradientEnd: { value: '#1ed760' },
         primaryTint: {
           value: 'color-mix(in srgb, {colors.primary} 8%, transparent)',
         },
