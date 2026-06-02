@@ -1,19 +1,31 @@
-# Aurora Player
+<h1>
+  <img src="public/favicon.svg" alt="" width="32" height="32" align="top" />
+  Aurora
+</h1>
 
-Local-files music player — no backend, no streaming. Pick a folder from disk via File System Access API, parse metadata with `music-metadata`, play in-browser.
+A music player for your own files that runs entirely in the browser — no backend, no streaming, no accounts, nothing leaves your machine. Point it at a folder on disk and Aurora reads the audio and tags locally, builds a browsable, searchable library, and plays it back with a Spotify-style transport. The UI recolors itself to match each track's cover art, and your library reconnects automatically on return.
 
-- **FS Access API** — folder picker, handle persisted in IndexedDB, auto-reconnect
-- **Art-reactive theming** — `fast-average-color` → `--art` CSS var → accent glow
-- **Virtualized lists** — `react-virtuoso` for large libraries
-- **Spotify-style transport** — desktop: single-row with scrubber+volume; mobile: hint bar → full-screen Now Playing overlay with shuffle/repeat/volume
-- **MediaSession API** — system media controls
-- **Progressive loading** — concurrent pool, batches of 20 tracks
+Built as a fully client-side app: the File System Access API reads files directly off disk, `music-metadata` parses tags in the browser, and a single `<audio>` element handles playback. Parsed metadata and cover art are cached in IndexedDB, so a library you've opened before loads near-instantly the next time.
+
+> **Browser support:** Chromium-based browsers only (Chrome/Edge) — the File System Access API isn't available elsewhere.
+
+## Features
+
+- **Play your own music folder** — pick a folder once and Aurora remembers it, reconnecting automatically next time you open it.
+- **Colors that match your album art** — the whole interface gently tints itself to match the cover of whatever's playing.
+- **Handles huge libraries smoothly** — thousands of tracks scroll without lag.
+- **Familiar player controls** — play, pause, skip, shuffle, repeat, and a seek bar, with a full-screen Now Playing view on your phone.
+- **Works with your device's media keys** — control playback from your keyboard, headphones, or lock screen.
+- **Loads as you go** — tracks start appearing right away instead of making you wait for the whole folder.
+- **Fast on return visits** — Aurora remembers the details and artwork it already read, so a library you've opened before loads almost instantly.
 
 | Stack | |
 |---|---|
-| React 19 + TS | Tailwind CSS 4 + shadcn/ui base-nova |
-| Vite 8 | @base-ui/react |
+| React 19 + TS | Chakra UI v3 + Emotion |
+| Vite 8 | react-virtuoso |
 | React Router (HashRouter) | Lucide React |
+
+## Develop
 
 ```sh
 npm install && npm run dev
