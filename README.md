@@ -1,5 +1,5 @@
 <h1>
-  <img src="public/favicon.svg" alt="" width="32" height="32" align="top" />
+  <img src="public/favicon.svg" alt="" width="64" height="64" align="middle" />
   Aurora
 </h1>
 
