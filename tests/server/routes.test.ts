@@ -1,25 +1,22 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
+import { createTmpEnv } from './helpers';
 
 type App = Awaited<ReturnType<typeof import('@server/app').buildApp>>;
 
 let app: App;
-let tmpRoot: string;
-let musicDir: string;
+let cleanup: () => void;
 
 const AUDIO_BYTES = 'ABCDEFGHIJ';
 const ART_HASH = 'deadbeef';
 const ART_BYTES = Buffer.from('fake-image-bytes');
 
 beforeAll(async () => {
-  tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'aurora-test-'));
-  musicDir = path.join(tmpRoot, 'music');
+  const env = createTmpEnv('aurora-test-');
+  const { musicDir } = env;
+  cleanup = env.cleanup;
   fs.mkdirSync(path.join(musicDir, 'Album'), { recursive: true });
-
-  process.env.MUSIC_DIR = musicDir;
-  process.env.DB_PATH = path.join(tmpRoot, 'aurora.db');
 
   const audioPath = path.join(musicDir, 'Album', 'a.mp3');
   fs.writeFileSync(audioPath, AUDIO_BYTES);
@@ -69,7 +66,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await app?.close();
-  if (tmpRoot) fs.rmSync(tmpRoot, { recursive: true, force: true });
+  cleanup?.();
 });
 
 describe('GET /api/health', () => {

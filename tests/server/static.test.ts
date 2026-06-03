@@ -1,24 +1,22 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
+import { createTmpEnv } from './helpers';
 
 type App = Awaited<ReturnType<typeof import('@server/app').buildApp>>;
 
 let app: App;
-let tmpRoot: string;
+let cleanup: () => void;
 
 const INDEX_HTML = '<!doctype html><title>Aurora</title><div id="root"></div>';
 
 beforeAll(async () => {
-  tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'aurora-static-'));
-  const publicDir = path.join(tmpRoot, 'public');
+  const env = createTmpEnv('aurora-static-');
+  cleanup = env.cleanup;
+  const publicDir = path.join(env.tmpRoot, 'public');
   fs.mkdirSync(publicDir, { recursive: true });
   fs.writeFileSync(path.join(publicDir, 'index.html'), INDEX_HTML);
   fs.writeFileSync(path.join(publicDir, 'app.js'), 'console.log(1)');
-
-  process.env.MUSIC_DIR = path.join(tmpRoot, 'music');
-  process.env.DB_PATH = path.join(tmpRoot, 'aurora.db');
 
   const { buildApp } = await import('@server/app');
   const { registerStatic } = await import('@server/static');
@@ -29,7 +27,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await app?.close();
-  if (tmpRoot) fs.rmSync(tmpRoot, { recursive: true, force: true });
+  cleanup?.();
 });
 
 describe('SPA fallback', () => {

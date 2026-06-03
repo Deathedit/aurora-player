@@ -20,9 +20,14 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**', 'server/src/**', 'shared/**'],
+      exclude: ['**/*.d.ts', 'src/main.tsx', 'src/vite-env.d.ts'],
+    },
   },
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         manualChunks(id: string) {
           if (!id.includes('node_modules')) return
