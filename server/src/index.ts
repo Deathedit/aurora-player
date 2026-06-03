@@ -3,7 +3,7 @@ import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { PORT, STATIC_DIR, MUSIC_DIR, DB_PATH } from './config.js';
 import { registerApi } from './routes.js';
-import { scanLibrary } from './scan.js';
+import { startScan } from './scanner.js';
 
 const app = Fastify({ logger: true });
 
@@ -18,7 +18,7 @@ if (fs.existsSync(STATIC_DIR)) {
 app.log.info(`music dir: ${MUSIC_DIR}`);
 app.log.info(`db path: ${DB_PATH}`);
 
-void scanLibrary().then(() => app.log.info('initial scan complete'));
+startScan({ info: (m) => app.log.info(m), error: (m) => app.log.error(m) });
 
 try {
   await app.listen({ port: PORT, host: '0.0.0.0' });

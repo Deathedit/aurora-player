@@ -85,34 +85,22 @@ async function indexFile(file: Found): Promise<void> {
 }
 
 const CONCURRENCY = 5;
-let scanning = false;
-
-export function isScanning(): boolean {
-  return scanning;
-}
-
 export async function scanLibrary(): Promise<void> {
-  if (scanning) return;
-  scanning = true;
-  try {
-    const found: Found[] = [];
-    await walk(MUSIC_DIR, found);
+  const found: Found[] = [];
+  await walk(MUSIC_DIR, found);
 
-    let i = 0;
-    const workers = Array.from({ length: Math.min(CONCURRENCY, found.length) }, async () => {
-      while (true) {
-        const idx = i++;
-        if (idx >= found.length) break;
-        await indexFile(found[idx]);
-      }
-    });
-    await Promise.all(workers);
+  let i = 0;
+  const workers = Array.from({ length: Math.min(CONCURRENCY, found.length) }, async () => {
+    while (true) {
+      const idx = i++;
+      if (idx >= found.length) break;
+      await indexFile(found[idx]);
+    }
+  });
+  await Promise.all(workers);
 
-    const present = new Set(found.map((f) => f.id));
-    const removed = [...allTrackIds()].filter((id) => !present.has(id));
-    if (removed.length > 0) deleteTracks(removed);
-    pruneOrphanArt();
-  } finally {
-    scanning = false;
-  }
+  const present = new Set(found.map((f) => f.id));
+  const removed = [...allTrackIds()].filter((id) => !present.has(id));
+  if (removed.length > 0) deleteTracks(removed);
+  pruneOrphanArt();
 }

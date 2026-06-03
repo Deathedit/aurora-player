@@ -71,6 +71,10 @@ export function listTracks(): TrackMeta[] {
   return listStmt.all() as TrackMeta[];
 }
 
+export function listTracksIterate(): IterableIterator<TrackMeta> {
+  return listStmt.iterate() as IterableIterator<TrackMeta>;
+}
+
 export function getTrackPath(id: string): string | undefined {
   const row = pathStmt.get(id) as { path: string } | undefined;
   return row?.path;

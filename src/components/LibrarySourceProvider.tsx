@@ -5,9 +5,10 @@ import { FsAccessProvider } from '@/components/FsAccessProvider';
 import { LibrarySourceCtx } from '@/contexts/library-source-context';
 import type { LibrarySourceMode } from '@/contexts/library-source-context';
 import { checkHealth, fetchTracks } from '@/services/backend';
+import type { Track } from '@/types';
 
 export function LibrarySourceProvider({ children }: { children: ReactNode }) {
-  const { addTracks, clearLibrary } = usePlayer();
+  const { addTracks, restorePlayback, clearLibrary } = usePlayer();
   const [mode, setMode] = useState<LibrarySourceMode | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const didInit = useRef(false);
@@ -15,13 +16,17 @@ export function LibrarySourceProvider({ children }: { children: ReactNode }) {
   const loadBackend = useCallback(async () => {
     setRefreshing(true);
     try {
-      const tracks = await fetchTracks();
       clearLibrary();
-      addTracks(tracks);
+      const all: Track[] = [];
+      await fetchTracks((batch) => {
+        all.push(...batch);
+        addTracks(batch);
+      });
+      restorePlayback(all);
     } finally {
       setRefreshing(false);
     }
-  }, [addTracks, clearLibrary]);
+  }, [addTracks, restorePlayback, clearLibrary]);
 
   useEffect(() => {
     if (didInit.current) return;

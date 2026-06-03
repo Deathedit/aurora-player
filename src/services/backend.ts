@@ -37,11 +37,48 @@ function toTrack(meta: TrackMeta): Track {
   };
 }
 
-export async function fetchTracks(): Promise<Track[]> {
+const BATCH_SIZE = 50;
+
+export async function fetchTracks(onBatch: (tracks: Track[]) => void): Promise<void> {
   const res = await fetch('/api/tracks');
   if (!res.ok) throw new Error(`fetch tracks failed: ${res.status}`);
-  const data = (await res.json()) as TrackMeta[];
-  return data.map(toTrack);
+
+  if (!res.body) {
+    const data = (await res.json()) as TrackMeta[];
+    if (data.length) onBatch(data.map(toTrack));
+    return;
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+  let batch: Track[] = [];
+
+  const flush = () => {
+    if (batch.length) {
+      onBatch(batch);
+      batch = [];
+    }
+  };
+  const pushLine = (line: string) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+    batch.push(toTrack(JSON.parse(trimmed) as TrackMeta));
+    if (batch.length >= BATCH_SIZE) flush();
+  };
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    let nl: number;
+    while ((nl = buf.indexOf('\n')) >= 0) {
+      pushLine(buf.slice(0, nl));
+      buf = buf.slice(nl + 1);
+    }
+  }
+  pushLine(buf);
+  flush();
 }
 
 export async function rescan(): Promise<void> {

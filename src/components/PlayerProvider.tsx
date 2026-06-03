@@ -34,13 +34,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     [restoreLastPlayed],
   );
 
-  const addTracks = useCallback(
-    (tracks: Track[]) => {
-      setLibrary((prev) => [...prev, ...tracks]);
-      restoreLastPlayed(tracks);
-    },
-    [restoreLastPlayed],
-  );
+  const addTracks = useCallback((tracks: Track[]) => {
+    setLibrary((prev) => [...prev, ...tracks]);
+  }, []);
 
   const setVolume = useCallback(
     (v: number) => {
@@ -72,6 +68,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       queue: engine.queue,
       addFiles,
       addTracks,
+      restorePlayback: restoreLastPlayed,
       play: engine.play,
       toggle: engine.toggle,
       next: engine.next,
@@ -97,6 +94,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       shuffle,
       addFiles,
       addTracks,
+      restoreLastPlayed,
       setVolume,
       setRepeat,
       setShuffle,

@@ -1,10 +1,11 @@
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
+import { Readable } from 'node:stream';
 import type { FastifyInstance } from 'fastify';
-import { listTracks, getTrackPath, getArt } from './db.js';
+import { listTracksIterate, getTrackPath, getArt } from './db.js';
 import { MUSIC_DIR } from './config.js';
-import { scanLibrary, isScanning } from './scan.js';
+import { startScan, isScanning } from './scanner.js';
 
 const AUDIO_MIME: Record<string, string> = {
   '.mp3': 'audio/mpeg',
@@ -25,10 +26,20 @@ function audioMime(file: string): string {
 export function registerApi(app: FastifyInstance): void {
   app.get('/api/health', async () => ({ ok: true }));
 
-  app.get('/api/tracks', async () => listTracks());
+  app.get('/api/tracks', async (_req, reply) => {
+    const iter = listTracksIterate();
+    const stream = new Readable({
+      read() {
+        const { value, done } = iter.next();
+        if (done) this.push(null);
+        else this.push(JSON.stringify(value) + '\n');
+      },
+    });
+    return reply.type('application/x-ndjson').send(stream);
+  });
 
   app.post('/api/rescan', async () => {
-    void scanLibrary();
+    startScan({ info: (m) => app.log.info(m), error: (m) => app.log.error(m) });
     return { ok: true };
   });
 
