@@ -7,8 +7,11 @@ A detailed companion lives in [AGENTS.md](AGENTS.md) — consult it for the full
 ## Commands
 
 - **Dev:** `npm run dev` (Vite). Open in Chrome/Edge — the File System Access API is Chromium-only.
-- **Build / gate:** `npm run build` → `tsc -b && vite build`. `tsc` must pass; this is the only verification gate.
-- **Lint:** `npm run lint` (eslint). No separate typecheck step; no test suite.
+- **Build:** `npm run build` → `tsc -b && vite build`. `tsc` must pass.
+- **Test:** `npm test` (`vitest run`); `npm run test:watch`; `npm run test:coverage` (V8 report). Tests in `tests/` (mirrors `src`/`server`/`shared`), `node` environment; logic + Fastify `app.inject` HTTP tests, no React/DOM coverage yet.
+- **Typecheck:** `npm run typecheck` (`tsc -b tsconfig.test.json`).
+- **Lint:** `npm run lint` (eslint).
+- **Gate:** CI runs `typecheck` + `test`; `build` must also pass.
 
 ## Architecture
 

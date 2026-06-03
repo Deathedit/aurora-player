@@ -3,7 +3,9 @@
 ## Commands
 - **Dev:** `npm run dev`
 - **Build (gate):** `npm run build` — `tsc -b && vite build`; tsc must pass
-- **Lint:** `npm run lint` — eslint; no separate typecheck
+- **Lint:** `npm run lint` — eslint
+- **Typecheck:** `npm run typecheck` — `tsc -b tsconfig.test.json` (covers `src` + `tests`)
+- **Test:** `npm test` — `vitest run`; `npm run test:watch` to watch; `npm run test:coverage` for a V8 report
 - **Format:** `npm run format` — prettier --write src; `npm run format:check` for CI
 - **Server (optional):** `cd server && npm run build` (`tsc`); `npm run dev` (tsx watch). Env: `MUSIC_DIR`, `DB_PATH`, `PORT`, `STATIC_DIR`
 
@@ -31,6 +33,7 @@
 - **MediaSession API**: sets metadata + play/pause/next/prev handlers
 
 ### Layout Model
+> Sizing/breakpoints below are written in Tailwind-style shorthand for brevity (`h-dvh`, `md:grid`, `w-16` = 4rem). The app has **no Tailwind** — these map to Chakra responsive style props (e.g. `h="dvh"`, `display={{ md: 'grid' }}`, `w="16"`). Read them as intent, not literal classes.
 - **Outer div**: `h-dvh overflow-hidden` mobile / `md:min-h-svh md:overflow-auto md:grid`
 - **Sidebar**: collapsible (default collapsed `w-16`, expanded `w-64`), toggle in header; Settings pinned at bottom; `md:sticky md:top-0 md:max-h-[calc(100svh-4rem)]`
 - **`<main>`** is the scroll container at **every** breakpoint: `flex-1 overflow-y-auto pb-[8.5rem] md:pb-16`. Outer is `h-dvh overflow-hidden md:h-svh md:grid` — it never scrolls; only `<main>` does
@@ -40,15 +43,16 @@
 
 ## Style Rules
 - **No code comments** — omit entirely, except a short justification inside an empty `catch {}` (eslint `no-empty` requires it; see `fs-access.ts` / `library-cache.ts`)
-- **Semantic Tailwind tokens only** — `bg-background`, `text-foreground`, `bg-primary`, etc.
-- **shadcn/ui base-nova** + `@base-ui/react`
-- **Glass surfaces**: `.glass` / `.glass-sidebar` with `backdrop-blur-xl`
-- **Accent gradient**: `linear-gradient(120deg,#8B5CF6,#FF5CA8)` — PlayFAB, active-row left-bar, scrubber fill
-- **Numerics**: `tabular-nums` on duration/time
-- **Active track**: 2px gradient left-bar, equalizer (3 bars staggered), like button `opacity-0 group-hover:opacity-100`
+- **Chakra UI v3 + Emotion** for all styling — no Tailwind, no shadcn. Style props on Chakra primitives (`Box`, `Flex`, `Text`, `chakra.*`) and `layerStyle` for reusable patterns. Use `chakra.button`/`chakra.img`/`chakra.input` for native elements needing style props
+- **Theme system** in `src/theme/system.ts` (`createSystem(defaultConfig, defineConfig({...}))`). Single dark-green theme — semantic tokens have flat values (no color mode, no theme switching). After adding tokens/layerStyles, re-run `npx @chakra-ui/cli typegen src/theme/system.ts --strict`
+- **Semantic tokens**: `bg="background"` (#121212), `color="foreground"`, `bg="card"`/`elevated`/`secondary`/`muted`, `color="mutedForeground"`, `primary` (#1db954). Token names mirror the old CSS-var names
+- **Glass surfaces**: `layerStyle="glass" | "glassSidebar" | "glassElevated"` (`backdrop-filter: blur(24px) saturate(1.2)`). The only custom condition is `_noGlass` (`.no-glass &`), which swaps glass for an opaque fill; the `.no-glass` class is toggled on `documentElement` by `GlassToggle`
+- **Accent gradient**: `linear-gradient(120deg,#1db954,#1ed760)` — exposed as `layerStyle="accentGradient"` (fill) and `"accentGradientText"` (clipped text). Used by PlayFAB, active-row left-bar, scrubber fill
+- **Runtime glow**: `PlayerProvider` sets `--art`/`--player-glow` CSS vars on `documentElement`; reference via `css={{ background: 'var(--player-glow)' }}`
+- **Active track**: 2px gradient left-bar, equalizer (3 staggered `equalizer1/2/3` keyframes; reduced-motion disables them), like button hover-revealed
 
 ## Verification
-`lint` → `build`. No test suite — `npm run build` passing is the gate.
+`lint` → `typecheck` → `test` → `build`. CI (`.github/workflows/ci.yml`) runs `npm run typecheck` then `npm test`; both must pass. Tests live in `tests/` (mirrors `src/`/`server/`/`shared/`) and run under Vitest's `node` environment — pure logic + Fastify `app.inject` HTTP tests; the React/DOM layer is not yet covered (no jsdom env).
 
 ## Gotchas
 - `"type": "module"` in package.json — ESM only
