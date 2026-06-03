@@ -14,6 +14,7 @@ fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
+db.pragma('synchronous = NORMAL');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS tracks (
@@ -47,9 +48,8 @@ const upsertTrackStmt = db.prepare(`
 `);
 
 const getStmt = db.prepare('SELECT id, mtime, size FROM tracks WHERE id = ?');
-const listStmt = db.prepare(
-  'SELECT id, title, artist, album, folder, durationSec, artHash, artType FROM tracks ORDER BY artist, album, title',
-);
+const LIST_SQL =
+  'SELECT id, title, artist, album, folder, durationSec, artHash, artType FROM tracks ORDER BY artist, album, title';
 const pathStmt = db.prepare('SELECT path FROM tracks WHERE id = ?');
 const deleteStmt = db.prepare('DELETE FROM tracks WHERE id = ?');
 const allIdsStmt = db.prepare('SELECT id FROM tracks');
@@ -63,16 +63,16 @@ export function upsertTrack(row: TrackRow): void {
   upsertTrackStmt.run({ folder: null, artHash: null, artType: null, ...row });
 }
 
+export const upsertTracks = db.transaction((rows: TrackRow[]) => {
+  for (const row of rows) upsertTrackStmt.run({ folder: null, artHash: null, artType: null, ...row });
+});
+
 export function getTrackStat(id: string): { mtime: number; size: number } | undefined {
   return getStmt.get(id) as { mtime: number; size: number } | undefined;
 }
 
-export function listTracks(): TrackMeta[] {
-  return listStmt.all() as TrackMeta[];
-}
-
-export function listTracksIterate(): IterableIterator<TrackMeta> {
-  return listStmt.iterate() as IterableIterator<TrackMeta>;
+export function iterateTracks(): IterableIterator<TrackMeta> {
+  return db.prepare(LIST_SQL).iterate() as IterableIterator<TrackMeta>;
 }
 
 export function getTrackPath(id: string): string | undefined {
@@ -105,4 +105,8 @@ export function getArt(hash: string): { data: Buffer; type: string } | undefined
 
 export function pruneOrphanArt(): void {
   pruneArtStmt.run();
+}
+
+export function closeDb(): void {
+  db.close();
 }

@@ -3,6 +3,8 @@ import { scanLibrary } from './scan.js';
 
 type Logger = { info: (msg: string) => void; error: (msg: string) => void };
 
+export type ScanMessage = { type: 'done' } | { type: 'error'; message: string };
+
 let scanning = false;
 
 export function isScanning(): boolean {
@@ -44,9 +46,9 @@ export function startScan(log?: Logger): void {
     return;
   }
 
-  worker.on('message', (m: { type: string; message?: string }) => {
+  worker.on('message', (m: ScanMessage) => {
     if (m.type === 'done') finish('scan complete');
-    else if (m.type === 'error') finish(`scan failed: ${m.message}`, true);
+    else finish(`scan failed: ${m.message}`, true);
   });
   worker.on('error', (err) => inlineFallback(`worker error, scanning inline: ${String(err)}`));
   worker.on('exit', () => finish('scan worker exited unexpectedly', true));

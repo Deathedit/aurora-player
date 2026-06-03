@@ -6,7 +6,7 @@ import { parseFile } from 'music-metadata';
 import { MUSIC_DIR, isAudioFile } from './config.js';
 import { albumFallback } from '../../shared/metadata.js';
 import type { TrackRow } from './db.js';
-import { upsertTrack, getTrackStat, allTrackIds, deleteTracks, hasArt, putArt, pruneOrphanArt } from './db.js';
+import { upsertTracks, getTrackStat, allTrackIds, deleteTracks, hasArt, putArt, pruneOrphanArt } from './db.js';
 
 interface Found {
   id: string;
@@ -46,9 +46,9 @@ async function walk(dir: string, found: Found[]): Promise<void> {
   }
 }
 
-async function indexFile(file: Found): Promise<void> {
+async function indexFile(file: Found): Promise<TrackRow | null> {
   const existing = getTrackStat(file.id);
-  if (existing && existing.mtime === file.mtime && existing.size === file.size) return;
+  if (existing && existing.mtime === file.mtime && existing.size === file.size) return null;
 
   const row: TrackRow = {
     id: file.id,
@@ -81,7 +81,7 @@ async function indexFile(file: Found): Promise<void> {
     /* keep filename-based fallback row */
   }
 
-  upsertTrack(row);
+  return row;
 }
 
 const CONCURRENCY = 5;
@@ -90,14 +90,21 @@ export async function scanLibrary(): Promise<void> {
   await walk(MUSIC_DIR, found);
 
   let i = 0;
+  const pending: TrackRow[] = [];
+  const FLUSH = 200;
   const workers = Array.from({ length: Math.min(CONCURRENCY, found.length) }, async () => {
     while (true) {
       const idx = i++;
       if (idx >= found.length) break;
-      await indexFile(found[idx]);
+      const row = await indexFile(found[idx]);
+      if (row) {
+        pending.push(row);
+        if (pending.length >= FLUSH) upsertTracks(pending.splice(0));
+      }
     }
   });
   await Promise.all(workers);
+  if (pending.length > 0) upsertTracks(pending.splice(0));
 
   const present = new Set(found.map((f) => f.id));
   const removed = [...allTrackIds()].filter((id) => !present.has(id));

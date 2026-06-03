@@ -1,6 +1,9 @@
 import { parentPort } from 'node:worker_threads';
 import { scanLibrary } from './scan.js';
+import type { ScanMessage } from './scanner.js';
+
+const post = (msg: ScanMessage) => parentPort?.postMessage(msg);
 
 scanLibrary()
-  .then(() => parentPort?.postMessage({ type: 'done' }))
-  .catch((err: unknown) => parentPort?.postMessage({ type: 'error', message: String(err) }));
+  .then(() => post({ type: 'done' }))
+  .catch((err: unknown) => post({ type: 'error', message: String(err) }));

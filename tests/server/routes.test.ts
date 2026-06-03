@@ -93,6 +93,21 @@ describe('GET /api/tracks', () => {
     const first = JSON.parse(lines[0]);
     expect(first).toMatchObject({ title: 'Alpha', artist: 'Artist', album: 'Album', artHash: ART_HASH });
   });
+
+  it('handles concurrent requests without a busy-statement error', async () => {
+    const [a, b] = await Promise.all([
+      app.inject({ method: 'GET', url: '/api/tracks' }),
+      app.inject({ method: 'GET', url: '/api/tracks' }),
+    ]);
+    for (const res of [a, b]) {
+      expect(res.statusCode).toBe(200);
+      const ids = res.body
+        .split('\n')
+        .filter((l) => l.trim().length > 0)
+        .map((l) => JSON.parse(l).id);
+      expect(ids).toEqual(['Album/a.mp3', 'Album/b.mp3', 'evil']);
+    }
+  });
 });
 
 describe('GET /api/stream/:id', () => {
@@ -115,6 +130,18 @@ describe('GET /api/stream/:id', () => {
     expect(res.headers['content-range']).toBe(`bytes 0-3/${AUDIO_BYTES.length}`);
     expect(res.headers['content-length']).toBe('4');
     expect(res.body).toBe('ABCD');
+  });
+
+  it('honors a suffix range (last N bytes)', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/stream/Album%2Fa.mp3',
+      headers: { range: 'bytes=-4' },
+    });
+    expect(res.statusCode).toBe(206);
+    expect(res.headers['content-range']).toBe(`bytes 6-9/${AUDIO_BYTES.length}`);
+    expect(res.headers['content-length']).toBe('4');
+    expect(res.body).toBe('GHIJ');
   });
 
   it('returns 416 for an unsatisfiable range', async () => {

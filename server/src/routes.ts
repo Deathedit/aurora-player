@@ -3,7 +3,7 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import type { FastifyInstance } from 'fastify';
-import { listTracksIterate, getTrackPath, getArt } from './db.js';
+import { iterateTracks, getTrackPath, getArt } from './db.js';
 import { MUSIC_DIR } from './config.js';
 import { startScan, isScanning } from './scanner.js';
 
@@ -27,12 +27,25 @@ export function registerApi(app: FastifyInstance): void {
   app.get('/api/health', async () => ({ ok: true }));
 
   app.get('/api/tracks', async (_req, reply) => {
-    const iter = listTracksIterate();
+    const iter = iterateTracks();
     const stream = new Readable({
       read() {
-        const { value, done } = iter.next();
-        if (done) this.push(null);
-        else this.push(JSON.stringify(value) + '\n');
+        try {
+          for (let n = 0; n < 100; n++) {
+            const { value, done } = iter.next();
+            if (done) {
+              this.push(null);
+              return;
+            }
+            if (!this.push(JSON.stringify(value) + '\n')) return;
+          }
+        } catch (err) {
+          this.destroy(err as Error);
+        }
+      },
+      destroy(err, cb) {
+        iter.return?.();
+        cb(err);
       },
     });
     return reply.type('application/x-ndjson').send(stream);
@@ -75,9 +88,16 @@ export function registerApi(app: FastifyInstance): void {
 
     if (range) {
       const match = /^bytes=(\d*)-(\d*)$/.exec(range);
-      if (match) {
-        const start = match[1] ? parseInt(match[1], 10) : 0;
-        const end = match[2] ? parseInt(match[2], 10) : size - 1;
+      if (match && (match[1] || match[2])) {
+        let start: number;
+        let end: number;
+        if (match[1]) {
+          start = parseInt(match[1], 10);
+          end = match[2] ? parseInt(match[2], 10) : size - 1;
+        } else {
+          start = Math.max(0, size - parseInt(match[2], 10));
+          end = size - 1;
+        }
         if (start >= size || end >= size || start > end) {
           return reply.code(416).header('Content-Range', `bytes */${size}`).send();
         }
