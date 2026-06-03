@@ -12,12 +12,15 @@ export function GlassToggle() {
 
   return (
     <Flex alignItems="center" justifyContent="space-between" rounded="lg" bg="elevated" p="4">
-      <Text fontSize="sm" fontWeight="medium">
+      <Text id="glass-toggle-label" fontSize="sm" fontWeight="medium">
         {GLASS_LABEL}
       </Text>
       <chakra.button
         type="button"
         onClick={() => handleGlass(!glass)}
+        role="switch"
+        aria-checked={glass}
+        aria-labelledby="glass-toggle-label"
         position="relative"
         h="6"
         w="11"

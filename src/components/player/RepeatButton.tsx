@@ -2,6 +2,7 @@ import { Repeat } from 'lucide-react';
 import { Text, chakra } from '@chakra-ui/react';
 import type { HTMLChakraProps } from '@chakra-ui/react';
 import { usePlayer } from '@/contexts/player-context';
+import { REPEAT } from '@/constants/text';
 import type { RepeatMode } from '@/types';
 
 const MODES: RepeatMode[] = ['off', 'all', 'one'];
@@ -16,6 +17,8 @@ export function RepeatButton({
     <chakra.button
       type="button"
       onClick={() => setRepeat(MODES[(MODES.indexOf(repeat) + 1) % MODES.length])}
+      aria-label={`${REPEAT}: ${repeat}`}
+      aria-pressed={repeat !== 'off'}
       position="relative"
       rounded="full"
       transition="colors"

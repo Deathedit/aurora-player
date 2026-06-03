@@ -9,6 +9,7 @@ import { useCurrentTrack } from '@/hooks/useCurrentTrack';
 import { useVolumeWheel } from '@/hooks/useVolumeWheel';
 import { useEffect, useRef } from 'react';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
+import { PLAY, PAUSE, PREVIOUS_TRACK, NEXT_TRACK, CLOSE_NOW_PLAYING } from '@/constants/text';
 
 export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { isPlaying, toggle, next, prev } = usePlayer();
@@ -47,6 +48,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
       <chakra.button
         type="button"
         onClick={onClose}
+        aria-label={CLOSE_NOW_PLAYING}
         position="absolute"
         right="4"
         top="4"
@@ -111,6 +113,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
           <chakra.button
             type="button"
             onClick={prev}
+            aria-label={PREVIOUS_TRACK}
             rounded="full"
             p="2"
             color="foreground"
@@ -121,6 +124,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
           <chakra.button
             type="button"
             onClick={toggle}
+            aria-label={isPlaying ? PAUSE : PLAY}
             layerStyle="accentGradient"
             display="flex"
             boxSize="14"
@@ -135,6 +139,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
           <chakra.button
             type="button"
             onClick={next}
+            aria-label={NEXT_TRACK}
             rounded="full"
             p="2"
             color="foreground"

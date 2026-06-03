@@ -28,3 +28,16 @@ export const SERVER_LIBRARY = 'Streaming from server';
 export const RESCAN_LIBRARY = 'Rescan';
 export const TRACKS_LOADED = (n: number) => `${n} track${n === 1 ? '' : 's'} loaded`;
 export const GLASS_LABEL = 'Glass Effect';
+
+export const PLAY = 'Play';
+export const PAUSE = 'Pause';
+export const PREVIOUS_TRACK = 'Previous track';
+export const NEXT_TRACK = 'Next track';
+export const SHUFFLE = 'Shuffle';
+export const REPEAT = 'Repeat';
+export const MUTE = 'Mute';
+export const UNMUTE = 'Unmute';
+export const VOLUME = 'Volume';
+export const SEEK = 'Seek';
+export const OPEN_NOW_PLAYING = 'Open now playing';
+export const CLOSE_NOW_PLAYING = 'Close now playing';

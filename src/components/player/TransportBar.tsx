@@ -10,6 +10,7 @@ import { useVolumeWheel } from '@/hooks/useVolumeWheel';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { useRef } from 'react';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
+import { PLAY, PAUSE, PREVIOUS_TRACK, NEXT_TRACK, OPEN_NOW_PLAYING } from '@/constants/text';
 
 const CPlay = chakra(Play);
 const CPause = chakra(Pause);
@@ -47,6 +48,7 @@ export function TransportBar({
       <chakra.button
         type="button"
         onClick={onNowPlaying}
+        aria-label={OPEN_NOW_PLAYING}
         display="flex"
         minW={0}
         flex="1"
@@ -77,6 +79,7 @@ export function TransportBar({
         <chakra.button
           type="button"
           onClick={prev}
+          aria-label={PREVIOUS_TRACK}
           rounded="full"
           p="1.5"
           color="mutedForeground"
@@ -88,6 +91,7 @@ export function TransportBar({
         <chakra.button
           type="button"
           onClick={toggle}
+          aria-label={isPlaying ? PAUSE : PLAY}
           layerStyle="accentGradient"
           display="flex"
           boxSize={{ base: '10', md: '9' }}
@@ -103,6 +107,7 @@ export function TransportBar({
         <chakra.button
           type="button"
           onClick={next}
+          aria-label={NEXT_TRACK}
           rounded="full"
           p="1.5"
           color="mutedForeground"
@@ -126,6 +131,7 @@ export function TransportBar({
         <chakra.button
           type="button"
           onClick={onNowPlaying}
+          aria-label={OPEN_NOW_PLAYING}
           rounded="full"
           p="1.5"
           color="mutedForeground"

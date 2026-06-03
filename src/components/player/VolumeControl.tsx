@@ -2,6 +2,7 @@ import { VolumeIcon } from '@/components/ui/volume-icon';
 import { Text, chakra } from '@chakra-ui/react';
 import type { HTMLChakraProps } from '@chakra-ui/react';
 import { usePlayer } from '@/contexts/player-context';
+import { MUTE, UNMUTE, VOLUME } from '@/constants/text';
 
 const tabularNumsCss = { fontVariantNumeric: 'tabular-nums' } as const;
 
@@ -12,6 +13,7 @@ export function VolumeControl({ sliderProps }: { sliderProps?: HTMLChakraProps<'
       <chakra.button
         type="button"
         onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
+        aria-label={volume === 0 ? UNMUTE : MUTE}
         display="flex"
         boxSize="5"
         alignItems="center"
@@ -24,6 +26,7 @@ export function VolumeControl({ sliderProps }: { sliderProps?: HTMLChakraProps<'
       </chakra.button>
       <chakra.input
         type="range"
+        aria-label={VOLUME}
         min={0}
         max={1}
         step={0.01}

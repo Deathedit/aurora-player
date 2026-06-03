@@ -93,6 +93,8 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
           type="button"
           onClick={onToggle}
           title={collapsed ? EXPAND_SIDEBAR : COLLAPSE_SIDEBAR}
+          aria-label={collapsed ? EXPAND_SIDEBAR : COLLAPSE_SIDEBAR}
+          aria-expanded={!collapsed}
           display="flex"
           alignItems="center"
           rounded="lg"
