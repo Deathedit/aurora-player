@@ -1,6 +1,7 @@
 import { usePlayer } from '@/contexts/player-context';
+import { useLibrarySource } from '@/contexts/library-source-context';
 import { TrackRow } from '@/components/library/TrackRow';
-import { EMPTY_LIBRARY, LIBRARY, TRACK_COUNT } from '@/constants/text';
+import { EMPTY_LIBRARY, EMPTY_LIBRARY_SERVER, LIBRARY, TRACK_COUNT } from '@/constants/text';
 import { useMemo } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import type { Track } from '@/types';
@@ -10,6 +11,7 @@ const renderTrack = (i: number, track: Track) => <TrackRow track={track} index={
 
 export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
   const { library } = usePlayer();
+  const { mode } = useLibrarySource();
 
   const sorted = useMemo(
     () =>
@@ -26,7 +28,7 @@ export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
           {LIBRARY}
         </Text>
         <Text mt="8" color="mutedForeground">
-          {EMPTY_LIBRARY}
+          {mode === 'backend' ? EMPTY_LIBRARY_SERVER : EMPTY_LIBRARY}
         </Text>
       </Container>
     );

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { ReactElement } from 'react';
 import { Box, Grid } from '@chakra-ui/react';
 import { PlayerProvider } from '@/components/PlayerProvider';
-import { FsAccessProvider } from '@/components/FsAccessProvider';
+import { LibrarySourceProvider } from '@/components/LibrarySourceProvider';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TabBar } from '@/components/layout/TabBar';
 import { TransportBar } from '@/components/player/TransportBar';
@@ -75,9 +75,9 @@ export default function App() {
   return (
     <HashRouter>
       <PlayerProvider>
-        <FsAccessProvider>
+        <LibrarySourceProvider>
           <AppShell />
-        </FsAccessProvider>
+        </LibrarySourceProvider>
       </PlayerProvider>
     </HashRouter>
   );

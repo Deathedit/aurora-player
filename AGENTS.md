@@ -5,6 +5,7 @@
 - **Build (gate):** `npm run build` — `tsc -b && vite build`; tsc must pass
 - **Lint:** `npm run lint` — eslint; no separate typecheck
 - **Format:** `npm run format` — prettier --write src; `npm run format:check` for CI
+- **Server (optional):** `cd server && npm run build` (`tsc`); `npm run dev` (tsx watch). Env: `MUSIC_DIR`, `DB_PATH`, `PORT`, `STATIC_DIR`
 
 ## TS Conventions
 - `verbatimModuleSyntax` → `import type` for type-only imports
@@ -13,7 +14,7 @@
 - Project refs: `tsconfig.app.json` (src) + `tsconfig.node.json` (vite config)
 
 ## Architecture
-**Local-files music player** — no backend/streaming. FS Access API picks folders from disk, `music-metadata` parses metadata, single `<audio>` element plays.
+**Local-files music player** with two modes. **Local mode** (default): FS Access API picks folders from disk, `music-metadata` parses metadata, single `<audio>` element plays. **Server mode** (optional, `server/`): Node + Fastify + better-sqlite3 scans `MUSIC_DIR`, streams audio with HTTP Range, serves the built frontend; `LibrarySourceProvider` probes `/api/health` and, when present, loads tracks from `services/backend.ts` (HTTP `url`/`artUrl`, no `File`) via `addTracks` instead of `FsAccessProvider`. `Track.file` is optional; `revokeTrack`/persistence (`trackKey`)/art-color caching guard on it. Endpoints: `GET /api/health|tracks|art/:hash|stream/:id`, `POST /api/rescan`. One combined Docker image runs the server.
 
 ### Core Patterns
 - **Hash routing** (`HashRouter`): `/#/` Library, `/#/albums`, `/#/settings`; Now-Playing is overlay

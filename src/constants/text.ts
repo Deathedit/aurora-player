@@ -10,6 +10,7 @@ export const NAV_ITEMS = [
 ] as const;
 
 export const EMPTY_LIBRARY = 'No music yet — connect a folder in Settings';
+export const EMPTY_LIBRARY_SERVER = 'No music found on the server';
 export const NO_ALBUMS = 'No albums yet — add music first';
 export const MUSIC_LIBRARY = 'Music Library';
 export const ALL_ALBUMS = '← All Albums';
@@ -23,5 +24,7 @@ export const REFRESH_FOLDER = 'Refresh';
 export const DISCONNECT_FOLDER = 'Disconnect';
 export const SCANNING = 'Scanning…';
 export const FOLDER_NOT_SUPPORTED = 'Folder access not supported in this browser. Use Chrome or Edge.';
+export const SERVER_LIBRARY = 'Streaming from server';
+export const RESCAN_LIBRARY = 'Rescan';
 export const TRACKS_LOADED = (n: number) => `${n} track${n === 1 ? '' : 's'} loaded`;
 export const GLASS_LABEL = 'Glass Effect';

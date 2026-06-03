@@ -12,7 +12,7 @@ A detailed companion lives in [AGENTS.md](AGENTS.md) — consult it for the full
 
 ## Architecture
 
-Aurora Player is a **client-only, local-files music player** — no backend, no streaming, no network. The whole flow is browser-side:
+Aurora Player runs in two modes. **Server mode** is an optional self-hosted backend (`server/`, Node + Fastify + better-sqlite3) that scans a music folder, streams audio over HTTP, and serves the built frontend, so any device/browser works. The frontend auto-detects via `LibrarySourceProvider` (`components/LibrarySourceProvider.tsx`): it probes `/api/health`; if reachable it fetches `/api/tracks`, maps them to `Track`s (HTTP `url`/`artUrl`, no `File`) through `services/backend.ts` + `addTracks`; otherwise it renders the local `FsAccessProvider` flow. `Track.file` is therefore optional, and file-dependent code (`revokeTrack`, position persistence via `trackKey`, art-color caching) guards on it. The combined Docker image runs the server. The default/original **local mode** is a client-only, local-files player — no network — and the rest of this section describes it:
 
 1. **FS Access API** (`services/fs-access.ts`, `hooks/useFsAccess.ts`, `FsAccessProvider`) picks a folder from disk. The directory handle is persisted in IndexedDB and auto-reconnects on mount; permission is re-requested as needed.
 2. **`services/library.ts`** walks the handle, reads files, and parses tags with `music-metadata` (`parseBlob`, async per file). Loading is progressive: a concurrency pool of 5 with an `onBatch` callback every 20 tracks so the UI fills in without blocking. Each track gets object URLs for audio and cover art (`URL.createObjectURL`); `revokeTrack` frees them.

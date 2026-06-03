@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
-import { cacheKey } from '@/services/library-cache';
+import { trackKey } from '@/services/library-cache';
 import { buildQueue } from '@/services/queue';
 import type { Track } from '@/types';
 
@@ -37,7 +37,7 @@ export function usePositionPersistence({
       localStorage.setItem(
         LAST_PLAYED_KEY,
         JSON.stringify({
-          key: cacheKey(track.file, track.folder),
+          key: trackKey(track),
           time: el.currentTime,
         }),
       );
@@ -53,7 +53,7 @@ export function usePositionPersistence({
         const raw = localStorage.getItem(LAST_PLAYED_KEY);
         if (!raw) return;
         const { key, time } = JSON.parse(raw) as { key: string; time: number };
-        const match = tracks.find((t) => cacheKey(t.file, t.folder) === key);
+        const match = tracks.find((t) => trackKey(t) === key);
         if (!match) return;
 
         restoredRef.current = true;

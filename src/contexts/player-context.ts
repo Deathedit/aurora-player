@@ -19,6 +19,7 @@ export interface PlayerProgress {
 
 export interface PlayerActions {
   addFiles: (entries: FileEntry[]) => Promise<void>;
+  addTracks: (tracks: Track[]) => void;
   play: (id: string) => void;
   toggle: () => void;
   next: () => void;

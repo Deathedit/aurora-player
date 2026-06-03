@@ -220,7 +220,7 @@ export async function cacheColor(file: File, folder: string | undefined, color: 
 }
 
 export function revokeTrack(track: Track) {
-  URL.revokeObjectURL(track.url);
+  if (track.url.startsWith('blob:')) URL.revokeObjectURL(track.url);
 }
 
 export function fileEntry(file: File, folder?: string): FileEntry {

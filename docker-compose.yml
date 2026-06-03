@@ -2,5 +2,11 @@ services:
   aurora:
     build: .
     ports:
-      - "8080:80"
+      - "8080:3000"
+    volumes:
+      - ${MUSIC_DIR:-./music}:/music:ro
+      - aurora-data:/data
     restart: unless-stopped
+
+volumes:
+  aurora-data:

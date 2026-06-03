@@ -1,6 +1,6 @@
 export interface Track {
   id: string;
-  file: File;
+  file?: File;
   url: string;
   title: string;
   artist: string;

@@ -20,7 +20,7 @@ export function useArtColor(current: Track | null, setLibrary: Dispatch<SetState
       setLibrary((prev) =>
         prev.map((t) => (t.id === current.id || (hash && t.artHash === hash) ? { ...t, artColor: color } : t)),
       );
-      cacheColor(current.file, current.folder, color);
+      if (current.file) cacheColor(current.file, current.folder, color);
     });
     return () => {
       cancelled = true;

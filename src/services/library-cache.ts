@@ -38,6 +38,10 @@ export function cacheKey(file: File, folder?: string): string {
   return `${folder ?? ''}/${file.name}|${file.size}|${file.lastModified}`;
 }
 
+export function trackKey(track: { id: string; file?: File; folder?: string }): string {
+  return track.file ? cacheKey(track.file, track.folder) : track.id;
+}
+
 export async function getCached(key: string): Promise<CachedTrack | undefined> {
   try {
     const d = await db();
