@@ -1,14 +1,14 @@
 import fs from 'node:fs';
-import fastifyStatic from '@fastify/static';
 import { PORT, STATIC_DIR, MUSIC_DIR, DB_PATH } from './config.js';
 import { buildApp } from './app.js';
+import { registerStatic } from './static.js';
 import { startScan } from './scanner.js';
 import { closeDb } from './db.js';
 
 const app = buildApp({ logger: true });
 
 if (fs.existsSync(STATIC_DIR)) {
-  await app.register(fastifyStatic, { root: STATIC_DIR });
+  await registerStatic(app, STATIC_DIR);
 } else {
   app.log.warn(`STATIC_DIR ${STATIC_DIR} not found — serving API only`);
 }

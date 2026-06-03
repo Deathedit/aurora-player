@@ -24,7 +24,7 @@ Aurora auto-detects: if a backend is reachable it streams from the server; other
 |---|---|
 | React 19 + TS | Chakra UI v3 + Emotion |
 | Vite 8 | react-virtuoso |
-| React Router (HashRouter) | Lucide React |
+| React Router | Lucide React |
 
 ## Develop
 

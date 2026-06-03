@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import type { ReactElement } from 'react';
 import { Box, Grid } from '@chakra-ui/react';
@@ -73,12 +73,12 @@ function AppShell() {
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <PlayerProvider>
         <LibrarySourceProvider>
           <AppShell />
         </LibrarySourceProvider>
       </PlayerProvider>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
