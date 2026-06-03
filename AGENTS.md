@@ -18,7 +18,8 @@
 
 ### Core Patterns
 - **Hash routing** (`HashRouter`): `/#/` Library, `/#/albums`, `/#/settings`; Now-Playing is overlay
-- **Single `<audio>`** in `PlayerProvider`; URLs are `URL.createObjectURL(file)` — must revoke on replace
+- **Playback split**: `usePlaybackEngine` (`hooks/usePlaybackEngine.ts`) owns the single `<audio>` element + transport (play/next/prev/toggle/seek, audio-event effect, volume effect, position persistence, `resetPlayback`); `PlayerProvider` is thin wiring — library state + prefs + `current` derivation + art-color/MediaSession + context assembly. Public `usePlayer()` API is unchanged
+- **`Track.file` invariant**: optional. **Local mode** → present, with `blob:` object-URL `url`/`artUrl` freed by `revokeTrack`. **Server mode** → absent, with HTTP `url`/`artUrl` (no revoke needed). File-dependent code guards on it: `revokeTrack` (`blob:` check), position persistence via `trackKey()` (falls back to `track.id`), `cacheColor` (skipped when no file)
 - **Player context** in own file (`player-context.ts`) for Fast Refresh compat
 - **`useLocalStorage`** with `aurora-` prefix (volume, repeat, shuffle, theme, glass)
 - **Art-reactive theming**: `fast-average-color` → `--art` CSS var → `--player-glow`; extracted lazily only for current track
