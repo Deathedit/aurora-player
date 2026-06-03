@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3 make g+
     && rm -rf /var/lib/apt/lists/*
 COPY server/package.json server/package-lock.json ./
 RUN npm ci
+COPY shared /app/shared
 COPY server/ ./
 RUN npm run build && npm prune --omit=dev
 
@@ -27,4 +28,4 @@ COPY --from=server /app/server/dist ./server/dist
 COPY --from=frontend /app/dist ./public
 EXPOSE 3000
 VOLUME ["/music", "/data"]
-CMD ["node", "server/dist/index.js"]
+CMD ["node", "server/dist/server/src/index.js"]

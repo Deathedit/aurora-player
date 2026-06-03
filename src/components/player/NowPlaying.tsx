@@ -41,7 +41,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
       gap="6"
       p={{ base: '6', md: '10' }}
       css={{
-        '--player-glow': `radial-gradient(at 50% 0%, ${current.artColor ?? '#8B5CF6'} 22%, transparent)`,
+        '--player-glow': `radial-gradient(at 50% 0%, var(--art, #8B5CF6) 22%, transparent)`,
       }}
     >
       <chakra.button

@@ -24,6 +24,8 @@ jobs:
 
       - run: npm run build
 
+      - run: npm test
+
       - run: npm ci
         working-directory: server
 

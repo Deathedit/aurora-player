@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
 import { extractArtColor, getArtColor, setArtColor, cacheColor } from '@/services/library';
 import type { Track } from '@/types';
 
-export function useArtColor(current: Track | null, setLibrary: Dispatch<SetStateAction<Track[]>>) {
+export function useArtColor(current: Track | null) {
   useEffect(() => {
-    if (!current?.artUrl) return;
+    if (!current?.artUrl) {
+      document.documentElement.style.removeProperty('--art');
+      return;
+    }
     const hash = current.artHash;
     const known = current.artColor ?? (hash ? getArtColor(hash) : undefined);
     if (known) {
@@ -17,13 +19,10 @@ export function useArtColor(current: Track | null, setLibrary: Dispatch<SetState
       if (cancelled || !color) return;
       if (hash) setArtColor(hash, color);
       document.documentElement.style.setProperty('--art', color);
-      setLibrary((prev) =>
-        prev.map((t) => (t.id === current.id || (hash && t.artHash === hash) ? { ...t, artColor: color } : t)),
-      );
       if (current.file) cacheColor(current.file, current.folder, color);
     });
     return () => {
       cancelled = true;
     };
-  }, [current?.id, current?.artUrl, current?.artHash, current?.artColor, current?.file, current?.folder, setLibrary]);
+  }, [current?.id, current?.artUrl, current?.artHash, current?.artColor, current?.file, current?.folder]);
 }

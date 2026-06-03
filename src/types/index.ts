@@ -1,16 +1,10 @@
-export interface Track {
-  id: string;
+import type { TrackMeta } from '@shared/metadata';
+
+export interface Track extends TrackMeta {
   file?: File;
   url: string;
-  title: string;
-  artist: string;
-  album: string;
-  folder?: string;
-  durationSec: number;
   artUrl?: string;
-  artHash?: string;
   artColor?: string;
-  artType?: string;
 }
 
 export type RepeatMode = 'off' | 'all' | 'one';

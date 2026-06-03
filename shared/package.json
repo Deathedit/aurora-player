@@ -1,0 +1,5 @@
+{
+  "name": "aurora-shared",
+  "private": true,
+  "type": "module"
+}

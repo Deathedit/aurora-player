@@ -4,6 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { parseFile } from 'music-metadata';
 import { MUSIC_DIR, isAudioFile } from './config.js';
+import { albumFallback } from '../../shared/metadata.js';
 import type { TrackRow } from './db.js';
 import { upsertTrack, getTrackStat, allTrackIds, deleteTracks, hasArt, putArt, pruneOrphanArt } from './db.js';
 
@@ -65,8 +66,7 @@ async function indexFile(file: Found): Promise<void> {
     const meta = await parseFile(file.path);
     row.title = meta.common.title || row.title;
     row.artist = meta.common.artist || row.artist;
-    const album = meta.common.album;
-    row.album = album && album !== 'Unknown Album' ? album : (file.folder ?? 'Unknown Album');
+    row.album = albumFallback(meta.common.album, file.folder);
     row.durationSec = meta.format.duration ?? 0;
 
     const picture = meta.common.picture?.[0];

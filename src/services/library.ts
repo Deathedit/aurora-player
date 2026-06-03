@@ -10,6 +10,7 @@ import {
 } from '@/services/library-cache';
 import { isAudioFile } from '@/services/audio-files';
 import type { FileEntry } from '@/services/audio-files';
+import { albumFallback } from '@shared/metadata';
 
 export type { FileEntry };
 
@@ -85,8 +86,7 @@ async function parseEntry(entry: FileEntry): Promise<{ track: Track; art?: Blob 
       artHash = await hashBytes(bytes);
     }
 
-    const metaAlbum = meta.common.album;
-    const album = metaAlbum && metaAlbum !== 'Unknown Album' ? metaAlbum : (entry.folder ?? 'Unknown Album');
+    const album = albumFallback(meta.common.album, entry.folder);
 
     return {
       track: {

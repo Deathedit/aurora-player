@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
@@ -7,12 +8,17 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@shared': fileURLToPath(new URL('./shared', import.meta.url)),
     },
   },
   server: {
     proxy: {
       '/api': 'http://localhost:3000',
     },
+  },
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.ts', 'shared/**/*.test.ts'],
   },
   build: {
     rollupOptions: {

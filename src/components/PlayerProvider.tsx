@@ -216,7 +216,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const current = useMemo(() => library.find((t) => t.id === currentId) ?? null, [library, currentId]);
 
-  useArtColor(current, setLibrary);
+  useArtColor(current);
   useMediaSession(current, toggle, next, prev);
 
   const value = useMemo(
