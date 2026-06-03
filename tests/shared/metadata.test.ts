@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { albumFallback } from './metadata';
+import { albumFallback } from '@shared/metadata';
 
 describe('albumFallback', () => {
   it('uses the album tag when present and meaningful', () => {

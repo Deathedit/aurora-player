@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { trackKey } from './library-cache';
+import { trackKey } from '@/services/library-cache';
 
 describe('trackKey', () => {
   it('uses the track id when there is no backing File (server mode)', () => {

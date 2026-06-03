@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildQueue } from './queue';
+import { buildQueue } from '@/services/queue';
 import type { Track } from '@/types';
 
 function track(id: string): Track {

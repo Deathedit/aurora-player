@@ -1,13 +1,10 @@
 import fs from 'node:fs';
-import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { PORT, STATIC_DIR, MUSIC_DIR, DB_PATH } from './config.js';
-import { registerApi } from './routes.js';
+import { buildApp } from './app.js';
 import { startScan } from './scanner.js';
 
-const app = Fastify({ logger: true });
-
-registerApi(app);
+const app = buildApp({ logger: true });
 
 if (fs.existsSync(STATIC_DIR)) {
   await app.register(fastifyStatic, { root: STATIC_DIR });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatTime } from './time';
+import { formatTime } from '@/utils/time';
 
 describe('formatTime', () => {
   it('formats minutes and zero-padded seconds', () => {

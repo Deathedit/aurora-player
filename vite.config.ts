@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@shared': fileURLToPath(new URL('./shared', import.meta.url)),
+      '@server': fileURLToPath(new URL('./server/src', import.meta.url)),
     },
   },
   server: {
@@ -18,7 +19,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts', 'shared/**/*.test.ts'],
+    include: ['tests/**/*.test.ts'],
   },
   build: {
     rollupOptions: {

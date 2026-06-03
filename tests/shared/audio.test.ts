@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isAudioFile } from './audio';
+import { isAudioFile } from '@shared/audio';
 
 describe('isAudioFile', () => {
   it('accepts known audio extensions (case-insensitive)', () => {
