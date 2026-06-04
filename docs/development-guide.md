@@ -83,7 +83,8 @@ hooks, components, and providers opt into a `happy-dom` DOM environment. Fully c
 provider (`PlayerProvider`, `LibrarySourceProvider`, `FsAccessProvider`), and every component
 including the previously-uncovered `NowPlaying`, `TransportBar`, `TabBar`, the album views
 (`AlbumGridItem`/`AlbumListRow`/`AlbumDetail`), `LibrarySection`/`SettingsButton`, and `VolumeIcon`
-— plus `shared` and `utils`. Still uncovered: `App.tsx`, `src/pages`, and `src/contexts`.
+— plus **all of `src/pages`** (`Library`, `Albums`, `Settings`), `shared`, and `utils`. Still
+uncovered: `App.tsx` (routing/shell) and `src/contexts` (type declarations + provider-throw guards).
 `npm run test:coverage` is report-only (no thresholds).
 
 ### Backend (`server/package.json`)
