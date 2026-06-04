@@ -9,5 +9,5 @@
       "@server/*": ["./server/src/*"]
     }
   },
-  "include": ["tests"]
+  "include": ["tests", "src/types/fs-access.d.ts"]
 }

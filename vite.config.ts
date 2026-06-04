@@ -19,7 +19,8 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/**/*.test.{ts,tsx}'],
+    setupFiles: ['./tests/setup-localstorage.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/**', 'server/src/**', 'shared/**'],
