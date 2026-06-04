@@ -5,7 +5,9 @@ import { EMPTY_LIBRARY, EMPTY_LIBRARY_SERVER, LIBRARY, TRACK_COUNT } from '@/con
 import { useMemo } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import type { Track } from '@/types';
-import { Box, Container, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
+import { PageContainer } from '@/components/ui/PageContainer';
+import { PageHeading } from '@/components/ui/PageHeading';
 
 const renderTrack = (i: number, track: Track) => <TrackRow track={track} index={i} />;
 
@@ -23,28 +25,24 @@ export function Library({ scrollParent }: { scrollParent: HTMLElement }) {
 
   if (library.length === 0) {
     return (
-      <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6">
-        <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
-          {LIBRARY}
-        </Text>
+      <PageContainer>
+        <PageHeading>{LIBRARY}</PageHeading>
         <Text mt="8" color="mutedForeground">
           {mode === 'backend' ? EMPTY_LIBRARY_SERVER : EMPTY_LIBRARY}
         </Text>
-      </Container>
+      </PageContainer>
     );
   }
 
   return (
-    <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6" pb="4">
-      <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
-        {LIBRARY}
-      </Text>
+    <PageContainer pb="4">
+      <PageHeading>{LIBRARY}</PageHeading>
       <Text mt="2" fontSize="sm" color="mutedForeground">
         {TRACK_COUNT(library.length)}
       </Text>
       <Box mt="4">
         <Virtuoso data={sorted} itemContent={renderTrack} fixedItemHeight={56} customScrollParent={scrollParent} />
       </Box>
-    </Container>
+    </PageContainer>
   );
 }

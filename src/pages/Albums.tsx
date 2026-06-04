@@ -5,7 +5,9 @@ import { useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { LayoutGrid, List } from 'lucide-react';
 import type { Track } from '@/types';
-import { Box, Container, Flex, SimpleGrid, Text, chakra } from '@chakra-ui/react';
+import { Box, Flex, SimpleGrid, Text, chakra } from '@chakra-ui/react';
+import { PageContainer } from '@/components/ui/PageContainer';
+import { PageHeading } from '@/components/ui/PageHeading';
 import { AlbumDetail } from '@/components/albums/AlbumDetail';
 import { AlbumListRow } from '@/components/albums/AlbumListRow';
 import { AlbumGridItem } from '@/components/albums/AlbumGridItem';
@@ -49,29 +51,25 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
 
   if (library.length === 0) {
     return (
-      <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6">
-        <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
-          {ALBUMS}
-        </Text>
+      <PageContainer>
+        <PageHeading>{ALBUMS}</PageHeading>
         <Text mt="4" color="mutedForeground">
           {NO_ALBUMS}
         </Text>
-      </Container>
+      </PageContainer>
     );
   }
 
   const album = selectedAlbum ? albums.get(selectedAlbum) : null;
 
   return (
-    <Container maxW="6xl" px={{ base: '4', sm: '6', lg: '8' }} pt="6" pb="4">
+    <PageContainer pb="4">
       {album ? (
         <AlbumDetail album={album} scrollParent={scrollParent} onBack={() => setSelectedAlbum(null)} />
       ) : (
         <>
           <Flex alignItems="center" justifyContent="space-between">
-            <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
-              {ALBUMS}
-            </Text>
+            <PageHeading>{ALBUMS}</PageHeading>
             <Flex alignItems="center" gap="1">
               <chakra.button
                 type="button"
@@ -117,6 +115,6 @@ export function Albums({ scrollParent }: { scrollParent: HTMLElement }) {
           )}
         </>
       )}
-    </Container>
+    </PageContainer>
   );
 }

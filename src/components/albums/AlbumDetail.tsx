@@ -1,6 +1,7 @@
 import { Box, Text, chakra } from '@chakra-ui/react';
 import { Virtuoso } from 'react-virtuoso';
 import { TrackRow } from '@/components/library/TrackRow';
+import { PageHeading } from '@/components/ui/PageHeading';
 import { ALL_ALBUMS, TRACK_COUNT } from '@/constants/text';
 import type { AlbumGroup } from './types';
 
@@ -25,9 +26,7 @@ export function AlbumDetail({
       >
         {ALL_ALBUMS}
       </chakra.button>
-      <Text as="h1" fontSize="2xl" fontWeight="semibold" letterSpacing="tight">
-        {album.displayName}
-      </Text>
+      <PageHeading>{album.displayName}</PageHeading>
       <Text mt="1" fontSize="sm" color="mutedForeground">
         {TRACK_COUNT(album.tracks.length)}
       </Text>
