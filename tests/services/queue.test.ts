@@ -18,4 +18,9 @@ describe('buildQueue', () => {
     expect(q[0].id).toBe('3');
     expect([...q.map((t) => t.id)].sort()).toEqual(['1', '2', '3', '4']);
   });
+
+  it('shuffles the whole set when the current id is not found', () => {
+    const q = buildQueue(tracks, 'missing', true);
+    expect([...q.map((t) => t.id)].sort()).toEqual(['1', '2', '3', '4']);
+  });
 });

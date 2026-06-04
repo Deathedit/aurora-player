@@ -65,14 +65,16 @@ describe('pruneCacheToScan', () => {
   it('drops tracks not in the scan and deletes orphaned art, keeping referenced art', async () => {
     await putCached('keep1', track({ artHash: 'shared' }));
     await putCached('keep2', track({ artHash: 'shared' }));
+    await putCached('keepNoArt', track());
     await putCached('drop', track({ artHash: 'orphan' }));
     await putArt('shared', new Blob(['s']));
     await putArt('orphan', new Blob(['o']));
 
-    await pruneCacheToScan(new Set(['keep1', 'keep2']));
+    await pruneCacheToScan(new Set(['keep1', 'keep2', 'keepNoArt']));
 
     expect(await getCached('keep1')).toBeDefined();
     expect(await getCached('keep2')).toBeDefined();
+    expect(await getCached('keepNoArt')).toBeDefined();
     expect(await getCached('drop')).toBeUndefined();
     expect(await getArt('shared')).toBeInstanceOf(Blob);
     expect(await getArt('orphan')).toBeUndefined();

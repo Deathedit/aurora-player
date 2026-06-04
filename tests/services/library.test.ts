@@ -25,8 +25,17 @@ vi.mock('fast-average-color', () => ({
   },
 }));
 
-import { parseFiles, revokeTrack, revokeAllArt, extractArtColor } from '@/services/library';
-import { getCached, putArt, pruneCacheToScan } from '@/services/library-cache';
+import {
+  parseFiles,
+  revokeTrack,
+  revokeAllArt,
+  extractArtColor,
+  getArtColor,
+  setArtColor,
+  cacheColor,
+  fileEntry,
+} from '@/services/library';
+import { getCached, getArt, putArt, pruneCacheToScan, setCachedColor } from '@/services/library-cache';
 import type { Track } from '@/types';
 
 function entry(name: string, opts?: { type?: string; folder?: string }) {
@@ -75,6 +84,27 @@ describe('parseFiles', () => {
     expect(t.durationSec).toBe(0);
   });
 
+  it('falls back to filename title and Unknown Artist when tags are blank', async () => {
+    vi.mocked(parseBlob).mockResolvedValue(meta());
+    const [t] = await parseFiles([entry('My Track.mp3', { folder: 'F' })]);
+    expect(t.title).toBe('My Track');
+    expect(t.artist).toBe('Unknown Artist');
+  });
+
+  it('uses Unknown Album in the parse-error fallback when there is no folder', async () => {
+    vi.mocked(parseBlob).mockRejectedValue(new Error('bad tags'));
+    const [t] = await parseFiles([entry('loose.mp3')]);
+    expect(t.album).toBe('Unknown Album');
+  });
+
+  it('does not emit an empty final batch on an exact batch boundary', async () => {
+    vi.mocked(parseBlob).mockResolvedValue(meta({ title: 'S', artist: 'A', album: 'Al', duration: 1 }));
+    const entries = Array.from({ length: 20 }, (_, i) => entry(`s${i}.mp3`));
+    const sizes: number[] = [];
+    await parseFiles(entries, (b) => sizes.push(b.length));
+    expect(sizes).toEqual([20]);
+  });
+
   it('filters out non-audio entries', async () => {
     vi.mocked(parseBlob).mockResolvedValue(meta({ title: 'S', artist: 'A', album: 'Al', duration: 1 }));
     const tracks = await parseFiles([entry('a.mp3'), entry('notes.txt'), entry('b.flac')]);
@@ -107,6 +137,39 @@ describe('parseFiles', () => {
     const tracks = await parseFiles([entry('a.mp3', { folder: 'F' })]);
     expect(parseBlob).not.toHaveBeenCalled();
     expect(tracks[0]).toMatchObject({ title: 'Cached', durationSec: 7, folder: 'F' });
+  });
+
+  it('rehydrates a cached art url and color from the art store', async () => {
+    vi.mocked(getCached).mockResolvedValue({
+      title: 'Cached',
+      artist: 'A',
+      album: 'Al',
+      durationSec: 1,
+      artHash: 'h1',
+      artColor: '#abcdef',
+    });
+    vi.mocked(getArt).mockResolvedValue(new Blob(['img']));
+
+    const [a] = await parseFiles([entry('a.mp3')]);
+    const [b] = await parseFiles([entry('b.mp3')]);
+    expect(a.artUrl).toBeDefined();
+    expect(a.artUrl).toBe(b.artUrl);
+    expect(getArt).toHaveBeenCalledTimes(1);
+    expect(getArtColor('h1')).toBe('#abcdef');
+  });
+
+  it('leaves artUrl undefined when the cached art blob is missing', async () => {
+    vi.mocked(getCached).mockResolvedValue({
+      title: 'Cached',
+      artist: 'A',
+      album: 'Al',
+      durationSec: 1,
+      artHash: 'gone',
+    });
+    vi.mocked(getArt).mockResolvedValue(undefined);
+
+    const [t] = await parseFiles([entry('a.mp3')]);
+    expect(t.artUrl).toBeUndefined();
   });
 
   it('emits onBatch in chunks of 20 with a final flush', async () => {
@@ -150,5 +213,29 @@ describe('extractArtColor', () => {
   it('returns the dominant hex, or undefined on failure', async () => {
     expect(await extractArtColor('blob:art')).toBe('#123456');
     expect(await extractArtColor('bad')).toBeUndefined();
+  });
+});
+
+describe('art color registry', () => {
+  it('stores and reads colors by hash', () => {
+    expect(getArtColor('missing')).toBeUndefined();
+    setArtColor('hX', '#0f0f0f');
+    expect(getArtColor('hX')).toBe('#0f0f0f');
+  });
+});
+
+describe('cacheColor', () => {
+  it('writes the color under the file cache key', async () => {
+    const f = { name: 'song.mp3', size: 12, lastModified: 5 } as File;
+    await cacheColor(f, 'Album', '#222222');
+    expect(setCachedColor).toHaveBeenCalledWith('Album/song.mp3|12|5', '#222222');
+  });
+});
+
+describe('fileEntry', () => {
+  it('wraps a file and optional folder', () => {
+    const f = new File(['x'], 'a.mp3');
+    expect(fileEntry(f, 'F')).toEqual({ file: f, folder: 'F' });
+    expect(fileEntry(f)).toEqual({ file: f, folder: undefined });
   });
 });

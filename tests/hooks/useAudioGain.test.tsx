@@ -36,6 +36,11 @@ afterEach(() => {
 });
 
 describe('useAudioGain', () => {
+  it('is a no-op when there is no audio element', () => {
+    const audioRef: RefObject<HTMLAudioElement | null> = { current: null };
+    expect(() => renderHook(({ v }) => useAudioGain(audioRef, v), { initialProps: { v: 0.5 } })).not.toThrow();
+  });
+
   it('falls back to el.volume before the graph exists', () => {
     const { audio, rerender } = setup(0.5);
     expect(audio.volume).toBe(0.5);

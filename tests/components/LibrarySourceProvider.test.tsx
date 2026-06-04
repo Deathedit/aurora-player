@@ -1,9 +1,13 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, it, expect, vi } from 'vitest';
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { ChakraProvider } from '@chakra-ui/react';
+import { system } from '@/theme/system';
 import { renderWithPlayer } from './render-with-player';
 import { LibrarySourceProvider } from '@/components/LibrarySourceProvider';
 import { useLibrarySource } from '@/contexts/library-source-context';
+import { PlayerCtx } from '@/contexts/player-context';
+import type { PlayerContextType } from '@/contexts/player-context';
 import { checkHealth, fetchTracks } from '@/services/backend';
 import type { Track } from '@/types';
 
@@ -70,6 +74,43 @@ describe('LibrarySourceProvider', () => {
 
     expect(await screen.findByText('mode:local')).toBeTruthy();
     expect(fetchTracks).not.toHaveBeenCalled();
+  });
+
+  it('exposes a no-op refresh in local mode', async () => {
+    vi.mocked(checkHealth).mockResolvedValue(false);
+    mountWith({});
+
+    await screen.findByText('mode:local');
+    fireEvent.click(screen.getByText('refresh'));
+    expect(screen.getByText('idle')).toBeTruthy();
+  });
+
+  it('probes the backend only once even when the effect re-runs', async () => {
+    vi.mocked(checkHealth).mockResolvedValue(false);
+    const Wrap = ({ addTracks }: { addTracks: () => void }) => (
+      <ChakraProvider value={system}>
+        <PlayerCtx.Provider
+          value={
+            {
+              addTracks,
+              restorePlayback: vi.fn(),
+              clearLibrary: vi.fn(),
+              addFiles: vi.fn(),
+            } as unknown as PlayerContextType
+          }
+        >
+          <LibrarySourceProvider>
+            <Probe />
+          </LibrarySourceProvider>
+        </PlayerCtx.Provider>
+      </ChakraProvider>
+    );
+
+    const { rerender } = render(<Wrap addTracks={vi.fn()} />);
+    await screen.findByText('mode:local');
+    rerender(<Wrap addTracks={vi.fn()} />);
+
+    expect(checkHealth).toHaveBeenCalledTimes(1);
   });
 
   it('re-fetches when refresh is invoked in backend mode', async () => {

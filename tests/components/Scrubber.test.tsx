@@ -47,4 +47,18 @@ describe('Scrubber', () => {
     fireEvent.keyDown(screen.getByRole('slider'), { key: 'ArrowRight' });
     expect(seek).not.toHaveBeenCalled();
   });
+
+  it('ignores keys that are not seek controls', () => {
+    const seek = vi.fn();
+    renderWithPlayer(<Scrubber />, { player: { seek }, progress: { currentTime: 30, duration: 100 } });
+    fireEvent.keyDown(screen.getByRole('slider'), { key: 'Tab' });
+    expect(seek).not.toHaveBeenCalled();
+  });
+
+  it('seeks to the clicked position', () => {
+    const seek = vi.fn();
+    renderWithPlayer(<Scrubber />, { player: { seek }, progress: { currentTime: 30, duration: 100 } });
+    fireEvent.click(screen.getByRole('slider'), { clientX: 10 });
+    expect(seek).toHaveBeenCalled();
+  });
 });

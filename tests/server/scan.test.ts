@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest';
 import fs from 'node:fs';
+import fsp from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { createTmpEnv } from './helpers';
@@ -69,6 +70,21 @@ describe('scanLibrary', () => {
     expect(db.getTrackPath('Album/a.mp3')).toContain(path.join('Album', 'a.mp3'));
   });
 
+  it('indexes a root-level file with no folder', async () => {
+    writeAudio('loose.mp3');
+    await scan.scanLibrary();
+
+    const [t] = [...db.iterateTracks()];
+    expect(t.id).toBe('loose.mp3');
+    expect(t.folder ?? null).toBeNull();
+  });
+
+  it('flushes pending rows in batches for large libraries', async () => {
+    for (let n = 0; n < 205; n++) writeAudio(`bulk/track-${n}.mp3`);
+    await scan.scanLibrary();
+    expect([...db.allTrackIds()]).toHaveLength(205);
+  });
+
   it('ignores non-audio files', async () => {
     writeAudio('Album/a.mp3');
     writeAudio('Album/notes.txt');
@@ -127,6 +143,17 @@ describe('scanLibrary', () => {
     expect(db.hasArt(hashOf([7, 7, 7]))).toBe(true);
     db.pruneOrphanArt();
     expect(db.hasArt(hashOf([7, 7, 7]))).toBe(true);
+  });
+
+  it('skips a directory it cannot read', async () => {
+    writeAudio('Album/a.mp3');
+    const spy = vi.spyOn(fsp, 'readdir').mockRejectedValue(new Error('EACCES'));
+    try {
+      await scan.scanLibrary();
+    } finally {
+      spy.mockRestore();
+    }
+    expect([...db.allTrackIds()]).toEqual([]);
   });
 
   it('keeps a filename-based row when parsing throws', async () => {

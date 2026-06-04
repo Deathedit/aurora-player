@@ -269,7 +269,9 @@ The optional backend in [`server/src/`](../server/src) is a standalone Node + Fa
   are unchanged, deletes rows for removed files, and prunes orphaned art.
 
 > `db.ts` and the `scan.ts` diff/upsert/prune logic are covered by `tests/server/db.test.ts` and
-> `scan.test.ts` (temp DB + temp music dir).
+> `scan.test.ts` (temp DB + temp music dir); the worker orchestration (`scanner.ts` spawn +
+> inline-fallback, `scan-worker.ts`) and the `index.ts` bootstrap are covered too — see
+> [development-guide.md](development-guide.md#testing) for the `node:worker_threads`/bootstrap patterns.
 
 ### Static + SPA fallback — [`static.ts`](../server/src/static.ts)
 

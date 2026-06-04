@@ -47,6 +47,19 @@ beforeAll(async () => {
     folder: 'Album',
     durationSec: 1,
   });
+  const weirdPath = path.join(musicDir, 'Album', 'weird.xyz');
+  fs.writeFileSync(weirdPath, AUDIO_BYTES);
+  upsertTrack({
+    id: 'Album/weird.xyz',
+    path: weirdPath,
+    mtime: 1,
+    size: AUDIO_BYTES.length,
+    title: 'Weird',
+    artist: 'Artist',
+    album: 'Album',
+    folder: 'Album',
+    durationSec: 1,
+  });
   upsertTrack({
     id: 'evil',
     path: '/etc/passwd',
@@ -85,7 +98,7 @@ describe('GET /api/tracks', () => {
 
     const lines = res.body.split('\n').filter((l) => l.trim().length > 0);
     const ids = lines.map((l) => JSON.parse(l).id);
-    expect(ids).toEqual(['Album/a.mp3', 'Album/b.mp3', 'evil']);
+    expect(ids).toEqual(['Album/a.mp3', 'Album/b.mp3', 'Album/weird.xyz', 'evil']);
 
     const first = JSON.parse(lines[0]);
     expect(first).toMatchObject({ title: 'Alpha', artist: 'Artist', album: 'Album', artHash: ART_HASH });
@@ -102,7 +115,7 @@ describe('GET /api/tracks', () => {
         .split('\n')
         .filter((l) => l.trim().length > 0)
         .map((l) => JSON.parse(l).id);
-      expect(ids).toEqual(['Album/a.mp3', 'Album/b.mp3', 'evil']);
+      expect(ids).toEqual(['Album/a.mp3', 'Album/b.mp3', 'Album/weird.xyz', 'evil']);
     }
   });
 });
@@ -151,8 +164,40 @@ describe('GET /api/stream/:id', () => {
     expect(res.headers['content-range']).toBe(`bytes */${AUDIO_BYTES.length}`);
   });
 
+  it('falls back to octet-stream for an unknown extension', async () => {
+    const res = await app.inject({ method: 'GET', url: '/api/stream/Album%2Fweird.xyz' });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-type']).toBe('application/octet-stream');
+  });
+
+  it('serves the full file when the range header is malformed', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/stream/Album%2Fa.mp3',
+      headers: { range: 'pages=1-2' },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-length']).toBe(String(AUDIO_BYTES.length));
+  });
+
+  it('honors an open-ended range (start to EOF)', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/stream/Album%2Fa.mp3',
+      headers: { range: 'bytes=6-' },
+    });
+    expect(res.statusCode).toBe(206);
+    expect(res.headers['content-range']).toBe(`bytes 6-9/${AUDIO_BYTES.length}`);
+    expect(res.body).toBe('GHIJ');
+  });
+
   it('returns 404 for an unknown id', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/stream/nope.mp3' });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('returns 404 when the indexed file is missing on disk', async () => {
+    const res = await app.inject({ method: 'GET', url: '/api/stream/Album%2Fb.mp3' });
     expect(res.statusCode).toBe(404);
   });
 
@@ -182,5 +227,20 @@ describe('GET /api/scanning', () => {
     const res = await app.inject({ method: 'GET', url: '/api/scanning' });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ scanning: false });
+  });
+});
+
+describe('POST /api/rescan', () => {
+  it('kicks off a scan and acknowledges', async () => {
+    const res = await app.inject({ method: 'POST', url: '/api/rescan' });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ ok: true });
+
+    const deadline = Date.now() + 10000;
+    while (Date.now() < deadline) {
+      const s = await app.inject({ method: 'GET', url: '/api/scanning' });
+      if (s.json().scanning === false) break;
+      await new Promise((r) => setTimeout(r, 50));
+    }
   });
 });

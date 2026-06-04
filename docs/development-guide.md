@@ -76,11 +76,15 @@ MUSIC_DIR=/srv/music DB_PATH=/var/lib/aurora/aurora.db PORT=8080 node dist/serve
 
 **CI gate** (`.github/workflows/ci.yml`) runs `npm run typecheck` then `npm test`; `npm run build`
 must also pass. Most tests are pure logic + Fastify HTTP tests in Vitest's `node` environment;
-hooks, components, and providers opt into a `happy-dom` DOM environment. Covered today: the client
-services (`backend`, `library`, `library-cache`, `queue`), `shared`, `utils`, the server
-(`routes`, `static`, `db`, `scan`), the playback engine, `LibrarySourceProvider`, and the
-`Scrubber`/`TrackRow`/`RepeatButton`/`ShuffleButton`/`VolumeControl`/`GlassToggle`/`Sidebar`
-controls. Still uncovered: most pages, layout, the remaining player components, and the small hooks.
+hooks, components, and providers opt into a `happy-dom` DOM environment. Fully covered (100%): the
+**whole `server/src`** (`index`, `app`, `config`, `routes`, `static`, `db`, `scan`, `scanner`,
+`scan-worker`), **all of `src/services`** (`backend`, `library`, `library-cache`, `queue`,
+`fs-access`, `audio-files`), and **all of `src/hooks` and `src/components`** — every hook, every
+provider (`PlayerProvider`, `LibrarySourceProvider`, `FsAccessProvider`), and every component
+including the previously-uncovered `NowPlaying`, `TransportBar`, `TabBar`, the album views
+(`AlbumGridItem`/`AlbumListRow`/`AlbumDetail`), `LibrarySection`/`SettingsButton`, and `VolumeIcon`
+— plus `shared` and `utils`. Still uncovered: `App.tsx`, `src/pages`, and `src/contexts`.
+`npm run test:coverage` is report-only (no thresholds).
 
 ### Backend (`server/package.json`)
 
@@ -176,6 +180,24 @@ Fastify app via `app.inject` (no DOM rendering); server tests reuse the
   module-eval time, so call `createTmpEnv()` **before** dynamically `import()`-ing them (see
   [`tests/server/db.test.ts`](../tests/server/db.test.ts) /
   [`scan.test.ts`](../tests/server/scan.test.ts)). Isolate per test by wiping tables in `beforeEach`.
+- **Node built-ins** (e.g. `node:worker_threads`) — mockable, but the factory **must spread the real
+  module** and the replacement `Worker` must be a `class` (a `vi.fn(arrow)` is not `new`-able):
+  `vi.mock('node:worker_threads', async (orig) => ({ ...(await orig()), Worker: MockWorker }))`. A
+  hoisted (`vi.hoisted`) registry collects worker instances so tests can `fire('message'|'error'|'exit')`.
+  See [`tests/server/scanner.test.ts`](../tests/server/scanner.test.ts).
+- **The bootstrap** ([`server/src/index.ts`](../server/src/index.ts), top-level `await`) — mock every
+  collaborator (`@server/app`'s `buildApp` → a stub app, `@server/static`, `@server/scanner`,
+  `@server/db`), `vi.spyOn(process, 'exit')`, then `vi.resetModules()` + re-`import()` per scenario;
+  drive shutdown with `process.emit('SIGTERM')` and `removeAllListeners` in `afterEach`. See
+  [`tests/server/index.test.ts`](../tests/server/index.test.ts).
+- **IndexedDB error paths** — `fake-indexeddb` never errors, so to cover the best-effort
+  `onerror`/`reject`/catch branches, `vi.stubGlobal('indexedDB', …)` a hand-rolled stub whose
+  requests/transactions fire `onerror` on the next microtask (open-fails vs ops-fail modes). Because
+  `library-cache.ts` memoizes its `db()` promise, `vi.resetModules()` + dynamic `import()` per mode.
+  See [`tests/services/library-cache-errors.test.ts`](../tests/services/library-cache-errors.test.ts).
+  To exercise the v1→v2 **upgrade migration**, manually `indexedDB.open(name, 1)` and create the old
+  stores **before** importing the module (see
+  [`tests/services/library-cache-migrate.test.ts`](../tests/services/library-cache-migrate.test.ts)).
 
 A global `setupFiles` ([`tests/setup-localstorage.ts`](../tests/setup-localstorage.ts)) installs an
 in-memory `localStorage` (Node 24 ships a disabled global one that otherwise shadows happy-dom's).

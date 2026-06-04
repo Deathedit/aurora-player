@@ -10,9 +10,11 @@ function track(id: string): Track {
   return { id, url: `blob:${id}`, title: id, artist: 'a', album: 'b', durationSec: 1 };
 }
 
-function setup(tracks: Track[], opts?: { repeat?: RepeatMode; shuffle?: boolean; volume?: number }) {
+function setup(tracks: Track[], opts?: { repeat?: RepeatMode; shuffle?: boolean; volume?: number; noAudio?: boolean }) {
   const audio = createMockAudio();
-  const audioRef: RefObject<HTMLAudioElement | null> = { current: audio as unknown as HTMLAudioElement };
+  const audioRef: RefObject<HTMLAudioElement | null> = {
+    current: opts?.noAudio ? null : (audio as unknown as HTMLAudioElement),
+  };
   const libraryRef: RefObject<Track[]> = { current: tracks };
   const repeatRef: RefObject<RepeatMode> = { current: opts?.repeat ?? 'off' };
   const shuffleRef: RefObject<boolean> = { current: opts?.shuffle ?? false };
@@ -158,6 +160,88 @@ describe('usePlaybackEngine', () => {
     expect(result.current.currentId).toBeNull();
     expect(result.current.queue).toEqual([]);
     expect(audio.src).toBe('');
+  });
+
+  it('play() ignores an id that is not in the library', () => {
+    const { result } = setup(['1', '2'].map(track));
+    act(() => result.current.play('nope'));
+    expect(result.current.currentId).toBeNull();
+  });
+
+  it('caps the history at 100 entries while still advancing', () => {
+    const { result } = setup(['1', '2', '3'].map(track));
+    act(() => result.current.play('1'));
+    for (let i = 0; i < 110; i++) act(() => result.current.next());
+    expect(result.current.currentId).toBeTruthy();
+  });
+
+  it('next() is a no-op with an empty queue', () => {
+    const { result } = setup(['1', '2'].map(track));
+    act(() => result.current.next());
+    expect(result.current.currentId).toBeNull();
+  });
+
+  it('prev() returns when the previous history id is gone from the library', () => {
+    const { result, libraryRef } = setup(['1', '2', '3'].map(track));
+    act(() => result.current.play('1'));
+    act(() => result.current.next());
+    libraryRef.current = [track('2'), track('3')];
+    act(() => result.current.prev());
+    expect(result.current.currentId).toBe('2');
+  });
+
+  it('prev() at the first track with no history just restarts', () => {
+    const { result, audio } = setup(['1', '2'].map(track));
+    act(() => result.current.play('1'));
+    audio.currentTime = 1;
+    act(() => result.current.prev());
+    expect(result.current.currentId).toBe('1');
+    expect(audio.currentTime).toBe(0);
+  });
+
+  it('treats a falsy duration as zero on loadedmetadata', () => {
+    const { result, audio } = setup(['1'].map(track));
+    act(() => result.current.play('1'));
+    act(() => {
+      audio.duration = NaN;
+      audio.emit('loadedmetadata');
+    });
+    expect(result.current.duration).toBe(0);
+  });
+
+  it('transport actions are safe when there is no audio element', () => {
+    const { result } = setup(['1', '2'].map(track), { noAudio: true });
+    expect(() => {
+      act(() => result.current.play('1'));
+      act(() => result.current.toggle());
+      act(() => result.current.next());
+      act(() => result.current.prev());
+      act(() => result.current.seek(5));
+      act(() => result.current.resetPlayback());
+    }).not.toThrow();
+  });
+
+  it('prev() at the first track with no audio element is a no-op', () => {
+    const { result } = setup(['1', '2'].map(track), { noAudio: true });
+    act(() => result.current.play('1'));
+    expect(() => act(() => result.current.prev())).not.toThrow();
+    expect(result.current.currentId).toBe('1');
+  });
+
+  it('does not re-save on a second timeupdate within the throttle window', () => {
+    const { result, audio } = setup(['1'].map(track));
+    act(() => result.current.play('1'));
+    act(() => {
+      audio.currentTime = 5;
+      audio.emit('timeupdate');
+    });
+    expect(() =>
+      act(() => {
+        audio.currentTime = 6;
+        audio.emit('timeupdate');
+      }),
+    ).not.toThrow();
+    expect(result.current.currentTime).toBe(6);
   });
 
   it('restoreLastPlayed() restores the saved track and seeks to the saved position', () => {

@@ -90,6 +90,16 @@ describe('fetchTracks (streaming)', () => {
     expect(all.map((t) => t.id)).toEqual(['tail']);
   });
 
+  it('does not emit an empty final batch when the stream ends on a batch boundary', async () => {
+    const rows = Array.from({ length: 50 }, (_, i) => row({ id: String(i) }));
+    const nd = rows.map((r) => JSON.stringify(r)).join('\n') + '\n';
+    mockFetch(async () => streamResponse([nd]));
+
+    const sizes: number[] = [];
+    await fetchTracks((b) => sizes.push(b.length));
+    expect(sizes).toEqual([50]);
+  });
+
   it('throws when the response is not ok', async () => {
     mockFetch(async () => ({ ok: false, status: 500 }));
     await expect(fetchTracks(() => {})).rejects.toThrow();
@@ -102,6 +112,13 @@ describe('fetchTracks (no-body fallback)', () => {
     const all: Track[] = [];
     await fetchTracks((b) => all.push(...b));
     expect(all.map((t) => t.id)).toEqual(['j1', 'j2']);
+  });
+
+  it('does not call onBatch when the no-body json payload is empty', async () => {
+    mockFetch(async () => ({ ok: true, body: null, json: async () => [] }));
+    const onBatch = vi.fn();
+    await fetchTracks(onBatch);
+    expect(onBatch).not.toHaveBeenCalled();
   });
 });
 

@@ -58,6 +58,13 @@ describe('VolumeControl', () => {
     expect(setVolume).toHaveBeenCalledWith(0);
   });
 
+  it('updates volume from the slider', () => {
+    const setVolume = vi.fn();
+    renderWithPlayer(<VolumeControl />, { player: { volume: 0.5, setVolume } });
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '0.25' } });
+    expect(setVolume).toHaveBeenCalledWith(0.25);
+  });
+
   it('labels Unmute and restores volume when muted', () => {
     const setVolume = vi.fn();
     renderWithPlayer(<VolumeControl />, { player: { volume: 0, setVolume } });
