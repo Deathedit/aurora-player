@@ -52,7 +52,7 @@
 - **Active track**: 2px gradient left-bar, equalizer (3 staggered `equalizer1/2/3` keyframes; reduced-motion disables them), like button hover-revealed
 
 ## Verification
-`lint` → `typecheck` → `test` → `build`. CI (`.github/workflows/ci.yml`) runs `npm run typecheck` then `npm test`; both must pass. Tests live in `tests/` (mirrors `src/`/`server/`/`shared/`) and run under Vitest's `node` environment — pure logic + Fastify `app.inject` HTTP tests; the React/DOM layer is not yet covered (no jsdom env).
+`lint` → `typecheck` → `test` → `build`. CI (`.github/workflows/ci.yml`) runs `npm run typecheck` then `npm test`; both must pass. Tests live in `tests/` (mirrors `src/`/`server/`/`shared/`). Most run in Vitest's `node` environment (logic, Fastify `app.inject`, server `db`/`scan`, IndexedDB via `fake-indexeddb`); hooks, components, and providers opt into `happy-dom` per file (`// @vitest-environment happy-dom` + `@testing-library/react`). Covered: client services, `shared`/`utils`, server `routes`/`static`/`db`/`scan`, the playback engine, `LibrarySourceProvider`, and the player/sidebar controls. See [docs/development-guide.md](docs/development-guide.md#testing) for the per-kind patterns and gotchas (the dual `music-metadata` mock, server modules reading env at import).
 
 ## Gotchas
 - `"type": "module"` in package.json — ESM only

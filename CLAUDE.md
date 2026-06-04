@@ -8,7 +8,7 @@ A detailed companion lives in [AGENTS.md](AGENTS.md) — consult it for the full
 
 - **Dev:** `npm run dev` (Vite). Open in Chrome/Edge — the File System Access API is Chromium-only.
 - **Build:** `npm run build` → `tsc -b && vite build`. `tsc` must pass.
-- **Test:** `npm test` (`vitest run`); `npm run test:watch`; `npm run test:coverage` (V8 report). Tests in `tests/` (mirrors `src`/`server`/`shared`), `node` environment; logic + Fastify `app.inject` HTTP tests, no React/DOM coverage yet.
+- **Test:** `npm test` (`vitest run`); `npm run test:watch`; `npm run test:coverage` (V8 report). Tests in `tests/` (mirrors `src`/`server`/`shared`). Default `node` environment (logic, Fastify `app.inject`, server `db`/`scan`, IndexedDB via `fake-indexeddb`); hooks/components/providers opt into `happy-dom` per file with `@testing-library/react`. Patterns + gotchas in [docs/development-guide.md](docs/development-guide.md#testing).
 - **Typecheck:** `npm run typecheck` (`tsc -b tsconfig.test.json`).
 - **Lint:** `npm run lint` (eslint).
 - **Gate:** CI runs `typecheck` + `test`; `build` must also pass.
