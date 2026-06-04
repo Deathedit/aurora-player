@@ -24,7 +24,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**', 'server/src/**', 'shared/**'],
-      exclude: ['**/*.d.ts', 'src/main.tsx', 'src/vite-env.d.ts'],
+      exclude: ['**/*.d.ts', 'src/main.tsx', 'src/vite-env.d.ts', 'shared/package.json'],
     },
   },
   build: {
