@@ -1,18 +1,21 @@
 import { usePlayer, usePlayerProgress } from '@/contexts/player-context';
 import { formatTime } from '@/utils/time';
-import { X, SkipBack, SkipForward, Play, Pause } from 'lucide-react';
+import { X, SkipBack, SkipForward } from 'lucide-react';
 import { Scrubber } from '@/components/player/Scrubber';
 import { ShuffleButton } from '@/components/player/ShuffleButton';
 import { RepeatButton } from '@/components/player/RepeatButton';
 import { VolumeControl } from '@/components/player/VolumeControl';
+import { PlayPauseButton } from '@/components/player/PlayPauseButton';
+import { TransportButton } from '@/components/player/TransportButton';
+import { Artwork } from '@/components/ui/Artwork';
 import { useCurrentTrack } from '@/hooks/useCurrentTrack';
 import { useVolumeWheel } from '@/hooks/useVolumeWheel';
 import { useRef } from 'react';
 import { Box, Dialog, Flex, Portal, Text, chakra } from '@chakra-ui/react';
-import { PLAY, PAUSE, PREVIOUS_TRACK, NEXT_TRACK, CLOSE_NOW_PLAYING } from '@/constants/text';
+import { PREVIOUS_TRACK, NEXT_TRACK, CLOSE_NOW_PLAYING } from '@/constants/text';
 
 export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { isPlaying, toggle, next, prev } = usePlayer();
+  const { next, prev } = usePlayer();
   const { currentTime, duration } = usePlayerProgress();
   const current = useCurrentTrack();
   const volumeRowRef = useRef<HTMLDivElement>(null);
@@ -62,19 +65,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
 
             <Flex w="full" maxW={{ base: 'md', md: 'lg' }} flexDir="column" alignItems="center" gap="6">
               <Box position="relative" w="full" maxW={{ base: 'sm', md: 'md' }}>
-                {current.artUrl ? (
-                  <chakra.img
-                    src={current.artUrl}
-                    alt=""
-                    aspectRatio="1"
-                    w="full"
-                    rounded="xl"
-                    objectFit="cover"
-                    shadow="2xl"
-                  />
-                ) : (
-                  <Box aspectRatio="1" w="full" rounded="xl" bg="muted" />
-                )}
+                <Artwork src={current.artUrl} aspectRatio="1" w="full" rounded="xl" shadow="2xl" />
                 <Box
                   pointerEvents="none"
                   position="absolute"
@@ -112,43 +103,23 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
 
               <Flex w="full" alignItems="center" justifyContent="space-between">
                 <ShuffleButton iconSize={20} p="2" />
-                <chakra.button
-                  type="button"
+                <TransportButton
+                  icon={<SkipBack size={24} />}
                   onClick={prev}
                   aria-label={PREVIOUS_TRACK}
-                  rounded="full"
                   p="2"
                   color="foreground"
                   _hover={{ color: 'primary' }}
-                >
-                  <SkipBack size={24} />
-                </chakra.button>
-                <chakra.button
-                  type="button"
-                  onClick={toggle}
-                  aria-label={isPlaying ? PAUSE : PLAY}
-                  layerStyle="accentGradient"
-                  display="flex"
-                  boxSize="14"
-                  alignItems="center"
-                  justifyContent="center"
-                  rounded="full"
-                  color="primaryForeground"
-                  _active={{ transform: 'scale(0.95)' }}
-                >
-                  {isPlaying ? <Pause size={24} /> : <Play size={24} style={{ marginLeft: '2px' }} />}
-                </chakra.button>
-                <chakra.button
-                  type="button"
+                />
+                <PlayPauseButton iconSize={6} boxSize="14" />
+                <TransportButton
+                  icon={<SkipForward size={24} />}
                   onClick={next}
                   aria-label={NEXT_TRACK}
-                  rounded="full"
                   p="2"
                   color="foreground"
                   _hover={{ color: 'primary' }}
-                >
-                  <SkipForward size={24} />
-                </chakra.button>
+                />
                 <RepeatButton iconSize={20} p="2" badgeRight="0.5" />
               </Flex>
 

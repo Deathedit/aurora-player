@@ -1,4 +1,5 @@
-import { Box, Text, chakra } from '@chakra-ui/react';
+import { Text, chakra } from '@chakra-ui/react';
+import { Artwork } from '@/components/ui/Artwork';
 import type { AlbumGroup } from './types';
 
 export function AlbumGridItem({ album, onSelect }: { album: AlbumGroup; onSelect: () => void }) {
@@ -15,11 +16,7 @@ export function AlbumGridItem({ album, onSelect }: { album: AlbumGroup; onSelect
       transition="colors"
       _hover={{ bg: 'muted' }}
     >
-      {album.artUrl ? (
-        <chakra.img src={album.artUrl} alt="" aspectRatio="1" w="full" rounded="md" objectFit="cover" />
-      ) : (
-        <Box aspectRatio="1" w="full" rounded="md" bg="muted" />
-      )}
+      <Artwork src={album.artUrl} aspectRatio="1" w="full" rounded="md" />
       <Text w="full" truncate fontSize="sm" fontWeight="medium">
         {album.displayName}
       </Text>

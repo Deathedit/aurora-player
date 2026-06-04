@@ -2,8 +2,9 @@ import { usePlayer } from '@/contexts/player-context';
 import { formatTime } from '@/utils/time';
 import { Play, Pause } from 'lucide-react';
 import type { Track } from '@/types';
-import { Box, Flex, Text, chakra } from '@chakra-ui/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import { memo, useCallback } from 'react';
+import { Artwork } from '@/components/ui/Artwork';
 
 const rowHoverCss = {
   '&:hover .track-show': { display: 'block' },
@@ -94,11 +95,7 @@ function TrackRowImpl({ track, index }: { track: Track; index: number }) {
         )}
       </Flex>
 
-      {track.artUrl ? (
-        <chakra.img src={track.artUrl} alt="" boxSize="10" flexShrink={0} rounded="sm" objectFit="cover" />
-      ) : (
-        <Box boxSize="10" flexShrink={0} rounded="sm" bg="muted" />
-      )}
+      <Artwork src={track.artUrl} boxSize="10" flexShrink={0} rounded="sm" />
 
       <Box minW={0} flex="1">
         <Text truncate fontSize="sm" color={active ? 'primary' : undefined}>

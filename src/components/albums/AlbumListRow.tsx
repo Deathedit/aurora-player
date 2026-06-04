@@ -1,4 +1,5 @@
 import { Box, Text, chakra } from '@chakra-ui/react';
+import { Artwork } from '@/components/ui/Artwork';
 import { TRACK_COUNT } from '@/constants/text';
 import { formatTime } from '@/utils/time';
 import type { AlbumGroup } from './types';
@@ -19,11 +20,7 @@ export function AlbumListRow({ album, onSelect }: { album: AlbumGroup; onSelect:
       _hover={{ bg: 'muted' }}
       style={{ height: 64 }}
     >
-      {album.artUrl ? (
-        <chakra.img src={album.artUrl} alt="" boxSize="12" flexShrink={0} rounded="sm" objectFit="cover" />
-      ) : (
-        <Box boxSize="12" flexShrink={0} rounded="sm" bg="muted" />
-      )}
+      <Artwork src={album.artUrl} boxSize="12" flexShrink={0} rounded="sm" />
       <Box minW={0} flex="1" textAlign="left">
         <Text truncate fontSize="sm" fontWeight="medium">
           {album.displayName}

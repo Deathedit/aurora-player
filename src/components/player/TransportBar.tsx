@@ -1,19 +1,19 @@
 import { usePlayer, usePlayerProgress } from '@/contexts/player-context';
 import { formatTime } from '@/utils/time';
-import { Play, Pause, SkipBack, SkipForward, ChevronUp, Maximize2 } from 'lucide-react';
+import { SkipBack, SkipForward, ChevronUp, Maximize2 } from 'lucide-react';
 import { Scrubber } from '@/components/player/Scrubber';
 import { ShuffleButton } from '@/components/player/ShuffleButton';
 import { RepeatButton } from '@/components/player/RepeatButton';
 import { VolumeControl } from '@/components/player/VolumeControl';
+import { PlayPauseButton } from '@/components/player/PlayPauseButton';
+import { TransportButton } from '@/components/player/TransportButton';
+import { Artwork } from '@/components/ui/Artwork';
 import { useCurrentTrack } from '@/hooks/useCurrentTrack';
 import { useVolumeWheel } from '@/hooks/useVolumeWheel';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { useRef } from 'react';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
-import { PLAY, PAUSE, PREVIOUS_TRACK, NEXT_TRACK, OPEN_NOW_PLAYING } from '@/constants/text';
-
-const CPlay = chakra(Play);
-const CPause = chakra(Pause);
+import { PREVIOUS_TRACK, NEXT_TRACK, OPEN_NOW_PLAYING } from '@/constants/text';
 
 export function TransportBar({
   onNowPlaying,
@@ -22,7 +22,7 @@ export function TransportBar({
   onNowPlaying?: () => void;
   nowPlayingOpen?: boolean;
 }) {
-  const { isPlaying, toggle, next, prev } = usePlayer();
+  const { next, prev } = usePlayer();
   const { currentTime, duration } = usePlayerProgress();
   const current = useCurrentTrack();
   const isDesktop = useIsDesktop();
@@ -56,11 +56,7 @@ export function TransportBar({
         gap="3"
         cursor={{ base: 'pointer', md: 'default' }}
       >
-        {showArt && current?.artUrl ? (
-          <chakra.img src={current.artUrl} alt="" boxSize="11" flexShrink={0} rounded="md" objectFit="cover" />
-        ) : (
-          <Box boxSize="11" flexShrink={0} rounded="md" bg="muted" />
-        )}
+        <Artwork src={showArt ? current?.artUrl : undefined} boxSize="11" flexShrink={0} rounded="md" />
         <Box minW={0}>
           <Text truncate fontSize="sm" fontWeight="medium">
             {current?.title ?? '—'}
@@ -76,46 +72,25 @@ export function TransportBar({
 
       <Flex flexShrink={0} alignItems="center" gap={{ base: '1', md: '1.5' }}>
         <ShuffleButton iconSize={14} display={{ base: 'none', md: 'inline-flex' }} p="1.5" />
-        <chakra.button
-          type="button"
+        <TransportButton
+          icon={<SkipBack size={16} />}
           onClick={prev}
           aria-label={PREVIOUS_TRACK}
-          rounded="full"
           p="1.5"
           color="mutedForeground"
           transition="colors"
           _hover={{ color: 'foreground' }}
-        >
-          <SkipBack size={16} />
-        </chakra.button>
-        <chakra.button
-          type="button"
-          onClick={toggle}
-          aria-label={isPlaying ? PAUSE : PLAY}
-          layerStyle="accentGradient"
-          display="flex"
-          boxSize={{ base: '10', md: '9' }}
-          alignItems="center"
-          justifyContent="center"
-          rounded="full"
-          color="primaryForeground"
-          transition="transform 0.15s"
-          _active={{ transform: 'scale(0.95)' }}
-        >
-          {isPlaying ? <CPause boxSize={{ base: 5, md: 4 }} /> : <CPlay boxSize={{ base: 5, md: 4 }} ml="0.5" />}
-        </chakra.button>
-        <chakra.button
-          type="button"
+        />
+        <PlayPauseButton iconSize={{ base: 5, md: 4 }} boxSize={{ base: '10', md: '9' }} transition="transform 0.15s" />
+        <TransportButton
+          icon={<SkipForward size={16} />}
           onClick={next}
           aria-label={NEXT_TRACK}
-          rounded="full"
           p="1.5"
           color="mutedForeground"
           transition="colors"
           _hover={{ color: 'foreground' }}
-        >
-          <SkipForward size={16} />
-        </chakra.button>
+        />
         <RepeatButton iconSize={14} display={{ base: 'none', md: 'inline-flex' }} p="1.5" />
       </Flex>
 
@@ -128,18 +103,15 @@ export function TransportBar({
           {formatTime(duration)}
         </Text>
         <VolumeControl sliderProps={{ w: '20' }} />
-        <chakra.button
-          type="button"
+        <TransportButton
+          icon={<Maximize2 size={14} />}
           onClick={onNowPlaying}
           aria-label={OPEN_NOW_PLAYING}
-          rounded="full"
           p="1.5"
           color="mutedForeground"
           transition="colors"
           _hover={{ color: 'foreground' }}
-        >
-          <Maximize2 size={14} />
-        </chakra.button>
+        />
       </Flex>
     </Box>
   );
