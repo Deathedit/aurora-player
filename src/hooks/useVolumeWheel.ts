@@ -1,27 +1,25 @@
-import { useEffect, useRef } from 'react';
-import type { RefObject } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { usePlayer } from '@/contexts/player-context';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
 
-export function useVolumeWheel(ref: RefObject<HTMLElement | null>, enabled = true) {
+export function useVolumeWheel(enabled = true) {
   const { volume, setVolume } = usePlayer();
   const isDesktop = useIsDesktop();
-  const volumeRef = useRef(volume);
+  const stateRef = useRef({ volume, isDesktop, enabled, setVolume });
   useEffect(() => {
-    volumeRef.current = volume;
+    stateRef.current = { volume, isDesktop, enabled, setVolume };
   });
 
-  useEffect(() => {
-    if (!isDesktop || !enabled) return;
-    const el = ref.current;
+  return useCallback((el: HTMLElement | null) => {
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
+      const { volume, isDesktop, enabled, setVolume } = stateRef.current;
+      if (!isDesktop || !enabled) return;
       e.preventDefault();
       const delta = e.deltaY < 0 ? 0.05 : -0.05;
-      const v = volumeRef.current;
-      setVolume(Math.max(0, Math.min(1, Math.round((v + delta) * 100) / 100)));
+      setVolume(Math.max(0, Math.min(1, Math.round((volume + delta) * 100) / 100)));
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
-  }, [ref, setVolume, isDesktop, enabled]);
+  }, []);
 }

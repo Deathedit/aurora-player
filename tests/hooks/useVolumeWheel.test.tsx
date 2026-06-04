@@ -1,7 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { renderHook, cleanup } from '@testing-library/react';
-import { createRef } from 'react';
 import { useVolumeWheel } from '@/hooks/useVolumeWheel';
 
 vi.mock('@/hooks/useIsDesktop', () => ({ useIsDesktop: vi.fn(() => true) }));
@@ -16,10 +15,9 @@ function mount(volume: number, enabled = true) {
   vi.mocked(usePlayer).mockReturnValue({ volume, setVolume } as unknown as ReturnType<typeof usePlayer>);
   const el = document.createElement('div');
   document.body.appendChild(el);
-  const ref = createRef<HTMLElement>();
-  (ref as { current: HTMLElement }).current = el;
-  const view = renderHook(({ en }) => useVolumeWheel(ref, en), { initialProps: { en: enabled } });
-  return { el, ...view };
+  const view = renderHook(({ en }) => useVolumeWheel(en), { initialProps: { en: enabled } });
+  const detach = view.result.current(el);
+  return { el, detach, ...view };
 }
 
 const wheel = (deltaY: number) => new WheelEvent('wheel', { deltaY, cancelable: true });
@@ -69,16 +67,16 @@ describe('useVolumeWheel', () => {
     expect(setVolume).not.toHaveBeenCalled();
   });
 
-  it('does nothing when the ref has no element', () => {
+  it('does nothing when the ref callback receives no element', () => {
     vi.mocked(usePlayer).mockReturnValue({ volume: 0.5, setVolume } as unknown as ReturnType<typeof usePlayer>);
-    const ref = createRef<HTMLElement>();
-    expect(() => renderHook(() => useVolumeWheel(ref, true))).not.toThrow();
+    const view = renderHook(() => useVolumeWheel(true));
+    expect(() => view.result.current(null)).not.toThrow();
     expect(setVolume).not.toHaveBeenCalled();
   });
 
-  it('detaches the listener on unmount', () => {
-    const { el, unmount } = mount(0.5);
-    unmount();
+  it('detaches the listener via the returned cleanup', () => {
+    const { el, detach } = mount(0.5);
+    detach?.();
     el.dispatchEvent(wheel(-10));
     expect(setVolume).not.toHaveBeenCalled();
   });

@@ -152,13 +152,16 @@ Persisted state, `useState`-shaped.
 - **Side effects:** lazy-reads from `localStorage` on init; writes JSON on change. Both wrapped in
   `try/catch` (corrupt value → initial; quota exceeded → silently skipped).
 
-#### `useVolumeWheel(ref, enabled?)` — [useVolumeWheel.ts](../src/hooks/useVolumeWheel.ts)
+#### `useVolumeWheel(enabled?)` — [useVolumeWheel.ts](../src/hooks/useVolumeWheel.ts)
 Mouse-wheel volume on a container (desktop only).
 
-- **Arguments:** `ref: RefObject<HTMLElement | null>`, `enabled = true`.
-- **Returns:** `void`.
-- **Side effects:** attaches a non-passive `wheel` listener that nudges volume ±0.05 (clamped
-  0–1). Inactive on touch/mobile (`useIsDesktop`) or when `enabled` is false.
+- **Arguments:** `enabled = true`.
+- **Returns:** a stable callback ref `(el: HTMLElement | null) => void` — spread onto the target
+  element's `ref`.
+- **Side effects:** on attach, binds a non-passive `wheel` listener (cleaned up on detach) that
+  nudges volume ±0.05 (clamped 0–1). Inactive on touch/mobile (`useIsDesktop`) or when `enabled`
+  is false. Uses a callback ref rather than a `RefObject`+effect so it still binds inside
+  Chakra `Dialog` content, which mounts a tick late via Presence.
 
 #### `useSyncedRef<T>(value)` — [useSyncedRef.ts](../src/hooks/useSyncedRef.ts)
 Keeps a ref mirroring the latest value so stable callbacks read fresh state without re-subscribing.

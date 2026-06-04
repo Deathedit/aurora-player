@@ -10,7 +10,6 @@ import { TransportButton } from '@/components/player/TransportButton';
 import { Artwork } from '@/components/ui/Artwork';
 import { useCurrentTrack } from '@/hooks/useCurrentTrack';
 import { useVolumeWheel } from '@/hooks/useVolumeWheel';
-import { useRef } from 'react';
 import { Box, Dialog, Flex, Portal, Text, chakra } from '@chakra-ui/react';
 import { PREVIOUS_TRACK, NEXT_TRACK, CLOSE_NOW_PLAYING } from '@/constants/text';
 
@@ -18,8 +17,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
   const { next, prev } = usePlayer();
   const { currentTime, duration } = usePlayerProgress();
   const current = useCurrentTrack();
-  const volumeRowRef = useRef<HTMLDivElement>(null);
-  useVolumeWheel(volumeRowRef, open);
+  const wheelRef = useVolumeWheel(open);
 
   if (!current) return null;
 
@@ -28,6 +26,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
       <Portal>
         <Dialog.Positioner padding={0}>
           <Dialog.Content
+            ref={wheelRef}
             layerStyle="glassElevated"
             position="fixed"
             inset={0}
@@ -123,7 +122,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
                 <RepeatButton iconSize={20} p="2" badgeRight="0.5" />
               </Flex>
 
-              <Flex ref={volumeRowRef} w="full" maxW={{ base: 'sm', md: 'xs' }} alignItems="center" gap="3">
+              <Flex w="full" maxW={{ base: 'sm', md: 'xs' }} alignItems="center" gap="3">
                 <VolumeControl sliderProps={{ flex: '1' }} />
               </Flex>
             </Flex>

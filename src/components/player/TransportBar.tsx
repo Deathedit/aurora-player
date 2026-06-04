@@ -11,7 +11,6 @@ import { Artwork } from '@/components/ui/Artwork';
 import { useCurrentTrack } from '@/hooks/useCurrentTrack';
 import { useVolumeWheel } from '@/hooks/useVolumeWheel';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
-import { useRef } from 'react';
 import { Box, Flex, Text, chakra } from '@chakra-ui/react';
 import { PREVIOUS_TRACK, NEXT_TRACK, OPEN_NOW_PLAYING } from '@/constants/text';
 
@@ -27,13 +26,12 @@ export function TransportBar({
   const current = useCurrentTrack();
   const isDesktop = useIsDesktop();
   const showArt = isDesktop || !nowPlayingOpen;
-  const footerRef = useRef<HTMLElement>(null);
-  useVolumeWheel(footerRef);
+  const wheelRef = useVolumeWheel();
 
   return (
     <Box
       as="footer"
-      ref={footerRef as React.Ref<HTMLDivElement>}
+      ref={wheelRef}
       layerStyle="glass"
       position="fixed"
       insetX={0}
