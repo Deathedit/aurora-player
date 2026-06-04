@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import { buildQueue } from '@/services/queue';
 import { usePositionPersistence } from '@/hooks/usePositionPersistence';
 import { useSyncedRef } from '@/hooks/useSyncedRef';
+import { useAudioGain } from '@/hooks/useAudioGain';
 import type { Track, RepeatMode } from '@/types';
 
 interface PlaybackEngineOptions {
@@ -171,10 +172,7 @@ export function usePlaybackEngine({ audioRef, libraryRef, repeatRef, shuffleRef,
     };
   }, [next, repeatRef, queueRef, currentIdRef, savePosition, lastSaveRef, audioRef]);
 
-  useEffect(() => {
-    const el = audioRef.current;
-    if (el) el.volume = volume;
-  }, [volume, audioRef]);
+  useAudioGain(audioRef, volume);
 
   return {
     currentId,
