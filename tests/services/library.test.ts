@@ -83,7 +83,9 @@ describe('parseFiles', () => {
   });
 
   it('dedupes byte-identical cover art to one stored blob and a shared url', async () => {
-    vi.mocked(parseBlob).mockResolvedValue(meta({ title: 'S', artist: 'A', album: 'Al', duration: 1, picture: new Uint8Array([9, 9, 9, 9]) }));
+    vi.mocked(parseBlob).mockResolvedValue(
+      meta({ title: 'S', artist: 'A', album: 'Al', duration: 1, picture: new Uint8Array([9, 9, 9, 9]) }),
+    );
     const tracks = await parseFiles([entry('a.mp3'), entry('b.mp3')]);
     expect(putArt).toHaveBeenCalledTimes(1);
     expect(tracks[0].artUrl).toBeDefined();
@@ -92,7 +94,9 @@ describe('parseFiles', () => {
 
   it('keeps distinct cover art separate', async () => {
     let n = 0;
-    vi.mocked(parseBlob).mockImplementation(async () => meta({ title: 'S', artist: 'A', album: 'Al', duration: 1, picture: new Uint8Array([n, n, n, ++n]) }));
+    vi.mocked(parseBlob).mockImplementation(async () =>
+      meta({ title: 'S', artist: 'A', album: 'Al', duration: 1, picture: new Uint8Array([n, n, n, ++n]) }),
+    );
     const tracks = await parseFiles([entry('a.mp3'), entry('b.mp3')]);
     expect(putArt).toHaveBeenCalledTimes(2);
     expect(tracks[0].artUrl).not.toBe(tracks[1].artUrl);

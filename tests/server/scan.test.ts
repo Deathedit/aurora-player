@@ -95,7 +95,12 @@ describe('scanLibrary', () => {
 
   it('removes deleted tracks and prunes their now-orphaned art', async () => {
     vi.mocked(parseFile).mockImplementation(async (p) =>
-      meta({ artist: 'Ar', album: 'Al', duration: 1, picture: new Uint8Array(String(p).includes('a.mp3') ? [1, 1, 1] : [2, 2, 2]) }),
+      meta({
+        artist: 'Ar',
+        album: 'Al',
+        duration: 1,
+        picture: new Uint8Array(String(p).includes('a.mp3') ? [1, 1, 1] : [2, 2, 2]),
+      }),
     );
     writeAudio('Album/a.mp3');
     writeAudio('Album/b.mp3');
@@ -112,7 +117,9 @@ describe('scanLibrary', () => {
   });
 
   it('dedupes identical art across files into one row', async () => {
-    vi.mocked(parseFile).mockImplementation(async () => meta({ artist: 'Ar', album: 'Al', duration: 1, picture: new Uint8Array([7, 7, 7]) }));
+    vi.mocked(parseFile).mockImplementation(async () =>
+      meta({ artist: 'Ar', album: 'Al', duration: 1, picture: new Uint8Array([7, 7, 7]) }),
+    );
     writeAudio('Album/a.mp3');
     writeAudio('Album/b.mp3');
     await scan.scanLibrary();

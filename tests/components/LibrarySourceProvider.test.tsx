@@ -13,7 +13,14 @@ vi.mock('@/services/backend', () => ({
   rescan: vi.fn(),
 }));
 
-const track = (id: string): Track => ({ id, url: `/api/stream/${id}`, title: id, artist: 'a', album: 'b', durationSec: 1 });
+const track = (id: string): Track => ({
+  id,
+  url: `/api/stream/${id}`,
+  title: id,
+  artist: 'a',
+  album: 'b',
+  durationSec: 1,
+});
 
 function Probe() {
   const { mode, refreshing, refresh } = useLibrarySource();
