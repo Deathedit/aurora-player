@@ -83,7 +83,7 @@ degrade gracefully when there is no `File`.
 │   │   ├── FsAccessProvider.tsx      # Local mode: wires useFsAccess to the player
 │   │   ├── layout/                   # Logo, Sidebar (desktop), TabBar (mobile)
 │   │   ├── player/                   # TransportBar, NowPlaying, Scrubber, Volume/Repeat/Shuffle
-│   │   ├── library/                  # TrackRow (one virtualized row)
+│   │   ├── library/                  # TrackRow (one virtualized row), SearchDialog (K palette)
 │   │   ├── albums/                   # AlbumDetail, AlbumGridItem, AlbumListRow, types
 │   │   ├── settings/                 # LibrarySection, GlassToggle, SettingsButton
 │   │   └── ui/                       # volume-icon (stateful icon)

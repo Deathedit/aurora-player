@@ -65,12 +65,12 @@ afterEach(() => {
 });
 
 describe('SearchDialog', () => {
-  it('opens on Ctrl+K and filters by title', () => {
+  it('opens on K and filters by title', () => {
     renderWithPlayer(<SearchDialog tracks={lib} />, { player: player() });
 
     expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
 
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
     const input = screen.getByPlaceholderText(/search/i);
     expect(screen.queryByText('Bohemian Rhapsody')).toBeNull();
 
@@ -79,15 +79,39 @@ describe('SearchDialog', () => {
     expect(screen.queryByText('Stairway to Heaven')).toBeNull();
   });
 
-  it('also opens on Meta+K', () => {
+  it('also opens on uppercase K', () => {
     renderWithPlayer(<SearchDialog tracks={lib} />, { player: player() });
-    fireEvent.keyDown(window, { key: 'k', metaKey: true });
+    fireEvent.keyDown(window, { key: 'K' });
     expect(screen.getByPlaceholderText(/search/i)).toBeTruthy();
+  });
+
+  it('ignores K with Ctrl/Meta (browser shortcut) and other keys', () => {
+    renderWithPlayer(<SearchDialog tracks={lib} />, { player: player() });
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k', metaKey: true });
+    fireEvent.keyDown(window, { key: 'x' });
+    expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
+  });
+
+  it('ignores K while typing in an input, textarea, or contenteditable', () => {
+    renderWithPlayer(
+      <>
+        <input data-testid="ti" />
+        <textarea data-testid="ta" />
+        <div data-testid="ce" contentEditable />
+        <SearchDialog tracks={lib} />
+      </>,
+      { player: player() },
+    );
+    fireEvent.keyDown(screen.getByTestId('ti'), { key: 'k' });
+    fireEvent.keyDown(screen.getByTestId('ta'), { key: 'k' });
+    fireEvent.keyDown(screen.getByTestId('ce'), { key: 'k' });
+    expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
   });
 
   it('shows a no-results message when nothing matches', () => {
     renderWithPlayer(<SearchDialog tracks={lib} />, { player: player() });
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
     fireEvent.change(screen.getByPlaceholderText(/search/i), { target: { value: 'zzz' } });
     expect(screen.getByText('No matching titles')).toBeTruthy();
   });
@@ -95,7 +119,7 @@ describe('SearchDialog', () => {
   it('plays a result on click and closes', () => {
     const play = vi.fn();
     renderWithPlayer(<SearchDialog tracks={lib} />, { player: player({ play }) });
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
     fireEvent.change(screen.getByPlaceholderText(/search/i), { target: { value: 'bohem' } });
 
     fireEvent.click(screen.getByText('Bohemian Rhapsody'));
@@ -105,7 +129,7 @@ describe('SearchDialog', () => {
 
   it('closes and clears the query on Enter, ignoring other keys', () => {
     renderWithPlayer(<SearchDialog tracks={lib} />, { player: player() });
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
     fireEvent.change(screen.getByPlaceholderText(/search/i), { target: { value: 'bohem' } });
 
     const row = screen.getByText('Bohemian Rhapsody');
@@ -115,13 +139,13 @@ describe('SearchDialog', () => {
     fireEvent.keyDown(row, { key: 'Enter' });
     expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
 
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
     expect((screen.getByPlaceholderText(/search/i) as HTMLInputElement).value).toBe('');
   });
 
   it('closes on Space activation', () => {
     renderWithPlayer(<SearchDialog tracks={lib} />, { player: player() });
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
     fireEvent.change(screen.getByPlaceholderText(/search/i), { target: { value: 'bohem' } });
 
     fireEvent.keyDown(screen.getByText('Bohemian Rhapsody'), { key: ' ' });
@@ -130,7 +154,7 @@ describe('SearchDialog', () => {
 
   it('closes via the backdrop/Esc path and ignores spurious open events', () => {
     renderWithPlayer(<SearchDialog tracks={lib} />, { player: player() });
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
 
     fireEvent.click(screen.getByTestId('dialog-noop'));
     expect(screen.getByPlaceholderText(/search/i)).toBeTruthy();
@@ -142,7 +166,7 @@ describe('SearchDialog', () => {
   it('moves the highlight with arrow keys and plays the selection on Enter', () => {
     const play = vi.fn();
     renderWithPlayer(<SearchDialog tracks={lib} />, { player: player({ play }) });
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
     const input = screen.getByPlaceholderText(/search/i);
     fireEvent.change(input, { target: { value: 'a' } });
 
@@ -168,7 +192,7 @@ describe('SearchDialog', () => {
   it('ignores Enter and other keys in the input when there are no matches', () => {
     const play = vi.fn();
     renderWithPlayer(<SearchDialog tracks={lib} />, { player: player({ play }) });
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
     const input = screen.getByPlaceholderText(/search/i);
     fireEvent.change(input, { target: { value: 'zzz' } });
 
@@ -178,9 +202,9 @@ describe('SearchDialog', () => {
     expect(screen.getByPlaceholderText(/search/i)).toBeTruthy();
   });
 
-  it('ignores Ctrl+K while NowPlaying is fullscreen', () => {
+  it('ignores K while NowPlaying is fullscreen', () => {
     renderWithPlayer(<SearchDialog tracks={lib} nowPlayingOpen />, { player: player() });
-    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    fireEvent.keyDown(window, { key: 'k' });
     expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
   });
 });

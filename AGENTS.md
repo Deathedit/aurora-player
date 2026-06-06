@@ -30,6 +30,7 @@
 - **`useSyncedRef`** pattern for reading mutable state inside callbacks
 - **FS Access API** (Chromium only): handle persisted in IndexedDB, auto-reconnect on mount
 - **`react-virtuoso`** for all track lists at every breakpoint — a single `<Virtuoso customScrollParent={main}>` virtualizes against the `<main>` scroller (no fixed-height box, no nested scrollbar, no mobile `.map()` fork). `AppShell` captures `<main>` via a `setScrollParent` ref-callback and passes the element to `Library`/`Albums` (rendered only once it's set)
+- **Command palette** (`components/library/SearchDialog.tsx`): self-contained Chakra `Dialog` opened by pressing **`k`** (own `window` keydown listener; bare key, bails on ctrl/meta so the browser's Ctrl+K still works, and on input/textarea/contenteditable focus — same guard style as the `f` shortcut). Filters the library by title and renders matching `TrackRow`s inside the modal (capped at 50, shown only when the query is non-empty). ↑/↓ move a highlighted selection (`TrackRow selected` prop → `aria-selected` + `muted` bg, distinct from the playing row) and Enter plays it; click/Esc/backdrop close. `Library` owns nothing — it just renders `<SearchDialog tracks={sorted} nowPlayingOpen={…} />`. `nowPlayingOpen` is threaded `AppShell → Library → SearchDialog` so `k` is ignored while the NowPlaying overlay is open
 - **MediaSession API**: sets metadata + play/pause/next/prev handlers
 
 ### Layout Model
@@ -40,13 +41,14 @@
 - **TabBar** (mobile only): `h-14 fixed bottom-0`; includes Settings as separate NavLink (not in `NAV_ITEMS`)
 - **TransportBar**: Spotify-style single row desktop (`h-16 bottom-0`), compact mobile (`h-20 bottom-14`); track-info left, controls center, scrubber+volume right (desktop-only)
 - **NowPlaying**: full-screen overlay (mobile), triggered by TransportBar tap
+- **SearchDialog**: centered command-palette overlay over the Library, opened by the `k` key (dimmed `glassBackdrop`)
 
 ## Style Rules
 - **No code comments** — omit entirely, except a short justification inside an empty `catch {}` (eslint `no-empty` requires it; see `fs-access.ts` / `library-cache.ts`)
 - **Chakra UI v3 + Emotion** for all styling — no Tailwind, no shadcn. Style props on Chakra primitives (`Box`, `Flex`, `Text`, `chakra.*`) and `layerStyle` for reusable patterns. Use `chakra.button`/`chakra.img`/`chakra.input` for native elements needing style props
 - **Theme system** in `src/theme/system.ts` (`createSystem(defaultConfig, defineConfig({...}))`). Single dark-green theme — semantic tokens have flat values (no color mode, no theme switching). After adding tokens/layerStyles, re-run `npx @chakra-ui/cli typegen src/theme/system.ts --strict`
 - **Semantic tokens**: `bg="background"` (#121212), `color="foreground"`, `bg="card"`/`elevated`/`secondary`/`muted`, `color="mutedForeground"`, `primary` (#1db954). Token names mirror the old CSS-var names
-- **Glass surfaces**: `layerStyle="glass" | "glassSidebar" | "glassElevated"` (`backdrop-filter: blur(24px) saturate(1.2)`). The only custom condition is `_noGlass` (`.no-glass &`), which swaps glass for an opaque fill; the `.no-glass` class is toggled on `documentElement` by `GlassToggle`
+- **Glass surfaces**: `layerStyle="glass" | "glassSidebar" | "glassElevated" | "glassBackdrop"` (`backdrop-filter: blur(…)`). The only custom condition is `_noGlass` (`.no-glass &`), which swaps glass for an opaque fill; the `.no-glass` class is toggled on `documentElement` by `GlassToggle`. `glassBackdrop` is the command-palette dialog overlay — frosted blur when glass is on, plain dim (`rgba(0,0,0,0.6)`) under `_noGlass`
 - **Accent gradient**: `linear-gradient(120deg,#1db954,#1ed760)` — exposed as `layerStyle="accentGradient"` (fill) and `"accentGradientText"` (clipped text). Used by PlayFAB, active-row left-bar, scrubber fill
 - **Runtime glow**: `PlayerProvider` sets `--art`/`--player-glow` CSS vars on `documentElement`; reference via `css={{ background: 'var(--player-glow)' }}`
 - **Active track**: 2px gradient left-bar, equalizer (3 staggered `equalizer1/2/3` keyframes; reduced-motion disables them), like button hover-revealed

@@ -17,7 +17,8 @@ App
     ├── <main> (scroll container)
     │   └── Routes
     │       ├── Library              # page: virtualized track list
-    │       │   └── TrackRow ×N      # one row (memoized) — also embeds Equalizer
+    │       │   ├── TrackRow ×N      # one row (memoized) — also embeds Equalizer
+    │       │   └── SearchDialog     # K command palette (Dialog) — reuses TrackRow
     │       ├── Albums               # page: grid/list of albums + in-page detail
     │       │   ├── AlbumGridItem    # grid cell (button)
     │       │   ├── AlbumListRow     # list row (virtualized)
@@ -234,9 +235,12 @@ export type RepeatMode = 'off' | 'all' | 'one';
   (`Dialog.Root` / `Portal` / `Dialog.Positioner` / `Dialog.Content` / `Dialog.Title` /
   `Dialog.CloseTrigger`) — controlled via `open` + `onOpenChange`, which provides focus trapping,
   focus restoration, an inert background, and scroll lock by default. See
-  [`NowPlaying.tsx`](../src/components/player/NowPlaying.tsx).
+  [`NowPlaying.tsx`](../src/components/player/NowPlaying.tsx). The
+  [`SearchDialog`](../src/components/library/SearchDialog.tsx) command palette uses the same API
+  plus `Dialog.Backdrop` (`layerStyle="glassBackdrop"`) for its dimmed/frosted overlay.
 - **Accessibility.** Icon-only `chakra.button`s carry `aria-label`s (strings in
   [`constants/text.ts`](../src/constants/text.ts)); toggles use `aria-pressed`; the `Scrubber` is a
   keyboard-operable `role="slider"`; the global `:focus-visible` ring in `globalCss` covers focus
-  indication. The `Scrubber` (keyboard seek) and `TrackRow` (Enter/Space/click activation) keyboard
+  indication. The `Scrubber` (keyboard seek), `TrackRow` (Enter/Space/click activation), and
+  `SearchDialog` (K opens, ↑/↓ highlight + `aria-selected`, Enter to play) keyboard
   behavior is covered by component tests under `tests/components/`.

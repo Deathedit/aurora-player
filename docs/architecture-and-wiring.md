@@ -78,7 +78,7 @@ Inside `AppShell`:
 
 ```tsx
 <Routes>
-  <Route path="/"        element={withScroll(<Library scrollParent={scrollParent!} />)} />
+  <Route path="/"        element={withScroll(<Library scrollParent={scrollParent!} nowPlayingOpen={nowPlayingOpen} />)} />
   <Route path="/albums"  element={withScroll(<Albums  scrollParent={scrollParent!} />)} />
   <Route path="/settings" element={<Settings />} />
 </Routes>
@@ -86,7 +86,7 @@ Inside `AppShell`:
 
 | Route | Page | Notes |
 |---|---|---|
-| `/` | `Library` | Virtualized, sorted track list. |
+| `/` | `Library` | Virtualized, sorted track list; pressing **K** opens the `SearchDialog` command palette. |
 | `/albums` | `Albums` | Grid/list of albums; album detail is in-page state, not a route. |
 | `/settings` | `Settings` | Library connection + glass toggle. |
 
@@ -100,8 +100,13 @@ Key design points:
   `null` until that element exists — so `Library`/`Albums` only mount once they have a real
   `HTMLElement` to give `react-virtuoso`'s `customScrollParent`. The `Settings` route doesn't need
   it and renders immediately.
-- **Global `f` shortcut.** `AppShell` adds a `keydown` listener that toggles the Now-Playing
-  overlay on `f`/`F`, unless focus is in an input/textarea/contenteditable.
+- **Global keyboard shortcuts.** `AppShell` adds a `keydown` listener that toggles the Now-Playing
+  overlay on `f`/`F`, unless focus is in an input/textarea/contenteditable. Separately,
+  `SearchDialog` (rendered by `Library`) adds its own `keydown` listener that opens the command
+  palette on **`k`/`K`** (a bare key — it bails when ctrl/meta is held so the browser's Ctrl+K is
+  untouched, and when focus is in an input/textarea/contenteditable). It also bails when
+  `nowPlayingOpen` is true (threaded down from `AppShell`), so the palette never opens behind the
+  full-screen Now-Playing overlay.
 - **Clean URLs.** `BrowserRouter` produces real paths (`/albums`), so any deployment must serve
   `index.html` for unknown client routes. Vite's dev/preview do this automatically; in server mode
   the Fastify static handler does it (see §5).

@@ -16,8 +16,11 @@ export function SearchDialog({ tracks, nowPlayingOpen = false }: { tracks: Track
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey) || e.key !== 'k') return;
+      if (e.key !== 'k' && e.key !== 'K') return;
+      if (e.ctrlKey || e.metaKey) return;
       if (nowPlayingOpen) return;
+      const t = e.target as HTMLElement;
+      if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) return;
       e.preventDefault();
       setOpen(true);
     };
