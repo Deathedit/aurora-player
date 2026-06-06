@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, it, expect, vi } from 'vitest';
-import { cleanup, screen } from '@testing-library/react';
+import { cleanup, screen, fireEvent } from '@testing-library/react';
 import { renderWithPlayer } from '../components/render-with-player';
 import type { Track } from '@/types';
 import type { PlayerContextType } from '@/contexts/player-context';
@@ -73,5 +73,39 @@ describe('Library page', () => {
     expect(screen.getByText('One')).toBeTruthy();
     expect(screen.getByText('Two')).toBeTruthy();
     expect(screen.getByText('Three')).toBeTruthy();
+  });
+
+  it('reveals the search box on Ctrl+K and filters by title, restoring on Escape', () => {
+    vi.mocked(useLibrarySource).mockReturnValue({ mode: 'local' } as LibrarySource);
+    const lib = [
+      track({ id: 'a', title: 'Bohemian Rhapsody' }),
+      track({ id: 'b', title: 'Stairway to Heaven' }),
+    ];
+    renderWithPlayer(<Library scrollParent={scrollParent()} />, { player: player(lib) });
+
+    expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
+
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    const input = screen.getByPlaceholderText(/search/i);
+
+    fireEvent.keyDown(input, { key: 'a' });
+    fireEvent.change(input, { target: { value: 'bohem' } });
+    expect(screen.getByText('Bohemian Rhapsody')).toBeTruthy();
+    expect(screen.queryByText('Stairway to Heaven')).toBeNull();
+    expect(screen.getByText('1 tracks')).toBeTruthy();
+
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
+    expect(screen.getByText('Bohemian Rhapsody')).toBeTruthy();
+    expect(screen.getByText('Stairway to Heaven')).toBeTruthy();
+    expect(screen.getByText('2 tracks')).toBeTruthy();
+  });
+
+  it('also opens with Meta+K', () => {
+    vi.mocked(useLibrarySource).mockReturnValue({ mode: 'local' } as LibrarySource);
+    renderWithPlayer(<Library scrollParent={scrollParent()} />, { player: player([track()]) });
+
+    fireEvent.keyDown(window, { key: 'k', metaKey: true });
+    expect(screen.getByPlaceholderText(/search/i)).toBeTruthy();
   });
 });

@@ -15,6 +15,7 @@ export const NO_ALBUMS = 'No albums yet — add music first';
 export const MUSIC_LIBRARY = 'Music Library';
 export const ALL_ALBUMS = '← All Albums';
 export const TRACK_COUNT = (n: number) => `${n} tracks`;
+export const SEARCH_PLACEHOLDER = 'Search titles…';
 export const EXPAND_SIDEBAR = 'Expand sidebar';
 export const COLLAPSE_SIDEBAR = 'Collapse sidebar';
 export const CLEAR_LIBRARY = 'Clear Library';
