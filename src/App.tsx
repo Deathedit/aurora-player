@@ -58,7 +58,10 @@ function AppShell() {
         pb={{ base: '8.5rem', md: '4rem' }}
       >
         <Routes>
-          <Route path="/" element={withScroll(<Library scrollParent={scrollParent!} />)} />
+          <Route
+            path="/"
+            element={withScroll(<Library scrollParent={scrollParent!} nowPlayingOpen={nowPlayingOpen} />)}
+          />
           <Route path="/albums" element={withScroll(<Albums scrollParent={scrollParent!} />)} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
