@@ -16,9 +16,20 @@ Aurora auto-detects: if a backend is reachable it streams from the server; other
 - **Colors that match your album art** — the whole interface gently tints itself to match the cover of whatever's playing.
 - **Handles huge libraries smoothly** — thousands of tracks scroll without lag.
 - **Familiar player controls** — play, pause, skip, shuffle, repeat, and a seek bar, with a full-screen Now Playing view on your phone.
+- **Instant search** — press <kbd>K</kbd> on your library for a command palette: type to filter by title, arrow through results, and hit Enter to play.
 - **Works with your device's media keys** — control playback from your keyboard, headphones, or lock screen.
 - **Loads as you go** — tracks start appearing right away instead of making you wait for the whole folder.
 - **Fast on return visits** — Aurora remembers the details and artwork it already read, so a library you've opened before loads almost instantly.
+
+### Keyboard shortcuts
+
+| Key | Action |
+|---|---|
+| <kbd>F</kbd> | Toggle the full-screen Now Playing view |
+| <kbd>K</kbd> | Open the search command palette (on the library) |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Move through search results |
+| <kbd>Enter</kbd> | Play the highlighted result |
+| <kbd>Esc</kbd> | Close the search palette |
 
 | Stack | |
 |---|---|
