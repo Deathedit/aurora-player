@@ -78,6 +78,13 @@ describe('TrackRow', () => {
     expect(container.querySelector('svg')).toBeTruthy();
   });
 
+  it('marks the row as selected when the selected prop is set', () => {
+    renderWithPlayer(<TrackRow track={track('1')} index={0} selected />, {
+      player: { currentId: null, isPlaying: false, ...noopPlayer },
+    });
+    expect(screen.getByRole('button').getAttribute('aria-selected')).toBe('true');
+  });
+
   it('renders cover art when the track has an artUrl', () => {
     renderWithPlayer(<TrackRow track={track('1', { artUrl: 'blob:art' })} index={0} />, {
       player: { currentId: null, isPlaying: false, ...noopPlayer },

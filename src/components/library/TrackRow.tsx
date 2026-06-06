@@ -41,7 +41,7 @@ function Equalizer() {
   );
 }
 
-function TrackRowImpl({ track, index }: { track: Track; index: number }) {
+function TrackRowImpl({ track, index, selected = false }: { track: Track; index: number; selected?: boolean }) {
   const { currentId, isPlaying, play, toggle } = usePlayer();
   const active = track.id === currentId;
 
@@ -63,6 +63,7 @@ function TrackRowImpl({ track, index }: { track: Track; index: number }) {
     <Flex
       role="button"
       tabIndex={0}
+      aria-selected={selected}
       onClick={activate}
       onKeyDown={onKeyDown}
       w="full"
@@ -74,7 +75,7 @@ function TrackRowImpl({ track, index }: { track: Track; index: number }) {
       py="2"
       transition="colors"
       _hover={{ bg: 'muted' }}
-      bg={active ? 'primaryTint' : undefined}
+      bg={active ? 'primaryTint' : selected ? 'muted' : undefined}
       borderLeftWidth={active ? '2px' : undefined}
       borderLeftColor={active ? 'primary' : undefined}
       style={{ height: 56 }}

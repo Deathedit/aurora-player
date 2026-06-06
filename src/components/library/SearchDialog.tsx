@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Dialog, Portal, Text, chakra } from '@chakra-ui/react';
+import { usePlayer } from '@/contexts/player-context';
 import { TrackRow } from '@/components/library/TrackRow';
 import { NO_RESULTS, SEARCH_LIBRARY, SEARCH_PLACEHOLDER } from '@/constants/text';
 import type { Track } from '@/types';
@@ -7,8 +8,11 @@ import type { Track } from '@/types';
 const MAX_RESULTS = 50;
 
 export function SearchDialog({ tracks, nowPlayingOpen = false }: { tracks: Track[]; nowPlayingOpen?: boolean }) {
+  const { play } = usePlayer();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -29,14 +33,35 @@ export function SearchDialog({ tracks, nowPlayingOpen = false }: { tracks: Track
     return tracks.filter((t) => t.title.toLowerCase().includes(q)).slice(0, MAX_RESULTS);
   }, [tracks, query]);
 
+  useEffect(() => {
+    (listRef.current?.children[selectedIndex] as HTMLElement | undefined)?.scrollIntoView?.({ block: 'nearest' });
+  }, [selectedIndex]);
+
   const close = () => {
     setOpen(false);
     setQuery('');
   };
 
+  const onInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((i) => Math.min(i + 1, results.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter') {
+      const t = results[selectedIndex];
+      if (t) {
+        play(t.id);
+        close();
+      }
+    }
+  };
+
   return (
     <Dialog.Root open={open} onOpenChange={(e) => !e.open && close()}>
       <Portal>
+        <Dialog.Backdrop layerStyle="glassBackdrop" position="fixed" inset="0" zIndex={40} />
         <Dialog.Positioner padding={{ base: '4', md: '16' }} alignItems="flex-start">
           <Dialog.Content
             layerStyle="glassElevated"
@@ -53,7 +78,11 @@ export function SearchDialog({ tracks, nowPlayingOpen = false }: { tracks: Track
             <chakra.input
               ref={focusRef}
               value={query}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setQuery(e.target.value);
+                setSelectedIndex(0);
+              }}
+              onKeyDown={onInputKeyDown}
               placeholder={SEARCH_PLACEHOLDER}
               w="full"
               px="3"
@@ -69,6 +98,7 @@ export function SearchDialog({ tracks, nowPlayingOpen = false }: { tracks: Track
             />
             {query.trim() && (
               <Box
+                ref={listRef}
                 maxH="60dvh"
                 overflowY="auto"
                 onClick={close}
@@ -79,7 +109,7 @@ export function SearchDialog({ tracks, nowPlayingOpen = false }: { tracks: Track
                     {NO_RESULTS}
                   </Text>
                 ) : (
-                  results.map((t, i) => <TrackRow key={t.id} track={t} index={i} />)
+                  results.map((t, i) => <TrackRow key={t.id} track={t} index={i} selected={i === selectedIndex} />)
                 )}
               </Box>
             )}

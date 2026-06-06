@@ -13,6 +13,7 @@ vi.mock('@chakra-ui/react', async (orig) => {
     ...actual,
     Portal: Pass,
     Dialog: {
+      Backdrop: Pass,
       Root: ({
         open,
         children,
@@ -136,6 +137,45 @@ describe('SearchDialog', () => {
 
     fireEvent.click(screen.getByTestId('dialog-dismiss'));
     expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
+  });
+
+  it('moves the highlight with arrow keys and plays the selection on Enter', () => {
+    const play = vi.fn();
+    renderWithPlayer(<SearchDialog tracks={lib} />, { player: player({ play }) });
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    const input = screen.getByPlaceholderText(/search/i);
+    fireEvent.change(input, { target: { value: 'a' } });
+
+    const rowOf = (title: string) => screen.getByText(title).closest('[role="button"]')!;
+    expect(rowOf('Bohemian Rhapsody').getAttribute('aria-selected')).toBe('true');
+    expect(rowOf('Stairway to Heaven').getAttribute('aria-selected')).toBe('false');
+
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    expect(rowOf('Stairway to Heaven').getAttribute('aria-selected')).toBe('true');
+
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    expect(rowOf('Stairway to Heaven').getAttribute('aria-selected')).toBe('true');
+
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    expect(rowOf('Bohemian Rhapsody').getAttribute('aria-selected')).toBe('true');
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(play).toHaveBeenCalledWith('a');
+    expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
+  });
+
+  it('ignores Enter and other keys in the input when there are no matches', () => {
+    const play = vi.fn();
+    renderWithPlayer(<SearchDialog tracks={lib} />, { player: player({ play }) });
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    const input = screen.getByPlaceholderText(/search/i);
+    fireEvent.change(input, { target: { value: 'zzz' } });
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+    fireEvent.keyDown(input, { key: 'x' });
+    expect(play).not.toHaveBeenCalled();
+    expect(screen.getByPlaceholderText(/search/i)).toBeTruthy();
   });
 
   it('ignores Ctrl+K while NowPlaying is fullscreen', () => {

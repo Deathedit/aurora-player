@@ -120,6 +120,18 @@ const config = defineConfig({
           },
         },
       },
+      glassBackdrop: {
+        value: {
+          background: 'color-mix(in oklch, {colors.background} / 40%, transparent)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          _noGlass: {
+            backdropFilter: 'none',
+            WebkitBackdropFilter: 'none',
+            background: 'rgba(0, 0, 0, 0.6)',
+          },
+        },
+      },
       accentGradient: {
         value: {
           background: 'linear-gradient(120deg, {colors.accentGradientStart}, {colors.accentGradientEnd})',
