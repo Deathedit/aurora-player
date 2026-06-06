@@ -77,10 +77,7 @@ describe('Library page', () => {
 
   it('reveals the search box on Ctrl+K and filters by title, restoring on Escape', () => {
     vi.mocked(useLibrarySource).mockReturnValue({ mode: 'local' } as LibrarySource);
-    const lib = [
-      track({ id: 'a', title: 'Bohemian Rhapsody' }),
-      track({ id: 'b', title: 'Stairway to Heaven' }),
-    ];
+    const lib = [track({ id: 'a', title: 'Bohemian Rhapsody' }), track({ id: 'b', title: 'Stairway to Heaven' })];
     renderWithPlayer(<Library scrollParent={scrollParent()} />, { player: player(lib) });
 
     expect(screen.queryByPlaceholderText(/search/i)).toBeNull();
